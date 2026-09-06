@@ -1,9 +1,12 @@
 {
-  "redirects": [
+  "rewrites": [
     {
       "source": "/",
-      "destination": "/app/index.html",
-      "permanent": false
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/sw.js",
+      "destination": "/app/sw.js"
     }
   ]
 }
