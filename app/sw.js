@@ -5,7 +5,7 @@ const ASSETS = [
   '/data/youtube_ids.json',
   '/app/manifest.json',
   '/app/search-worker.js',
-  '/app/favicon.svg',
+  '/assets/favicon.svg',
 ];
 
 self.addEventListener('install', event => {

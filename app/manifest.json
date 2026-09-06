@@ -10,7 +10,7 @@
   "lang": "th",
   "icons": [
     {
-      "src": "/app/favicon.svg",
+      "src": "/assets/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }
