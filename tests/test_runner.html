@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thungara — Search Engine Test Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #F59E0B;
+  --primary-dark: #D97706;
+  --bg: #FFFBF0;
+  --card: #FFFFFF;
+  --text: #1F2937;
+  --text-muted: #6B7280;
+  --border: #E5E7EB;
+  --green: #10B981;
+  --green-bg: #ECFDF5;
+  --red: #EF4444;
+  --red-bg: #FEF2F2;
+  --shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F0F14;
+    --card: #1A1A22;
+    --text: #F3F4F6;
+    --text-muted: #9CA3AF;
+    --border: #2D2D3A;
+    --green-bg: #064E3B;
+    --red-bg: #7F1D1D;
+    --shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Prompt', sans-serif; }
+body { background: var(--bg); color: var(--text); padding: 24px 16px 80px; }
+.container { max-width: 860px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 28px; }
+header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; }
+header p { color: var(--text-muted); font-size: 0.95rem; }
+
+.dashboard {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.stat-box {
+  background: var(--bg);
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.stat-box .num { font-size: 1.8rem; font-weight: 700; }
+.stat-box .lbl { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.num.green { color: var(--green); }
+.num.red { color: var(--red); }
+.num.amber { color: var(--primary); }
+
+.progress-bar-wrap {
+  height: 10px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--green), #059669);
+  transition: width 0.3s;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.btn {
+  background: var(--primary);
+  color: #FFF;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: opacity 0.2s;
+}
+.btn:hover { opacity: 0.9; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.category-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.category-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.test-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.test-row:last-child { border-bottom: none; }
+.test-info { flex: 1; }
+.test-name { font-weight: 500; margin-bottom: 2px; }
+.test-detail { font-size: 0.8rem; color: var(--text-muted); }
+.badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+.badge.pass { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+.badge.fail { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
+.badge.pending { background: var(--border); color: var(--text-muted); }
+.badge.latency { background: rgba(245,158,11,0.15); color: var(--primary-dark); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Thungara Search Test Suite 🎵</h1>
+    <p>ระบบตรวจสอบและทดสอบความถูกต้องของ Search Engine ผ่าน Web Worker</p>
+  </header>
+
+  <div class="dashboard">
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="num" id="stat-total">0</div>
+        <div class="lbl">จำนวนการทดสอบ</div>
+      </div>
+      <div class="stat-box">
+        <div class="num green" id="stat-pass">0</div>
+        <div class="lbl">ผ่าน (Passed)</div>
+      </div>
+      <div class="stat-box">
+        <div class="num red" id="stat-fail">0</div>
+        <div class="lbl">ไม่ผ่าน (Failed)</div>
+      </div>
+      <div class="stat-box">
+        <div class="num amber" id="stat-rate">0%</div>
+        <div class="lbl">อัตราความสำเร็จ</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-latency">- ms</div>
+        <div class="lbl">เวลาเฉลี่ย (Latency)</div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="controls">
+      <div id="status-text" style="font-size:0.85rem; color:var(--text-muted)">กำลังเตรียมพร้อม...</div>
+      <button class="btn" id="btn-run" onclick="startTests()">รันการทดสอบใหม่</button>
+    </div>
+  </div>
+
+  <div id="test-results"></div>
+</div>
+
+<script>
+let DATA = null;
+let worker = null;
+let workerReady = false;
+
+async function init() {
+  document.getElementById('status-text').textContent = 'กำลังโหลด data.json...';
+  const res = await fetch('../data/data.json');
+  DATA = await res.json();
+
+  document.getElementById('status-text').textContent = 'กำลังเริ่มต้น Web Worker...';
+  worker = new Worker('../app/search-worker.js');
+  worker.postMessage({ type: 'init', payload: DATA });
+  worker.onmessage = function(e) {
+    if (e.data.type === 'ready') {
+      workerReady = true;
+      document.getElementById('status-text').textContent = 'พร้อมสำหรับการทดสอบ';
+      startTests();
+    }
+  };
+}
+
+function workerSearch(query, filterArtist = '', filterEmotion = '', filterYear = '') {
+  return new Promise((resolve) => {
+    const handler = function(e) {
+      if (e.data.type === 'results') {
+        worker.removeEventListener('message', handler);
+        resolve(e.data.payload);
+      }
+    };
+    worker.addEventListener('message', handler);
+    worker.postMessage({
+      type: 'search',
+      payload: { query, filterArtist, filterEmotion, filterYear }
+    });
+  });
+}
+
+const TEST_CASES = [
+  {
+    category: "1. ค้นหาด้วยชื่อเพลงโดยตรง (Direct Title Search)",
+    name: "ค้นหาชื่อเพลง 'ขอใจกันหนาว' ต้องขึ้นอันดับ 1",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว");
+      const top = res.length > 0 ? DATA.songs[res[0].idx].title : "";
+      return { pass: top === "ขอใจกันหนาว", detail: `อันดับ 1: ${top || "ไม่พบ"}` };
+    }
+  },
+  {
+    category: "1. ค้นหาด้วยชื่อเพลงโดยตรง (Direct Title Search)",
+    name: "ค้นหาชื่อเพลง 'คิดถึงคนต้นทาง' ต้องขึ้นอันดับ 1",
+    run: async () => {
+      const res = await workerSearch("คิดถึงคนต้นทาง");
+      const top = res.length > 0 ? DATA.songs[res[0].idx].title : "";
+      return { pass: top === "คิดถึงคนต้นทาง", detail: `อันดับ 1: ${top || "ไม่พบ"}` };
+    }
+  },
+  {
+    category: "1. ค้นหาด้วยชื่อเพลงโดยตรง (Direct Title Search)",
+    name: "ค้นหาชื่อเพลง 'ดอกหญ้าในป่าปูน' ต้องขึ้นอันดับ 1",
+    run: async () => {
+      const res = await workerSearch("ดอกหญ้าในป่าปูน");
+      const top = res.length > 0 ? DATA.songs[res[0].idx].title : "";
+      return { pass: top === "ดอกหญ้าในป่าปูน", detail: `อันดับ 1: ${top || "ไม่พบ"}` };
+    }
+  },
+  {
+    category: "1. ค้นหาด้วยชื่อเพลงโดยตรง (Direct Title Search)",
+    name: "ค้นหาชื่อเพลงบางส่วน 'ดอกหญ้า' ต้องพบ 'ดอกหญ้าในป่าปูน'",
+    run: async () => {
+      const res = await workerSearch("ดอกหญ้า");
+      const titles = res.slice(0, 3).map(r => DATA.songs[r.idx].title);
+      return { pass: titles.some(t => t.includes("ดอกหญ้า")), detail: `ผลลัพธ์: ${titles.join(', ')}` };
+    }
+  },
+
+  {
+    category: "2. ความทนทานต่อช่องว่างและการขึ้นบรรทัดใหม่ (Whitespace & Newline)",
+    name: "ค้นหาแบบเว้นวรรคปกติ 'เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย'",
+    run: async () => {
+      const res = await workerSearch("เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย");
+      const top = res.length > 0 ? DATA.songs[res[0].idx].title : "";
+      return { pass: top === "ขอใจกันหนาว", detail: `อันดับ 1: ${top}` };
+    }
+  },
+  {
+    category: "2. ความทนทานต่อช่องว่างและการขึ้นบรรทัดใหม่ (Whitespace & Newline)",
+    name: "ค้นหาแบบไม่มีช่องว่าง 'เมื่อเลิกงานเดินเหงามีเงาเป็นเพื่อนเข้าซอย'",
+    run: async () => {
+      const res = await workerSearch("เมื่อเลิกงานเดินเหงามีเงาเป็นเพื่อนเข้าซอย");
+      const top = res.length > 0 ? DATA.songs[res[0].idx].title : "";
+      return { pass: top === "ขอใจกันหนาว", detail: `อันดับ 1: ${top}` };
+    }
+  },
+  {
+    category: "2. ความทนทานต่อช่องว่างและการขึ้นบรรทัดใหม่ (Whitespace & Newline)",
+    name: "ค้นหาประโยคที่คร่อมรอยต่อบรรทัด (\\n) 'มีเงาเป็นเพื่อนเข้าซอย ผู้สาวบ้านไกลใจลอย'",
+    run: async () => {
+      const res = await workerSearch("มีเงาเป็นเพื่อนเข้าซอย ผู้สาวบ้านไกลใจลอย");
+      const top = res.length > 0 ? DATA.songs[res[0].idx].title : "";
+      return { pass: top === "ขอใจกันหนาว", detail: `อันดับ 1: ${top}` };
+    }
+  },
+
+  {
+    category: "3. การค้นหาคำซ้ำและประโยคซ้ำ (Repeated Phrases)",
+    name: "ค้นหาคำซ้ำ 'คิดถึง คิดถึง'",
+    run: async () => {
+      const res = await workerSearch("คิดถึง คิดถึง");
+      return { pass: res.length > 0, detail: `พบ ${res.length} เพลง` };
+    }
+  },
+  {
+    category: "3. การค้นหาคำซ้ำและประโยคซ้ำ (Repeated Phrases)",
+    name: "ค้นหาคำซ้ำ 'ฮักเด้อ ฮักเด้อ'",
+    run: async () => {
+      const res = await workerSearch("ฮักเด้อ ฮักเด้อ");
+      return { pass: res.length > 0, detail: `พบ ${res.length} เพลง` };
+    }
+  },
+
+  {
+    category: "4. การแปลงคำพ้องและภาษาถิ่นอีสาน (Isan / Dialect Synonyms)",
+    name: "ค้นหาไทยกลาง 'คิดถึงเธอ' ต้องจับคู่เจอเพลงที่มีคำว่า 'คิดฮอด' / 'คิดถึง'",
+    run: async () => {
+      const res = await workerSearch("คิดถึงเธอ");
+      const topLyrics = res.slice(0, 5).map(r => DATA.songs[r.idx].lyrics);
+      const pass = topLyrics.some(l => l.includes("คิดฮอด") || l.includes("คิดถึง"));
+      return { pass, detail: `พบบทเพลงที่เกี่ยวข้องใน 5 อันดับแรก` };
+    }
+  },
+  {
+    category: "4. การแปลงคำพ้องและภาษาถิ่นอีสาน (Isan / Dialect Synonyms)",
+    name: "ค้นหาไทยกลาง 'ไม่รัก' ต้องจับคู่เจอเพลงที่มีคำว่า 'บ่ฮัก' / 'ไม่รัก'",
+    run: async () => {
+      const res = await workerSearch("ไม่รัก");
+      const topLyrics = res.slice(0, 5).map(r => DATA.songs[r.idx].lyrics);
+      const pass = topLyrics.some(l => l.includes("บ่") || l.includes("ไม่"));
+      return { pass, detail: `พบบทเพลงที่เกี่ยวข้องใน 5 อันดับแรก` };
+    }
+  },
+
+  {
+    category: "5. การทนต่อคำเพี้ยน/พิมพ์ผิด (Typo Tolerance เช่น ความ vs ควาย)",
+    name: "พิมพ์ผิด 'ควายรัก' (แทนที่ 'ความรัก') ต้องดึงเพลงที่มี 'ความรัก' ขึ้นมาได้",
+    run: async () => {
+      const res = await workerSearch("ควายรัก");
+      const topLyrics = res.slice(0, 5).map(r => DATA.songs[r.idx].lyrics);
+      const pass = topLyrics.some(l => l.includes("ความรัก"));
+      return { pass, detail: `เพลงที่มี 'ความรัก' ติดอันดับต้นๆ` };
+    }
+  },
+  {
+    category: "5. การทนต่อคำเพี้ยน/พิมพ์ผิด (Typo Tolerance เช่น ความ vs ควาย)",
+    name: "วรรณยุกต์เพี้ยน 'เคียงค้างบนทางเปื้อนฝุ่น' ต้องดึงเพลง 'ขอใจกันหนาว'",
+    run: async () => {
+      const res = await workerSearch("เคียงค้างบนทางเปื้อนฝุ่น");
+      const top = res.slice(0, 3).map(r => DATA.songs[r.idx].title);
+      return { pass: top.includes("ขอใจกันหนาว"), detail: `ผลลัพธ์: ${top.join(', ')}` };
+    }
+  },
+  {
+    category: "5. การทนต่อคำเพี้ยน/พิมพ์ผิด (Typo Tolerance เช่น ความ vs ควาย)",
+    name: "สะกดเพี้ยนในชื่อเพลง 'ดอกยาในป่าปูน' ต้องดึงเพลง 'ดอกหญ้าในป่าปูน'",
+    run: async () => {
+      const res = await workerSearch("ดอกยาในป่าปูน");
+      const top = res.slice(0, 3).map(r => DATA.songs[r.idx].title);
+      return { pass: top.includes("ดอกหญ้าในป่าปูน"), detail: `ผลลัพธ์: ${top.join(', ')}` };
+    }
+  },
+
+  {
+    category: "6. ตัวกรองและการค้นหารวม (Filters & Metadata)",
+    name: "กรองเฉพาะศิลปิน 'ต่าย อรทัย' (ไม่พิมพ์คำค้น)",
+    run: async () => {
+      const res = await workerSearch("", "ต่าย อรทัย");
+      const allTai = res.length > 0 && res.every(r => DATA.songs[r.idx].artist === "ต่าย อรทัย");
+      return { pass: allTai, detail: `พบ ${res.length} เพลง ทุกเพลงเป็นของ ต่าย อรทัย` };
+    }
+  },
+  {
+    category: "6. ตัวกรองและการค้นหารวม (Filters & Metadata)",
+    name: "ค้นหาทั้งชื่อศิลปินและชื่อเพลง 'ต่าย อรทัย ขอใจกันหนาว'",
+    run: async () => {
+      const res = await workerSearch("ต่าย อรทัย ขอใจกันหนาว");
+      const top = res.length > 0 ? DATA.songs[res[0].idx].title : "";
+      return { pass: top === "ขอใจกันหนาว", detail: `อันดับ 1: ${top}` };
+    }
+  },
+  {
+    category: "6. ตัวกรองและการค้นหารวม (Filters & Metadata)",
+    name: "ค้นหาคำกว้าง 'ใจ' ต้องคืนผลลัพธ์ทั้งหมด (> 50 เพลง ไม่ถูกตัดตอน)",
+    run: async () => {
+      const res = await workerSearch("ใจ");
+      return { pass: res.length > 50, detail: `พบทั้งหมด ${res.length} เพลง (เกินขีดจำกัดเดิม 50 เพลง)` };
+    }
+  },
+
+  {
+    category: "7. ประสิทธิภาพและความเร็ว (Performance Benchmark)",
+    name: "ความเร็วเฉลี่ยในการค้นหา 1,500 เพลง ต้องต่ำกว่า 25ms",
+    run: async () => {
+      const queries = ["ขอใจกันหนาว", "เมื่อเลิกงานเดินเหงามีเงา", "ควายรัก", "คิดถึงคนต้นทาง", "บ่ฮัก"];
+      const times = [];
+      for (const q of queries) {
+        const t0 = performance.now();
+        await workerSearch(q);
+        const t1 = performance.now();
+        times.push(t1 - t0);
+      }
+      const avg = times.reduce((a,b) => a+b, 0) / times.length;
+      return { pass: avg < 25.0, detail: `ความเร็วเฉลี่ย: ${avg.toFixed(2)} ms (เป้าหมาย < 25ms)` };
+    }
+  }
+];
+
+async function startTests() {
+  if (!workerReady) return;
+  const btn = document.getElementById('btn-run');
+  btn.disabled = true;
+
+  const resultsDiv = document.getElementById('test-results');
+  resultsDiv.innerHTML = '';
+
+  let passed = 0;
+  let failed = 0;
+  const total = TEST_CASES.length;
+  const latencies = [];
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pass').textContent = 0;
+  document.getElementById('stat-fail').textContent = 0;
+  document.getElementById('stat-rate').textContent = '0%';
+  document.getElementById('progress-bar').style.width = '0%';
+
+  const categories = {};
+  TEST_CASES.forEach((tc, idx) => {
+    if (!categories[tc.category]) categories[tc.category] = [];
+    categories[tc.category].push({ ...tc, idx });
+  });
+
+  for (const [catName, tests] of Object.entries(categories)) {
+    const card = document.createElement('div');
+    card.className = 'category-card';
+    let rowsHtml = '';
+    tests.forEach(t => {
+      rowsHtml += `
+        <div class="test-row" id="row-${t.idx}">
+          <div class="test-info">
+            <div class="test-name">${t.name}</div>
+            <div class="test-detail" id="detail-${t.idx}">กำลังรอคิว...</div>
+          </div>
+          <span class="badge pending" id="badge-${t.idx}">PENDING</span>
+        </div>
+      `;
+    });
+    card.innerHTML = `<div class="category-header"><span>📌</span> ${catName}</div>${rowsHtml}`;
+    resultsDiv.appendChild(card);
+  }
+
+  for (let i = 0; i < total; i++) {
+    const tc = TEST_CASES[i];
+    document.getElementById(`badge-${i}`).textContent = 'RUNNING';
+    document.getElementById(`detail-${i}`).textContent = 'กำลังประมวลผล...';
+
+    const tStart = performance.now();
+    let res = { pass: false, detail: 'Error' };
+    try {
+      res = await tc.run();
+    } catch (err) {
+      res = { pass: false, detail: err.message };
+    }
+    const tEnd = performance.now();
+    const duration = tEnd - tStart;
+    latencies.push(duration);
+
+    if (res.pass) {
+      passed++;
+      document.getElementById(`badge-${i}`).className = 'badge pass';
+      document.getElementById(`badge-${i}`).textContent = 'PASS';
+    } else {
+      failed++;
+      document.getElementById(`badge-${i}`).className = 'badge fail';
+      document.getElementById(`badge-${i}`).textContent = 'FAIL';
+    }
+    document.getElementById(`detail-${i}`).textContent = `${res.detail} (${duration.toFixed(1)}ms)`;
+
+    document.getElementById('stat-pass').textContent = passed;
+    document.getElementById('stat-fail').textContent = failed;
+    const rate = Math.round((passed / (i + 1)) * 100);
+    document.getElementById('stat-rate').textContent = `${rate}%`;
+    document.getElementById('progress-bar').style.width = `${Math.round(((i + 1) / total) * 100)}%`;
+  }
+
+  const avgLat = (latencies.reduce((a, b) => a + b, 0) / latencies.length).toFixed(1);
+  document.getElementById('stat-latency').textContent = `${avgLat} ms`;
+  document.getElementById('status-text').textContent = `การทดสอบเสร็จสมบูรณ์ (${passed}/${total} ผ่าน)`;
+  btn.disabled = false;
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
