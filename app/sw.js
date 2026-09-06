@@ -1,11 +1,10 @@
 const CACHE_NAME = 'thungara-v11';
 const ASSETS = [
-  './',
-  './index.html',
-  '../data/data.json',
-  '../data/youtube_ids.json',
-  './manifest.json',
-  './search-worker.js',
+  '/app/index.html',
+  '/data/data.json',
+  '/data/youtube_ids.json',
+  '/app/manifest.json',
+  '/app/search-worker.js',
 ];
 
 self.addEventListener('install', event => {

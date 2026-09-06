@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Thungara</title>
 <link rel="icon" href="data:,">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="/app/manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1186,10 +1186,10 @@ function normalizeText(text) {
 
 async function loadData() {
   try {
-    const res = await fetch('../data/data.json');
+    const res = await fetch('/data/data.json');
     DATA = await res.json();
     try {
-      const ytRes = await fetch('../data/youtube_ids.json?v=' + Date.now());
+      const ytRes = await fetch('/data/youtube_ids.json?v=' + Date.now());
       if (ytRes.ok) YOUTUBE_MAP = await ytRes.json();
     } catch (e) {}
     vocabSet = new Set(DATA.vocab);
@@ -1206,7 +1206,7 @@ async function loadData() {
     populateFilters();
 
     if (window.Worker) {
-      searchWorker = new Worker('search-worker.js?v=' + Date.now());
+      searchWorker = new Worker('/app/search-worker.js?v=' + Date.now());
       searchWorker.postMessage({ type: 'init', payload: DATA });
       searchWorker.onmessage = function(e) {
         if (e.data.type === 'results') {
@@ -1994,7 +1994,8 @@ if ('caches' in window) {
 }
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(reg => {
+  const serviceWorkerPath = window.location.pathname === '/' ? '/sw.js' : 'sw.js';
+  navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
     reg.update();
   }).catch(() => {});
 }
