@@ -135,7 +135,7 @@ def cosine_similarity(vec_a, vec_b):
             dot += v * vec_b[k]
     return dot / (math.sqrt(mag_a) * math.sqrt(mag_b))
 
-def fuzzy_match_window(query_norm, target_norm, max_diff=1):
+def fuzzy_match_window(query_norm, target_norm, max_diff=1, allow_length_change=False):
     """
     Fast sliding window fuzzy match.
     Returns (matched, diff) where diff <= max_diff.
@@ -143,7 +143,7 @@ def fuzzy_match_window(query_norm, target_norm, max_diff=1):
     """
     n = len(query_norm)
     t_len = len(target_norm)
-    if t_len < n or n < 3:
+    if n < 3 or t_len < n - max_diff:
         return False, 999
 
     bg0 = query_norm[:2]
@@ -160,17 +160,49 @@ def fuzzy_match_window(query_norm, target_norm, max_diff=1):
         pos = target_norm.find(bg)
         checks_count = 0
         while pos != -1 and checks_count < 4:
-            start_idx = max(0, pos - offset)
-            if start_idx not in checked and start_idx + n <= t_len:
-                checked.add(start_idx)
-                sub = target_norm[start_idx:start_idx+n]
-                diff = sum(c1 != c2 for c1, c2 in zip(query_norm, sub))
-                if diff <= max_diff:
-                    return True, diff
-                checks_count += 1
+            base_start = max(0, pos - offset)
+            for shift in range(-1 if allow_length_change else 0, 2 if allow_length_change else 1):
+                start_idx = base_start + shift
+                for length_delta in range(-max_diff if allow_length_change else 0, max_diff + 1 if allow_length_change else 1):
+                    length = n + length_delta
+                    key = (start_idx, length)
+                    if start_idx < 0 or length < 1 or start_idx + length > t_len or key in checked:
+                        continue
+                    checked.add(key)
+                    sub = target_norm[start_idx:start_idx + length]
+                    diff = (sum(c1 != c2 for c1, c2 in zip(query_norm, sub))
+                            if length == n else edit_distance_at_most(query_norm, sub, max_diff))
+                    if length == n and diff > max_diff:
+                        diff = None
+                    if diff is not None:
+                        return True, diff
+            checks_count += 1
             pos = target_norm.find(bg, pos + 1)
 
     return False, 999
+
+
+def edit_distance_at_most(text_a, text_b, max_distance):
+    if abs(len(text_a) - len(text_b)) > max_distance:
+        return None
+    a = b = distance = 0
+    while a < len(text_a) and b < len(text_b):
+        if text_a[a] == text_b[b]:
+            a += 1
+            b += 1
+            continue
+        distance += 1
+        if distance > max_distance:
+            return None
+        if len(text_a) > len(text_b):
+            a += 1
+        elif len(text_b) > len(text_a):
+            b += 1
+        else:
+            a += 1
+            b += 1
+    distance += (len(text_a) - a) + (len(text_b) - b)
+    return distance if distance <= max_distance else None
 
 def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
     """
@@ -238,7 +270,7 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                     score += 0.1 * min(count - 1, 3)
 
         if norm_q and not exact_lyrics_match and not exact_title_match and len(norm_q) >= 3:
-            f_title, diff_t = fuzzy_match_window(norm_q, ns['norm_title'], max_diff=1)
+            f_title, diff_t = fuzzy_match_window(norm_q, ns['norm_title'], max_diff=1, allow_length_change=True)
             if f_title:
                 score += 0.8
 
@@ -408,6 +440,13 @@ def run_all_tests():
         "Typo in title: 'ดอกยาในป่าปูน' (typo for 'ดอกหญ้าในป่าปูน') retrieves 'ดอกหญ้าในป่าปูน'",
         any(r['title'] == 'ดอกหญ้าในป่าปูน' for r in res_typo3[:3]),
         f"Top matches: {[r['title'] for r in res_typo3[:3]]}"
+    )
+
+    res_typo4 = enhanced_search("ขอบใจกันหนาว")
+    report.assert_test(
+        "Inserted character typo: 'ขอบใจกันหนาว' retrieves 'ขอใจกันหนาว'",
+        any(r['title'] == 'ขอใจกันหนาว' for r in res_typo4[:3]),
+        f"Top matches: {[r['title'] for r in res_typo4[:3]]}"
     )
 
     print("\nCategory 6: Artist & Metadata Filters")

@@ -125,10 +125,10 @@ function cosineSim(vecA, vecB) {
   return dot / (Math.sqrt(magA) * Math.sqrt(magB));
 }
 
-function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1) {
+function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1, allowLengthChange = false) {
   const n = queryNorm.length;
   const tLen = targetNorm.length;
-  if (tLen < n || n < 3) return false;
+  if (n < 3 || tLen < n - maxDiff) return false;
 
   const bg0 = queryNorm.substring(0, 2);
   const bg1 = n >= 3 ? queryNorm.substring(1, 3) : '';
@@ -145,26 +145,52 @@ function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1) {
     let pos = targetNorm.indexOf(bg);
     let checksCount = 0;
     while (pos !== -1 && checksCount < 4) {
-      const startIdx = Math.max(0, pos - offset);
-      if (!checked.has(startIdx) && startIdx + n <= tLen) {
-        checked.add(startIdx);
-        const sub = targetNorm.substring(startIdx, startIdx + n);
-        let diff = 0;
-        for (let k = 0; k < n; k++) {
-          if (queryNorm.charCodeAt(k) !== sub.charCodeAt(k)) {
-            diff++;
-            if (diff > maxDiff) break;
-          }
+      const baseStart = Math.max(0, pos - offset);
+      for (let shift = allowLengthChange ? -1 : 0; shift <= (allowLengthChange ? 1 : 0); shift++) {
+        const startIdx = baseStart + shift;
+        for (let lengthDelta = allowLengthChange ? -maxDiff : 0; lengthDelta <= (allowLengthChange ? maxDiff : 0); lengthDelta++) {
+          const length = n + lengthDelta;
+          const key = startIdx + ':' + length;
+          if (startIdx < 0 || length < 1 || startIdx + length > tLen || checked.has(key)) continue;
+          checked.add(key);
+          const sub = targetNorm.substring(startIdx, startIdx + length);
+          if (length === n) {
+            let diff = 0;
+            for (let k = 0; k < n; k++) {
+              if (queryNorm[k] !== sub[k] && ++diff > maxDiff) break;
+            }
+            if (diff <= maxDiff) return true;
+          } else if (editDistanceAtMost(queryNorm, sub, maxDiff)) return true;
         }
-        if (diff <= maxDiff) {
-          return true;
-        }
-        checksCount++;
       }
+      checksCount++;
       pos = targetNorm.indexOf(bg, pos + 1);
     }
   }
   return false;
+}
+
+function editDistanceAtMost(textA, textB, maxDistance) {
+  if (Math.abs(textA.length - textB.length) > maxDistance) return false;
+  let a = 0;
+  let b = 0;
+  let distance = 0;
+  while (a < textA.length && b < textB.length) {
+    if (textA[a] === textB[b]) {
+      a++;
+      b++;
+      continue;
+    }
+    distance++;
+    if (distance > maxDistance) return false;
+    if (textA.length > textB.length) a++;
+    else if (textB.length > textA.length) b++;
+    else {
+      a++;
+      b++;
+    }
+  }
+  return distance + (textA.length - a) + (textB.length - b) <= maxDistance;
 }
 
 function countOccurrences(str, sub) {
@@ -245,7 +271,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
       }
 
       if (!exactLyricsMatch && !exactTitleMatch && normQ.length >= 3) {
-        if (fuzzyMatchWindow(normQ, ns.normTitle, 1)) {
+        if (fuzzyMatchWindow(normQ, ns.normTitle, 1, true)) {
           score += 0.8;
         }
         if (fuzzyMatchWindow(normQ, ns.normLyrics, 1)) {
