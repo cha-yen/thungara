@@ -1479,6 +1479,14 @@ function renderResults(results, query) {
   appendNextBatch(query);
 }
 
+function getMatchPercent(score) {
+  const maxScore = currentResults.length
+    ? Math.max(...currentResults.map(result => result.score))
+    : 0;
+  if (maxScore <= 0) return 0;
+  return Math.min(100, Math.max(1, Math.round((score / maxScore) * 100)));
+}
+
 function appendNextBatch(query) {
   const cardsWrap = document.getElementById('song-cards-wrap');
   const loadMoreWrap = document.getElementById('load-more-wrap');
@@ -1493,7 +1501,7 @@ function appendNextBatch(query) {
   for (let i = 0; i < nextBatch.length; i++) {
     const r = nextBatch[i];
     const song = DATA.songs[r.idx];
-    const pct = Math.min(100, Math.max(1, Math.round(r.score * 100)));
+    const pct = getMatchPercent(r.score);
     const preview = highlightText(getPreview(song.lyrics, query), query);
     const delay = Math.min(i * 0.03, 0.4);
 
