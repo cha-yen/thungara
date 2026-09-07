@@ -1362,6 +1362,69 @@ function editDistanceAtMost(textA, textB, maxDistance) {
   return distance + (textA.length - a) + (textB.length - b) <= maxDistance;
 }
 
+function findFuzzyRange(queryNorm, targetNorm, maxDiff = 1, allowLengthChange = false) {
+  const n = queryNorm.length;
+  const tLen = targetNorm.length;
+  if (n < 3 || tLen < n - maxDiff) return null;
+
+  const bigrams = [queryNorm.substring(0, 2)];
+  if (n >= 3) bigrams.push(queryNorm.substring(1, 3));
+  const checked = new Set();
+
+  for (let offset = 0; offset < bigrams.length; offset++) {
+    const bigram = bigrams[offset];
+    let position = targetNorm.indexOf(bigram);
+    let checks = 0;
+    while (position !== -1 && checks < 4) {
+      const baseStart = Math.max(0, position - offset);
+      for (let shift = allowLengthChange ? -1 : 0; shift <= (allowLengthChange ? 1 : 0); shift++) {
+        const start = baseStart + shift;
+        for (let lengthDelta = allowLengthChange ? -maxDiff : 0; lengthDelta <= (allowLengthChange ? maxDiff : 0); lengthDelta++) {
+          const length = n + lengthDelta;
+          const key = start + ':' + length;
+          if (start < 0 || length < 1 || start + length > tLen || checked.has(key)) continue;
+          checked.add(key);
+          const sub = targetNorm.substring(start, start + length);
+          let matches = false;
+          if (length === n) {
+            let diff = 0;
+            for (let i = 0; i < n; i++) {
+              if (queryNorm[i] !== sub[i] && ++diff > maxDiff) break;
+            }
+            matches = diff <= maxDiff;
+          } else {
+            matches = editDistanceAtMost(queryNorm, sub, maxDiff);
+          }
+          if (matches) return { start, length };
+        }
+      }
+      checks++;
+      position = targetNorm.indexOf(bigram, position + 1);
+    }
+  }
+  return null;
+}
+
+function highlightFuzzyRange(text, query) {
+  const queryNorm = normalizeText(query);
+  const targetNorm = normalizeText(text);
+  if (queryNorm.length < 4 || targetNorm.includes(queryNorm)) return null;
+  const match = findFuzzyRange(queryNorm, targetNorm, 1, true);
+  if (!match) return null;
+
+  const originalIndexes = [];
+  for (let i = 0; i < text.length; i++) {
+    if (/[฀-๿a-z0-9]/i.test(text[i])) originalIndexes.push(i);
+  }
+  const start = originalIndexes[match.start];
+  const endIndex = match.start + match.length - 1;
+  if (start === undefined || originalIndexes[endIndex] === undefined) return null;
+  const end = originalIndexes[endIndex] + 1;
+  return esc(text.substring(0, start))
+    + '<mark>' + esc(text.substring(start, end)) + '</mark>'
+    + esc(text.substring(end));
+}
+
 function countOccurrences(str, sub) {
   if (!sub || !str) return 0;
   let count = 0, pos = 0;
@@ -1581,6 +1644,24 @@ function getPreview(lyrics, query) {
     return (start > 0 ? '...' : '') + lyrics.substring(start, end) + (end < lyrics.length ? '...' : '');
   }
 
+  const normalizedQuery = normalizeText(rawQ);
+  if (normalizedQuery.length >= 3) {
+    const normalizedLyrics = normalizeText(lyrics);
+    const fuzzyMatch = findFuzzyRange(normalizedQuery, normalizedLyrics, 1, true);
+    if (fuzzyMatch) {
+      let normCount = 0, fuzzyOrigIdx = 0;
+      for (let i = 0; i < lyrics.length; i++) {
+        if (/[฀-๿a-z0-9]/i.test(lyrics[i])) {
+          if (normCount === fuzzyMatch.start) { fuzzyOrigIdx = i; break; }
+          normCount++;
+        }
+      }
+      const start = Math.max(0, fuzzyOrigIdx - 40);
+      const end = Math.min(lyrics.length, fuzzyOrigIdx + fuzzyMatch.length + 80);
+      return (start > 0 ? '...' : '') + lyrics.substring(start, end) + (end < lyrics.length ? '...' : '');
+    }
+  }
+
   const tokens = tokenizeQuery(rawQ);
   const candidates = [...tokens];
   for (const t of tokens) {
@@ -1616,6 +1697,20 @@ function getPreview(lyrics, query) {
       const end = Math.min(lyrics.length, origIdx + rawQ.length + 80);
       return (start > 0 ? '...' : '') + lyrics.substring(start, end) + (end < lyrics.length ? '...' : '');
     }
+
+    const fuzzyMatch = findFuzzyRange(normQ, normLyrics, 1, true);
+    if (fuzzyMatch) {
+      let normCount = 0, fuzzyOrigIdx = 0;
+      for (let i = 0; i < lyrics.length; i++) {
+        if (/[฀-๿a-z0-9]/i.test(lyrics[i])) {
+          if (normCount === fuzzyMatch.start) { fuzzyOrigIdx = i; break; }
+          normCount++;
+        }
+      }
+      const start = Math.max(0, fuzzyOrigIdx - 40);
+      const end = Math.min(lyrics.length, fuzzyOrigIdx + fuzzyMatch.length + 80);
+      return (start > 0 ? '...' : '') + lyrics.substring(start, end) + (end < lyrics.length ? '...' : '');
+    }
   }
 
   return lyrics.substring(0, 120) + (lyrics.length > 120 ? '...' : '');
@@ -1623,6 +1718,8 @@ function getPreview(lyrics, query) {
 
 function highlightText(text, query) {
   if (!query || !query.trim() || !text) return esc(text);
+  const fuzzyHighlight = highlightFuzzyRange(text, query);
+  if (fuzzyHighlight) return fuzzyHighlight;
   const rawQ = query.trim();
   const tokens = tokenizeQuery(rawQ);
   const wordsToHighlight = [rawQ, ...tokens];
