@@ -1479,12 +1479,14 @@ function renderResults(results, query) {
   appendNextBatch(query);
 }
 
-function getMatchPercent(score) {
-  const maxScore = currentResults.length
-    ? Math.max(...currentResults.map(result => result.score))
-    : 0;
-  if (maxScore <= 0) return 0;
-  return Math.min(100, Math.max(1, Math.round((score / maxScore) * 100)));
+function getMatchPercent(result) {
+  if (result.exactMatch) return 100;
+
+  const score = Math.max(0, result.score);
+  if (score === 0) return 1;
+
+  // Keep similarity scores below 100%; reserve 100% for direct matches.
+  return Math.min(99, Math.max(1, Math.round((score / (score + 1)) * 99)));
 }
 
 function appendNextBatch(query) {
@@ -1501,14 +1503,14 @@ function appendNextBatch(query) {
   for (let i = 0; i < nextBatch.length; i++) {
     const r = nextBatch[i];
     const song = DATA.songs[r.idx];
-    const pct = getMatchPercent(r.score);
+    const pct = query.trim() ? getMatchPercent(r) + '%' : '—';
     const preview = highlightText(getPreview(song.lyrics, query), query);
     const delay = Math.min(i * 0.03, 0.4);
 
     html += '<div class="song-card" style="animation-delay:'+delay+'s" onclick="openModal('+r.idx+')">'
       + '<div class="card-header">'
       + '<div class="song-title">' + highlightText(song.title, query) + '</div>'
-      + '<div class="match-score">' + pct + '%</div>'
+      + '<div class="match-score">' + pct + '</div>'
       + '</div>'
       + '<div class="song-artist">' + highlightText(song.artist, query) + '</div>'
       + '<div class="song-meta">'
