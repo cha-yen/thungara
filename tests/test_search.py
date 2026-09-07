@@ -221,6 +221,8 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
     raw_q = query.strip()
     norm_q = normalize_text(raw_q)
     tokens = tokenize_query(raw_q)
+    if raw_q and not tokens and len(norm_q) < 3:
+        return []
     
     expanded_tokens = list(tokens)
     for t in tokens:
@@ -470,6 +472,12 @@ def run_all_tests():
         "Total Results: Broad query 'ใจ' returns all matches (> 50 results, not capped)",
         len(res_broad) > 50,
         f"Found {len(res_broad)} matches (exceeding old 50 cap)"
+    )
+
+    report.assert_test(
+        "Short fragment 'าว' without a vocabulary token returns no results",
+        len(enhanced_search("าว")) == 0,
+        f"Results count: {len(enhanced_search('าว'))}"
     )
 
     print("\nCategory 7: Performance & Latency Benchmark")
