@@ -270,11 +270,12 @@ function search(query, filterArtist, filterEmotion, filterYear) {
     }
 
     const minThreshold = normQ ? 0.20 : 0.01;
+    const directLyricMatch = exactLyricsMatch && (normQ.length >= 6 || tokens.length >= 2);
     if (score >= minThreshold) {
       results.push({
         idx: i,
         score: score,
-        exactMatch: exactLyricsMatch || exactTitleMatch,
+        exactMatch: directLyricMatch || exactTitleMatch,
       });
     }
   }
