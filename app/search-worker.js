@@ -210,6 +210,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
 
   const normQ = normalizeText(rawQ);
   const tokens = tokenizeQuery(rawQ);
+  if (rawQ && tokens.length === 0 && normQ.length < 3) return [];
 
   const expandedTokens = [...tokens];
   for (const t of tokens) {
