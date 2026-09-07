@@ -1405,11 +1405,70 @@ function findFuzzyRange(queryNorm, targetNorm, maxDiff = 1, allowLengthChange = 
   return null;
 }
 
+function findLongestCommonRange(queryNorm, targetNorm, minLength = 2) {
+  let best = null;
+  const previous = new Array(targetNorm.length + 1).fill(0);
+  for (let queryIndex = 1; queryIndex <= queryNorm.length; queryIndex++) {
+    const current = new Array(targetNorm.length + 1).fill(0);
+    for (let targetIndex = 1; targetIndex <= targetNorm.length; targetIndex++) {
+      if (queryNorm[queryIndex - 1] !== targetNorm[targetIndex - 1]) continue;
+      current[targetIndex] = previous[targetIndex - 1] + 1;
+      if (!best || current[targetIndex] > best.length) {
+        best = { start: targetIndex - current[targetIndex], length: current[targetIndex] };
+      }
+    }
+    previous.splice(0, previous.length, ...current);
+  }
+  return best && best.length >= minLength ? best : null;
+}
+
+function findOverlapRange(queryNorm, targetNorm, minLength = 2) {
+  const previous = new Array(targetNorm.length + 1).fill(0);
+  const matchedIndexes = new Set();
+  for (let queryIndex = 1; queryIndex <= queryNorm.length; queryIndex++) {
+    const current = new Array(targetNorm.length + 1).fill(0);
+    for (let targetIndex = 1; targetIndex <= targetNorm.length; targetIndex++) {
+      if (queryNorm[queryIndex - 1] !== targetNorm[targetIndex - 1]) continue;
+      current[targetIndex] = previous[targetIndex - 1] + 1;
+      if (current[targetIndex] >= minLength) {
+        for (let i = targetIndex - current[targetIndex] + 1; i <= targetIndex; i++) matchedIndexes.add(i - 1);
+      }
+    }
+    previous.splice(0, previous.length, ...current);
+  }
+  if (!matchedIndexes.size) return null;
+  const indexes = [...matchedIndexes].sort((a, b) => a - b);
+  let bestStart = indexes[0];
+  let bestLength = 1;
+  let currentStart = indexes[0];
+  let currentLength = 1;
+  for (let i = 1; i < indexes.length; i++) {
+    if (indexes[i] === indexes[i - 1] + 1) {
+      currentLength++;
+    } else {
+      if (currentLength >= 4) return { start: currentStart, length: currentLength };
+      if (currentLength > bestLength) {
+        bestStart = currentStart;
+        bestLength = currentLength;
+      }
+      currentStart = indexes[i];
+      currentLength = 1;
+    }
+  }
+  if (currentLength >= 4) return { start: currentStart, length: currentLength };
+  if (currentLength > bestLength) {
+    bestStart = currentStart;
+    bestLength = currentLength;
+  }
+  return { start: bestStart, length: bestLength };
+}
+
 function highlightFuzzyRange(text, query) {
   const queryNorm = normalizeText(query);
   const targetNorm = normalizeText(text);
   if (queryNorm.length < 4 || targetNorm.includes(queryNorm)) return null;
-  const match = findFuzzyRange(queryNorm, targetNorm, 1, true);
+  const match = findFuzzyRange(queryNorm, targetNorm, 1, true)
+    || findOverlapRange(queryNorm, targetNorm);
   if (!match) return null;
 
   const originalIndexes = [];
@@ -1658,6 +1717,20 @@ function getPreview(lyrics, query) {
       }
       const start = Math.max(0, fuzzyOrigIdx - 40);
       const end = Math.min(lyrics.length, fuzzyOrigIdx + fuzzyMatch.length + 80);
+      return (start > 0 ? '...' : '') + lyrics.substring(start, end) + (end < lyrics.length ? '...' : '');
+    }
+
+    const sharedMatch = findOverlapRange(normalizedQuery, normalizedLyrics);
+    if (sharedMatch) {
+      let normCount = 0, sharedOrigIdx = 0;
+      for (let i = 0; i < lyrics.length; i++) {
+        if (/[฀-๿a-z0-9]/i.test(lyrics[i])) {
+          if (normCount === sharedMatch.start) { sharedOrigIdx = i; break; }
+          normCount++;
+        }
+      }
+      const start = Math.max(0, sharedOrigIdx - 40);
+      const end = Math.min(lyrics.length, sharedOrigIdx + sharedMatch.length + 80);
       return (start > 0 ? '...' : '') + lyrics.substring(start, end) + (end < lyrics.length ? '...' : '');
     }
   }
