@@ -123,63 +123,81 @@ def query_to_vector(tokens):
             vec[str(idx)] = (count / max_tf) * IDF[idx]
     return vec
 
-def cosine_similarity(vec_a, vec_b):
-    """Compute cosine similarity between two sparse vectors."""
-    dot = 0.0
-    mag_a = sum(v * v for v in vec_a.values())
-    mag_b = sum(v * v for v in vec_b.values())
-    if mag_a == 0 or mag_b == 0:
+VECTOR_MAGS = [math.sqrt(sum(v * v for v in vec.values())) for vec in VECTORS]
+
+def cosine_similarity(vec_a, vec_b, song_idx=None, mag_a=None):
+    """Compute cosine similarity between two sparse vectors with precomputed magnitude."""
+    if not vec_a or not vec_b:
         return 0.0
+    if mag_a is None:
+        mag_a = math.sqrt(sum(v * v for v in vec_a.values()))
+    if mag_a == 0:
+        return 0.0
+    mag_b = VECTOR_MAGS[song_idx] if song_idx is not None else math.sqrt(sum(v * v for v in vec_b.values()))
+    if mag_b == 0:
+        return 0.0
+    dot = 0.0
     for k, v in vec_a.items():
         if k in vec_b:
             dot += v * vec_b[k]
-    return dot / (math.sqrt(mag_a) * math.sqrt(mag_b))
+    if dot == 0:
+        return 0.0
+    return dot / (mag_a * mag_b)
 
 def fuzzy_match_window(query_norm, target_norm, max_diff=1, allow_length_change=False):
     """
     Fast sliding window fuzzy match.
-    Returns (matched, diff) where diff <= max_diff.
+    Returns (matched, diff, sub) where diff <= max_diff.
     Uses bigrams of query to jump directly to candidate positions.
     """
     n = len(query_norm)
     t_len = len(target_norm)
     if n < 3 or t_len < n - max_diff:
-        return False, 999
+        return False, 999, None
 
     bg0 = query_norm[:2]
     bg1 = query_norm[1:3] if n >= 3 else ''
     if bg0 not in target_norm and (not bg1 or bg1 not in target_norm):
-        return False, 999
+        return False, 999, None
 
     qbgs = [bg0]
     if bg1:
         qbgs.append(bg1)
 
     checked = set()
+    shifts = (-1, 0, 1) if allow_length_change else (0,)
+    deltas = (-max_diff, 0, max_diff) if allow_length_change else (0,)
     for offset, bg in enumerate(qbgs):
         pos = target_norm.find(bg)
         checks_count = 0
-        while pos != -1 and checks_count < 4:
+        while pos != -1 and checks_count < 3:
             base_start = max(0, pos - offset)
-            for shift in range(-1 if allow_length_change else 0, 2 if allow_length_change else 1):
+            for shift in shifts:
                 start_idx = base_start + shift
-                for length_delta in range(-max_diff if allow_length_change else 0, max_diff + 1 if allow_length_change else 1):
+                for length_delta in deltas:
                     length = n + length_delta
                     key = (start_idx, length)
                     if start_idx < 0 or length < 1 or start_idx + length > t_len or key in checked:
                         continue
                     checked.add(key)
                     sub = target_norm[start_idx:start_idx + length]
-                    diff = (sum(c1 != c2 for c1, c2 in zip(query_norm, sub))
-                            if length == n else edit_distance_at_most(query_norm, sub, max_diff))
-                    if length == n and diff > max_diff:
-                        diff = None
-                    if diff is not None:
-                        return True, diff
+                    if length == n:
+                        diff = 0
+                        for c1, c2 in zip(query_norm, sub):
+                            if c1 != c2:
+                                diff += 1
+                                if diff > max_diff:
+                                    break
+                        if diff <= max_diff:
+                            return True, diff, sub
+                    else:
+                        diff = edit_distance_at_most(query_norm, sub, max_diff)
+                        if diff is not None:
+                            return True, diff, sub
             checks_count += 1
             pos = target_norm.find(bg, pos + 1)
 
-    return False, 999
+    return False, 999, None
 
 
 def edit_distance_at_most(text_a, text_b, max_distance):
@@ -206,14 +224,7 @@ def edit_distance_at_most(text_a, text_b, max_distance):
 
 def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
     """
-    Enhanced search algorithm incorporating:
-    1. Direct Song Title Matching (Exact & Partial Boost)
-    2. Artist Matching Boost
-    3. Normalized Substring Matching (tolerant to spaces, newlines, punctuation)
-    4. Repeated Phrases / Multiple Occurrences Scoring
-    5. Isan / Dialect Synonym Expansion
-    6. Typo & Distorted Word Fuzzy Matching (e.g. ความ vs ควาย)
-    7. TF-IDF Cosine Similarity & Token Overlap
+    Standardized Tiered Normalized Search Algorithm [0.0 - 1.0]
     """
     if not query.strip() and not filter_artist and not filter_emotion and not filter_year:
         return []
@@ -224,15 +235,8 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
     if raw_q and not tokens and len(norm_q) < 3:
         return []
     
-    expanded_tokens = list(tokens)
-    for t in tokens:
-        if t in SYNONYMS:
-            expanded_tokens.extend(SYNONYMS[t])
-    expanded_tokens = list(dict.fromkeys(expanded_tokens))
-    norm_expanded_tokens = [normalize_text(t) for t in expanded_tokens if normalize_text(t)]
-
     q_vec = query_to_vector(tokens)
-    has_vector = bool(q_vec)
+    mag_a = math.sqrt(sum(v * v for v in q_vec.values())) if q_vec else 0.0
 
     results = []
 
@@ -248,60 +252,123 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
         score = 1.0 if not norm_q else 0.0
         exact_title_match = False
         exact_lyrics_match = False
+        fuzzy_title_match = False
+        fuzzy_lyrics_match = False
+        matched_terms = []
+        matched_token_count = 0
+        matched_synonym_count = 0
 
         if norm_q:
+            # 1. Title matching
+            title_score = 0.0
             if ns['norm_title'] == norm_q:
-                score += 2.0
                 exact_title_match = True
+                title_score = 1.0
+                matched_terms.append(song['title'])
             elif norm_q in ns['norm_title']:
-                score += 1.2 * (len(norm_q) / max(len(ns['norm_title']), 1))
+                ratio = len(norm_q) / max(len(ns['norm_title']), 1)
+                title_score = 0.82 + 0.14 * ratio
+                matched_terms.append(song['title'])
             elif ns['norm_title'] in norm_q and len(ns['norm_title']) >= 3:
-                score += 1.0
+                ratio = len(ns['norm_title']) / len(norm_q)
+                title_score = 0.78 + 0.12 * ratio
+                matched_terms.append(song['title'])
 
-        if norm_q and ns['norm_artist'] and (norm_q in ns['norm_artist'] or ns['norm_artist'] in norm_q):
-            score += 0.5
-
-        if norm_q:
+            # 2. Lyrics phrase matching
+            lyrics_phrase_score = 0.0
             if norm_q in ns['norm_lyrics']:
                 exact_lyrics_match = True
-                length_factor = min(len(norm_q) / 10.0, 1.5)
-                score += 0.5 * length_factor
-
+                len_factor = min(len(norm_q) / 25.0, 1.0)
+                lyrics_phrase_score = 0.82 + 0.08 * len_factor
                 count = ns['norm_lyrics'].count(norm_q)
                 if count > 1:
-                    score += 0.1 * min(count - 1, 3)
+                    lyrics_phrase_score += 0.02 * min(count - 1, 3)
+                matched_terms.append(raw_q)
 
-        if norm_q and not exact_lyrics_match and not exact_title_match and len(norm_q) >= 3:
-            f_title, diff_t = fuzzy_match_window(norm_q, ns['norm_title'], max_diff=1, allow_length_change=True)
-            if f_title:
-                score += 0.8
+            # 3. Fuzzy matching
+            fuzzy_score = 0.0
+            if not exact_lyrics_match and not exact_title_match and 3 <= len(norm_q) <= 30:
+                f_title, diff_t, sub_t = fuzzy_match_window(norm_q, ns['norm_title'], max_diff=1, allow_length_change=True)
+                if f_title:
+                    fuzzy_title_match = True
+                    fuzzy_score = max(fuzzy_score, 0.72)
+                    if sub_t:
+                        matched_terms.append(sub_t)
 
-            f_lyrics, diff_l = fuzzy_match_window(norm_q, ns['norm_lyrics'], max_diff=1)
-            if f_lyrics:
-                score += 0.35
+                if len(norm_q) <= 24:
+                    f_lyrics, diff_l, sub_l = fuzzy_match_window(norm_q, ns['norm_lyrics'], max_diff=1)
+                    if f_lyrics:
+                        fuzzy_lyrics_match = True
+                        fuzzy_score = max(fuzzy_score, 0.56)
+                        if sub_l:
+                            matched_terms.append(sub_l)
 
-        if norm_expanded_tokens:
-            matched_tokens = 0
-            for nt in norm_expanded_tokens:
-                if nt in ns['norm_lyrics']:
-                    matched_tokens += 1
-            if matched_tokens > 0:
-                score += 0.25 * (matched_tokens / len(norm_expanded_tokens))
+            # 4. Token & Synonym coverage
+            token_coverage = 0.0
+            if tokens:
+                for t in tokens:
+                    nt = normalize_text(t)
+                    if nt in ns['norm_lyrics'] or nt in ns['norm_title']:
+                        matched_token_count += 1
+                        matched_terms.append(t)
+                    elif t in SYNONYMS:
+                        for syn in SYNONYMS[t]:
+                            nsyn = normalize_text(syn)
+                            if nsyn in ns['norm_lyrics'] or nsyn in ns['norm_title']:
+                                matched_synonym_count += 1
+                                matched_terms.append(syn)
+                                break
+                token_coverage = (matched_token_count + 0.85 * matched_synonym_count) / len(tokens)
 
-        if has_vector:
-            cos = cosine_similarity(q_vec, VECTORS[i])
-            score += 0.35 * cos
+            # 5. TF-IDF Cosine Similarity
+            cos_sim = 0.0
+            if mag_a > 0:
+                cos_sim = cosine_similarity(q_vec, VECTORS[i], song_idx=i, mag_a=mag_a)
+
+            # 6. Artist boost
+            artist_boost = 0.0
+            if ns['norm_artist'] and (norm_q in ns['norm_artist'] or ns['norm_artist'] in norm_q):
+                artist_boost = 0.08
+                matched_terms.append(song['artist'])
+
+            # 7. Tiered Normalized Confidence Score [0.0 - 1.0]
+            if exact_title_match:
+                score = min(1.0, 0.98 + 0.02 * (cos_sim if mag_a > 0 else 1.0))
+            elif title_score > 0:
+                score = min(0.96, title_score + 0.02 * token_coverage + 0.02 * cos_sim)
+            elif exact_lyrics_match:
+                score = min(0.94, lyrics_phrase_score + 0.03 * token_coverage + 0.02 * cos_sim)
+            elif fuzzy_title_match:
+                score = min(0.80, fuzzy_score + 0.05 * token_coverage + 0.03 * cos_sim)
+            elif fuzzy_lyrics_match:
+                score = min(0.72, fuzzy_score + 0.06 * token_coverage + 0.04 * cos_sim)
+            elif token_coverage > 0 or cos_sim > 0:
+                score = min(0.68, 0.45 * token_coverage + 0.20 * cos_sim)
+
+            if artist_boost > 0 and score > 0:
+                score = min(0.99, score + artist_boost)
 
         min_threshold = 0.20 if norm_q else 0.01
+        exact_lyric_phrase = exact_lyrics_match and (len(norm_q) >= 6 or len(tokens) >= 2)
         if score >= min_threshold:
             results.append({
                 'idx': i,
-                'score': score,
+                'score': round(score, 4),
                 'title': song['title'],
                 'artist': song['artist'],
                 'year': song['year'],
                 'emotion': song['emotion'],
-                'exactMatch': exact_lyrics_match or exact_title_match
+                'exactMatch': exact_lyric_phrase or exact_title_match,
+                'evidence': {
+                    'exactTitle': exact_title_match,
+                    'exactLyricPhrase': exact_lyric_phrase,
+                    'fuzzyTitle': fuzzy_title_match,
+                    'fuzzyLyrics': fuzzy_lyrics_match,
+                    'matchedTokenCount': matched_token_count,
+                    'queryTokenCount': len(tokens),
+                    'matchedSynonymCount': matched_synonym_count,
+                    'matchedTerms': list(dict.fromkeys(matched_terms)),
+                }
             })
 
     results.sort(key=lambda x: x['score'], reverse=True)
@@ -503,6 +570,37 @@ def run_all_tests():
         f"Average search latency < 25ms (Actual: {avg_latency:.2f}ms, Max: {max_latency:.2f}ms)",
         avg_latency < 25.0,
         f"Avg: {avg_latency:.2f}ms, Max: {max_latency:.2f}ms"
+    )
+
+    print("\nCategory 8: Standardized Scoring & Highlighting Evidence")
+    all_scores_bounded = True
+    for bq in benchmark_queries:
+        for r in enhanced_search(bq):
+            if r['score'] < 0.0 or r['score'] > 1.0:
+                all_scores_bounded = False
+                break
+    report.assert_test(
+        "All result scores are strictly bounded within [0.0, 1.0] confidence interval",
+        all_scores_bounded,
+        "Verified all scores adhere to normalized standard"
+    )
+
+    res_typo_ev = enhanced_search("ควายรัก")
+    kwam_in_terms = any(
+        "ความรัก" in r['evidence']['matchedTerms']
+        for r in res_typo_ev if "ความรัก" in SONGS[r['idx']]['lyrics']
+    )
+    report.assert_test(
+        "Fuzzy Highlight Evidence: 'ควายรัก' returns 'ความรัก' in evidence.matchedTerms for highlighting",
+        kwam_in_terms,
+        f"Matched terms: {[r['evidence']['matchedTerms'] for r in res_typo_ev[:3]]}"
+    )
+
+    top_conf = enhanced_search("ขอใจกันหนาว")[0]['score'] >= 0.98
+    report.assert_test(
+        "Exact title match achieves tier-1 confidence (>= 0.98)",
+        top_conf,
+        f"Score: {enhanced_search('ขอใจกันหนาว')[0]['score']}"
     )
 
     print("\n========================================================")
