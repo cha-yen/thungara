@@ -1,9 +1,24 @@
+# Data & internal creation pipelines (confidential)
 *.csv
+scripts/
 
+# Python cache & compiled
 __pycache__/
 *.pyc
+*.pyo
 
+# Temporary & Log files
+*.tmp
+*.log
+temp_*
+.env*
+
+# Editor & System files
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
 
+# AI assistant artifacts
 .claude/
+.gemini/

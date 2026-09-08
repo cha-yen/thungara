@@ -3,6 +3,7 @@ let vocabSet = null;
 let wordToIndex = null;
 let maxWordLen = 0;
 let NORM_SONGS = [];
+let VECTOR_MAGS = [];
 
 const SYNONYMS = {
   'รัก': ['ฮัก'],
@@ -61,6 +62,12 @@ self.onmessage = function(e) {
       normLyrics: normalizeText(song.lyrics),
     }));
 
+    VECTOR_MAGS = DATA.vectors.map(vec => {
+      let sumSq = 0;
+      for (const v of Object.values(vec)) sumSq += v * v;
+      return Math.sqrt(sumSq);
+    });
+
     self.postMessage({ type: 'ready' });
     return;
   }
@@ -96,44 +103,49 @@ function tokenizeQuery(text) {
 }
 
 function queryToVector(tokens) {
-  if (!tokens || tokens.length === 0) return {};
+  if (!tokens || tokens.length === 0) return { vec: {}, mag: 0 };
   const tf = {};
   let maxTf = 0;
   for (const t of tokens) {
     tf[t] = (tf[t] || 0) + 1;
     if (tf[t] > maxTf) maxTf = tf[t];
   }
-  if (maxTf === 0) return {};
+  if (maxTf === 0) return { vec: {}, mag: 0 };
   const vec = {};
+  let magSq = 0;
   for (const [word, count] of Object.entries(tf)) {
     const idx = wordToIndex ? wordToIndex.get(word) : DATA.vocab.indexOf(word);
     if (idx !== undefined && idx >= 0) {
-      vec[String(idx)] = (count / maxTf) * DATA.idf[idx];
+      const val = (count / maxTf) * DATA.idf[idx];
+      vec[String(idx)] = val;
+      magSq += val * val;
     }
   }
-  return vec;
+  return { vec, mag: Math.sqrt(magSq) };
 }
 
-function cosineSim(vecA, vecB) {
-  let dot = 0, magA = 0, magB = 0;
+function cosineSim(vecA, magA, songIdx) {
+  if (magA === 0) return 0;
+  const magB = VECTOR_MAGS[songIdx];
+  if (!magB) return 0;
+  const vecB = DATA.vectors[songIdx];
+  let dot = 0;
   for (const [k, v] of Object.entries(vecA)) {
-    magA += v * v;
     if (vecB[k] !== undefined) dot += v * vecB[k];
   }
-  for (const v of Object.values(vecB)) magB += v * v;
-  if (magA === 0 || magB === 0) return 0;
-  return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+  if (dot === 0) return 0;
+  return dot / (magA * magB);
 }
 
 function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1, allowLengthChange = false) {
   const n = queryNorm.length;
   const tLen = targetNorm.length;
-  if (n < 3 || tLen < n - maxDiff) return false;
+  if (n < 3 || tLen < n - maxDiff) return null;
 
   const bg0 = queryNorm.substring(0, 2);
   const bg1 = n >= 3 ? queryNorm.substring(1, 3) : '';
   if (!targetNorm.includes(bg0) && (!bg1 || !targetNorm.includes(bg1))) {
-    return false;
+    return null;
   }
 
   const qbgs = [bg0];
@@ -159,15 +171,17 @@ function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1, allowLengthChange 
             for (let k = 0; k < n; k++) {
               if (queryNorm[k] !== sub[k] && ++diff > maxDiff) break;
             }
-            if (diff <= maxDiff) return true;
-          } else if (editDistanceAtMost(queryNorm, sub, maxDiff)) return true;
+            if (diff <= maxDiff) return { matched: true, sub, diff, start: startIdx, length };
+          } else if (editDistanceAtMost(queryNorm, sub, maxDiff)) {
+            return { matched: true, sub, diff: maxDiff, start: startIdx, length };
+          }
         }
       }
       checksCount++;
       pos = targetNorm.indexOf(bg, pos + 1);
     }
   }
-  return false;
+  return null;
 }
 
 function editDistanceAtMost(textA, textB, maxDistance) {
@@ -212,19 +226,8 @@ function search(query, filterArtist, filterEmotion, filterYear) {
   const tokens = tokenizeQuery(rawQ);
   if (rawQ && tokens.length === 0 && normQ.length < 3) return [];
 
-  const expandedTokens = [...tokens];
-  for (const t of tokens) {
-    if (SYNONYMS[t]) {
-      expandedTokens.push(...SYNONYMS[t]);
-    }
-  }
-  const uniqueExpandedTokens = Array.from(new Set(expandedTokens));
-  const normExpandedTokens = uniqueExpandedTokens
-    .map(t => normalizeText(t))
-    .filter(t => t.length > 0);
-
-  const qVec = queryToVector(tokens);
-  const hasVector = Object.keys(qVec).length > 0;
+  const { vec: qVec, mag: qMag } = queryToVector(tokens);
+  const hasVector = qMag > 0;
 
   const results = [];
   const nSongs = DATA.songs.length;
@@ -245,64 +248,131 @@ function search(query, filterArtist, filterEmotion, filterYear) {
     let score = normQ ? 0.0 : 1.0;
     let exactTitleMatch = false;
     let exactLyricsMatch = false;
+    let fuzzyTitleMatch = false;
+    let fuzzyLyricsMatch = false;
+    const matchedTerms = [];
+    let matchedTokenCount = 0;
+    let matchedSynonymCount = 0;
 
     if (normQ) {
+      // 1. Title matching
+      let titleScore = 0.0;
       if (ns.normTitle === normQ) {
-        score += 2.0;
         exactTitleMatch = true;
+        titleScore = 1.0;
+        matchedTerms.push(song.title);
       } else if (ns.normTitle.includes(normQ)) {
-        score += 1.2 * (normQ.length / Math.max(ns.normTitle.length, 1));
+        const ratio = normQ.length / Math.max(ns.normTitle.length, 1);
+        titleScore = 0.82 + 0.14 * ratio;
+        matchedTerms.push(song.title);
       } else if (normQ.includes(ns.normTitle) && ns.normTitle.length >= 3) {
-        score += 1.0;
+        const ratio = ns.normTitle.length / normQ.length;
+        titleScore = 0.78 + 0.12 * ratio;
+        matchedTerms.push(song.title);
       }
 
-      if (ns.normArtist && (ns.normArtist.includes(normQ) || normQ.includes(ns.normArtist))) {
-        score += 0.5;
-      }
-
+      // 2. Lyrics phrase matching
+      let lyricsPhraseScore = 0.0;
       if (ns.normLyrics.includes(normQ)) {
         exactLyricsMatch = true;
-        const lengthFactor = Math.min(normQ.length / 10.0, 1.5);
-        score += 0.5 * lengthFactor;
-
+        const lenFactor = Math.min(normQ.length / 25.0, 1.0);
+        lyricsPhraseScore = 0.82 + 0.08 * lenFactor;
         const count = countOccurrences(ns.normLyrics, normQ);
         if (count > 1) {
-          score += 0.1 * Math.min(count - 1, 3);
+          lyricsPhraseScore += 0.02 * Math.min(count - 1, 3);
         }
+        matchedTerms.push(rawQ);
       }
 
+      // 3. Fuzzy matching (if not exact phrase)
+      let fuzzyScore = 0.0;
       if (!exactLyricsMatch && !exactTitleMatch && normQ.length >= 3) {
-        if (fuzzyMatchWindow(normQ, ns.normTitle, 1, true)) {
-          score += 0.8;
+        const fTitle = fuzzyMatchWindow(normQ, ns.normTitle, 1, true);
+        if (fTitle && fTitle.matched) {
+          fuzzyTitleMatch = true;
+          fuzzyScore = Math.max(fuzzyScore, 0.72);
+          if (fTitle.sub) matchedTerms.push(fTitle.sub);
         }
-        if (fuzzyMatchWindow(normQ, ns.normLyrics, 1)) {
-          score += 0.35;
-        }
-      }
-
-      if (normExpandedTokens.length > 0) {
-        let matched = 0;
-        for (const nt of normExpandedTokens) {
-          if (ns.normLyrics.includes(nt)) matched++;
-        }
-        if (matched > 0) {
-          score += 0.25 * (matched / normExpandedTokens.length);
+        const fLyrics = fuzzyMatchWindow(normQ, ns.normLyrics, 1, false);
+        if (fLyrics && fLyrics.matched) {
+          fuzzyLyricsMatch = true;
+          fuzzyScore = Math.max(fuzzyScore, 0.56);
+          if (fLyrics.sub) matchedTerms.push(fLyrics.sub);
         }
       }
 
+      // 4. Token & Synonym coverage
+      let tokenCoverage = 0.0;
+      if (tokens.length > 0) {
+        for (const t of tokens) {
+          const nt = normalizeText(t);
+          if (ns.normLyrics.includes(nt) || ns.normTitle.includes(nt)) {
+            matchedTokenCount++;
+            matchedTerms.push(t);
+          } else if (SYNONYMS[t]) {
+            for (const syn of SYNONYMS[t]) {
+              const nsyn = normalizeText(syn);
+              if (ns.normLyrics.includes(nsyn) || ns.normTitle.includes(nsyn)) {
+                matchedSynonymCount++;
+                matchedTerms.push(syn);
+                break;
+              }
+            }
+          }
+        }
+        tokenCoverage = (matchedTokenCount + 0.85 * matchedSynonymCount) / tokens.length;
+      }
+
+      // 5. TF-IDF Cosine Similarity
+      let cosSim = 0.0;
       if (hasVector) {
-        const cos = cosineSim(qVec, DATA.vectors[i]);
-        score += 0.35 * cos;
+        cosSim = cosineSim(qVec, qMag, i);
+      }
+
+      // 6. Artist boost
+      let artistBoost = 0.0;
+      if (ns.normArtist && (normQ.includes(ns.normArtist) || ns.normArtist.includes(normQ))) {
+        artistBoost = 0.08;
+        matchedTerms.push(song.artist);
+      }
+
+      // 7. Tiered Normalized Confidence Score in [0.0, 1.0]
+      if (exactTitleMatch) {
+        score = Math.min(1.0, 0.98 + 0.02 * (hasVector ? cosSim : 1.0));
+      } else if (titleScore > 0) {
+        score = Math.min(0.96, titleScore + 0.02 * tokenCoverage + 0.02 * cosSim);
+      } else if (exactLyricsMatch) {
+        score = Math.min(0.94, lyricsPhraseScore + 0.03 * tokenCoverage + 0.02 * cosSim);
+      } else if (fuzzyTitleMatch) {
+        score = Math.min(0.80, fuzzyScore + 0.05 * tokenCoverage + 0.03 * cosSim);
+      } else if (fuzzyLyricsMatch) {
+        score = Math.min(0.72, fuzzyScore + 0.06 * tokenCoverage + 0.04 * cosSim);
+      } else if (tokenCoverage > 0 || cosSim > 0) {
+        score = Math.min(0.68, 0.45 * tokenCoverage + 0.20 * cosSim);
+      }
+
+      if (artistBoost > 0 && score > 0) {
+        score = Math.min(0.99, score + artistBoost);
       }
     }
 
     const minThreshold = normQ ? 0.20 : 0.01;
-    const directLyricMatch = exactLyricsMatch && (normQ.length >= 6 || tokens.length >= 2);
+    const exactLyricPhrase = exactLyricsMatch && (normQ.length >= 6 || tokens.length >= 2);
     if (score >= minThreshold) {
       results.push({
         idx: i,
-        score: score,
-        exactMatch: directLyricMatch || exactTitleMatch,
+        score: Math.round(score * 10000) / 10000,
+        exactMatch: exactLyricPhrase || exactTitleMatch,
+        evidence: {
+          exactTitle: exactTitleMatch,
+          exactLyricPhrase,
+          fuzzyTitle: fuzzyTitleMatch,
+          fuzzyLyrics: fuzzyLyricsMatch,
+          matchedTokenCount,
+          queryTokenCount: tokens.length,
+          matchedSynonymCount,
+          matchedTerms: Array.from(new Set(matchedTerms)),
+        },
       });
     }
   }
