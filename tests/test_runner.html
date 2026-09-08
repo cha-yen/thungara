@@ -431,6 +431,34 @@ const TEST_CASES = [
       const topScore = res.length > 0 ? res[0].score : 0;
       return { pass: topScore >= 0.98, detail: `คะแนนอันดับ 1: ${(topScore * 100).toFixed(1)}%` };
     }
+  },
+  {
+    category: "9. การแยกรากศัพท์คำประสม (Compound Decompounding & Highlighting)",
+    name: "ค้นหา 'ความรัก' ต้องส่ง 'ความรัก' และรากศัพท์ 'รัก' สำหรับไฮไลท์ แต่ไม่มีคำว่า 'ความ'",
+    run: async () => {
+      const res = await workerSearch("ความรัก");
+      const hasCompound = res.some(r => r.evidence && r.evidence.matchedTerms && r.evidence.matchedTerms.includes("ความรัก"));
+      const hasRoot = res.some(r => r.evidence && r.evidence.matchedTerms && r.evidence.matchedTerms.includes("รัก"));
+      const hasKwamOnly = res.some(r => r.evidence && r.evidence.matchedTerms && r.evidence.matchedTerms.includes("ความ"));
+      const pass = hasCompound && hasRoot && !hasKwamOnly;
+      return {
+        pass,
+        detail: pass ? "ไฮไลท์ 'ความรัก' และรากศัพท์ 'รัก' ได้ถูกต้อง โดยไม่ติดคำว่า 'ความ'" : "ตรวจพบข้อผิดพลาดใน matchedTerms"
+      };
+    }
+  },
+  {
+    category: "9. การแยกรากศัพท์คำประสม (Compound Decompounding & Highlighting)",
+    name: "การปฏิเสธเศษคำที่ไม่มีพยัญชนะต้น เช่น 'าว' และ 'ิน' ต้องได้ 0 รายการ",
+    run: async () => {
+      const res1 = await workerSearch("าว");
+      const res2 = await workerSearch("ิน");
+      const pass = res1.length === 0 && res2.length === 0;
+      return {
+        pass,
+        detail: pass ? "กรองเศษสระ/วรรณยุกต์ที่ไม่มีพยัญชนะต้นทิ้งได้ 100%" : `พบผลลัพธ์ไม่พึงประสงค์ (${res1.length}, ${res2.length})`
+      };
+    }
   }
 ];
 

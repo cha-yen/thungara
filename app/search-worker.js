@@ -46,6 +46,46 @@ function normalizeText(text) {
   return text.toLowerCase().replace(/[^฀-๿a-z0-9]/g, '');
 }
 
+function isValidThaiQuery(text) {
+  if (!text) return false;
+  const match = text.match(/[\u0e01-\u0e5b]/);
+  if (!match) return true;
+  const code = match[0].charCodeAt(0);
+  if ((code >= 0x0E30 && code <= 0x0E3A) || (code >= 0x0E47 && code <= 0x0E4E)) {
+    return false;
+  }
+  return true;
+}
+
+const COMPOUND_PREFIXES = [
+  { prefix: 'ความ', minLen: 6 },
+  { prefix: 'การ', minLen: 5 },
+  { prefix: 'น่า', minLen: 5 },
+];
+
+const BOUND_PREFIXES = new Set(['ความ', 'การ']);
+
+function extractSubTokens(tokens) {
+  const subTokens = [];
+  if (!tokens || tokens.length === 0) return subTokens;
+  for (const t of tokens) {
+    for (const { prefix, minLen } of COMPOUND_PREFIXES) {
+      if (t.startsWith(prefix) && t.length >= minLen) {
+        if (prefix === 'การ' && t.startsWith('การ์')) continue;
+        const root = t.substring(prefix.length);
+        if (isValidThaiQuery(root) && ((vocabSet && vocabSet.has(root)) || root.length >= 3)) {
+          subTokens.push({
+            root,
+            parent: t,
+            synonyms: SYNONYMS[root] || []
+          });
+        }
+      }
+    }
+  }
+  return subTokens;
+}
+
 self.onmessage = function(e) {
   const { type, payload } = e.data;
 
@@ -221,9 +261,11 @@ function search(query, filterArtist, filterEmotion, filterYear) {
   if (!DATA) return [];
   const rawQ = (query || '').trim();
   if (!rawQ && !filterArtist && !filterEmotion && !filterYear) return [];
+  if (rawQ && !isValidThaiQuery(rawQ)) return [];
 
   const normQ = normalizeText(rawQ);
   const tokens = tokenizeQuery(rawQ);
+  const subTokens = extractSubTokens(tokens);
   if (rawQ && tokens.length === 0 && normQ.length < 3) return [];
 
   const { vec: qVec, mag: qMag } = queryToVector(tokens);
@@ -253,6 +295,8 @@ function search(query, filterArtist, filterEmotion, filterYear) {
     const matchedTerms = [];
     let matchedTokenCount = 0;
     let matchedSynonymCount = 0;
+    let matchedSubTokenCount = 0;
+    let matchedSubSynonymCount = 0;
 
     if (normQ) {
       // 1. Title matching
@@ -273,7 +317,8 @@ function search(query, filterArtist, filterEmotion, filterYear) {
 
       // 2. Lyrics phrase matching
       let lyricsPhraseScore = 0.0;
-      if (ns.normLyrics.includes(normQ)) {
+      const isBoundPrefixOnly = BOUND_PREFIXES.has(normQ) && tokens.length === 0;
+      if (!isBoundPrefixOnly && ns.normLyrics.includes(normQ)) {
         exactLyricsMatch = true;
         const lenFactor = Math.min(normQ.length / 25.0, 1.0);
         lyricsPhraseScore = 0.82 + 0.08 * lenFactor;
@@ -301,7 +346,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
         }
       }
 
-      // 4. Token & Synonym coverage
+      // 4. Token & Synonym coverage + Decompounded Sub-tokens
       let tokenCoverage = 0.0;
       if (tokens.length > 0) {
         for (const t of tokens) {
@@ -320,7 +365,36 @@ function search(query, filterArtist, filterEmotion, filterYear) {
             }
           }
         }
-        tokenCoverage = (matchedTokenCount + 0.85 * matchedSynonymCount) / tokens.length;
+
+        if (subTokens.length > 0) {
+          for (const st of subTokens) {
+            const nroot = normalizeText(st.root);
+            if (ns.normLyrics.includes(nroot) || ns.normTitle.includes(nroot)) {
+              matchedTerms.push(st.root);
+              if (!matchedTerms.includes(st.parent)) {
+                matchedSubTokenCount++;
+              }
+            } else if (st.synonyms && st.synonyms.length > 0) {
+              for (const syn of st.synonyms) {
+                const nsyn = normalizeText(syn);
+                if (ns.normLyrics.includes(nsyn) || ns.normTitle.includes(nsyn)) {
+                  matchedTerms.push(syn);
+                  if (!matchedTerms.includes(st.parent)) {
+                    matchedSubSynonymCount++;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        tokenCoverage = (
+          matchedTokenCount +
+          0.85 * matchedSynonymCount +
+          0.60 * matchedSubTokenCount +
+          0.50 * matchedSubSynonymCount
+        ) / tokens.length;
       }
 
       // 5. TF-IDF Cosine Similarity
@@ -359,6 +433,10 @@ function search(query, filterArtist, filterEmotion, filterYear) {
     const minThreshold = normQ ? 0.20 : 0.01;
     const exactLyricPhrase = exactLyricsMatch && (normQ.length >= 6 || tokens.length >= 2);
     if (score >= minThreshold) {
+      const cleanMatchedTerms = Array.from(new Set(matchedTerms)).filter(term => {
+        return term && term.length >= 2 && isValidThaiQuery(term) && !BOUND_PREFIXES.has(term);
+      });
+
       results.push({
         idx: i,
         score: Math.round(score * 10000) / 10000,
@@ -371,7 +449,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
           matchedTokenCount,
           queryTokenCount: tokens.length,
           matchedSynonymCount,
-          matchedTerms: Array.from(new Set(matchedTerms)),
+          matchedTerms: cleanMatchedTerms,
         },
       });
     }
