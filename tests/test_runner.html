@@ -397,6 +397,40 @@ const TEST_CASES = [
       const avg = times.reduce((a,b) => a+b, 0) / times.length;
       return { pass: avg < 25.0, detail: `ความเร็วเฉลี่ย: ${avg.toFixed(2)} ms (เป้าหมาย < 25ms)` };
     }
+  },
+
+  {
+    category: "8. มาตรฐานคะแนนและการไฮไลท์ (Standardized Scoring & Highlighting)",
+    name: "คะแนนความเชื่อมั่นทั้งหมดต้องอยู่ในช่วง [0.0, 1.0] อย่างเคร่งครัด",
+    run: async () => {
+      const queries = ["ขอใจกันหนาว", "ควายรัก", "คิดถึงเธอ", "ต่าย อรทัย", "ใจ"];
+      let allBounded = true;
+      for (const q of queries) {
+        const res = await workerSearch(q);
+        for (const r of res) {
+          if (r.score < 0.0 || r.score > 1.0) { allBounded = false; break; }
+        }
+      }
+      return { pass: allBounded, detail: "คะแนนทุกเพลงอยู่ในช่วง [0.0 - 1.0] ถูกต้องตามมาตรฐาน" };
+    }
+  },
+  {
+    category: "8. มาตรฐานคะแนนและการไฮไลท์ (Standardized Scoring & Highlighting)",
+    name: "คำคล้าย 'ควายรัก' ต้องส่ง 'ความรัก' กลับมาใน evidence.matchedTerms สำหรับไฮไลท์",
+    run: async () => {
+      const res = await workerSearch("ควายรัก");
+      const found = res.some(r => r.evidence && Array.isArray(r.evidence.matchedTerms) && r.evidence.matchedTerms.includes("ความรัก"));
+      return { pass: found, detail: found ? "พบคำว่า 'ความรัก' ใน matchedTerms พร้อมไฮไลท์สี" : "ไม่พบคำใน evidence" };
+    }
+  },
+  {
+    category: "8. มาตรฐานคะแนนและการไฮไลท์ (Standardized Scoring & Highlighting)",
+    name: "ชื่อเพลงตรงเป๊ะ ต้องได้คะแนนความมั่นใจระดับสูง (>= 0.98 หรือ 98%)",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว");
+      const topScore = res.length > 0 ? res[0].score : 0;
+      return { pass: topScore >= 0.98, detail: `คะแนนอันดับ 1: ${(topScore * 100).toFixed(1)}%` };
+    }
   }
 ];
 
