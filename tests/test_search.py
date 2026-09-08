@@ -222,6 +222,41 @@ def edit_distance_at_most(text_a, text_b, max_distance):
     distance += (len(text_a) - a) + (len(text_b) - b)
     return distance if distance <= max_distance else None
 
+def is_valid_thai_query(text):
+    if not text:
+        return False
+    m = re.search(r'[\u0e01-\u0e5b]', text)
+    if not m:
+        return True
+    code = ord(m.group(0))
+    if (0x0E30 <= code <= 0x0E3A) or (0x0E47 <= code <= 0x0E4E):
+        return False
+    return True
+
+COMPOUND_PREFIXES = [
+    ('ความ', 4, 6),
+    ('การ', 3, 5),
+    ('น่า', 3, 5),
+]
+
+BOUND_PREFIXES = {'ความ', 'การ'}
+
+def extract_sub_tokens(tokens):
+    sub_tokens = []
+    for t in tokens:
+        for prefix, plen, min_len in COMPOUND_PREFIXES:
+            if t.startswith(prefix) and len(t) >= min_len:
+                if prefix == 'การ' and t.startswith('การ์'):
+                    continue
+                root = t[plen:]
+                if is_valid_thai_query(root) and (root in VOCAB_SET or len(root) >= 3):
+                    sub_tokens.append({
+                        'root': root,
+                        'parent': t,
+                        'synonyms': SYNONYMS.get(root, [])
+                    })
+    return sub_tokens
+
 def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
     """
     Standardized Tiered Normalized Search Algorithm [0.0 - 1.0]
@@ -230,8 +265,12 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
         return []
 
     raw_q = query.strip()
+    if raw_q and not is_valid_thai_query(raw_q):
+        return []
+
     norm_q = normalize_text(raw_q)
     tokens = tokenize_query(raw_q)
+    sub_tokens = extract_sub_tokens(tokens)
     if raw_q and not tokens and len(norm_q) < 3:
         return []
     
@@ -257,6 +296,8 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
         matched_terms = []
         matched_token_count = 0
         matched_synonym_count = 0
+        matched_sub_token_count = 0
+        matched_sub_synonym_count = 0
 
         if norm_q:
             # 1. Title matching
@@ -276,7 +317,8 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
 
             # 2. Lyrics phrase matching
             lyrics_phrase_score = 0.0
-            if norm_q in ns['norm_lyrics']:
+            is_bound_prefix_only = norm_q in BOUND_PREFIXES and len(tokens) == 0
+            if not is_bound_prefix_only and norm_q in ns['norm_lyrics']:
                 exact_lyrics_match = True
                 len_factor = min(len(norm_q) / 25.0, 1.0)
                 lyrics_phrase_score = 0.82 + 0.08 * len_factor
@@ -303,7 +345,7 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                         if sub_l:
                             matched_terms.append(sub_l)
 
-            # 4. Token & Synonym coverage
+            # 4. Token & Synonym coverage + Decompounded Sub-tokens
             token_coverage = 0.0
             if tokens:
                 for t in tokens:
@@ -318,7 +360,30 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                                 matched_synonym_count += 1
                                 matched_terms.append(syn)
                                 break
-                token_coverage = (matched_token_count + 0.85 * matched_synonym_count) / len(tokens)
+
+                if sub_tokens:
+                    for st in sub_tokens:
+                        root = st['root']
+                        nroot = normalize_text(root)
+                        if nroot in ns['norm_lyrics'] or nroot in ns['norm_title']:
+                            matched_terms.append(root)
+                            if st['parent'] not in matched_terms:
+                                matched_sub_token_count += 1
+                        elif st['synonyms']:
+                            for ssyn in st['synonyms']:
+                                nssyn = normalize_text(ssyn)
+                                if nssyn in ns['norm_lyrics'] or nssyn in ns['norm_title']:
+                                    matched_terms.append(ssyn)
+                                    if st['parent'] not in matched_terms:
+                                        matched_sub_synonym_count += 1
+                                        break
+
+                token_coverage = (
+                    matched_token_count +
+                    0.85 * matched_synonym_count +
+                    0.60 * matched_sub_token_count +
+                    0.50 * matched_sub_synonym_count
+                ) / len(tokens)
 
             # 5. TF-IDF Cosine Similarity
             cos_sim = 0.0
@@ -351,6 +416,11 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
         min_threshold = 0.20 if norm_q else 0.01
         exact_lyric_phrase = exact_lyrics_match and (len(norm_q) >= 6 or len(tokens) >= 2)
         if score >= min_threshold:
+            clean_matched_terms = [
+                t for t in dict.fromkeys(matched_terms)
+                if t and len(t) >= 2 and is_valid_thai_query(t) and t not in BOUND_PREFIXES
+            ]
+
             results.append({
                 'idx': i,
                 'score': round(score, 4),
@@ -367,7 +437,7 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                     'matchedTokenCount': matched_token_count,
                     'queryTokenCount': len(tokens),
                     'matchedSynonymCount': matched_synonym_count,
-                    'matchedTerms': list(dict.fromkeys(matched_terms)),
+                    'matchedTerms': clean_matched_terms,
                 }
             })
 
@@ -601,6 +671,50 @@ def run_all_tests():
         "Exact title match achieves tier-1 confidence (>= 0.98)",
         top_conf,
         f"Score: {enhanced_search('ขอใจกันหนาว')[0]['score']}"
+    )
+
+    print("\nCategory 9: Compound Decompounding & Clean Sub-token Highlighting")
+    res_compound = enhanced_search("ความรัก")
+    
+    # 1. Songs containing 'ความรัก' should include 'ความรัก' in matchedTerms
+    has_full_compound = any(
+        "ความรัก" in r['evidence']['matchedTerms']
+        for r in res_compound if "ความรัก" in SONGS[r['idx']]['lyrics']
+    )
+    report.assert_test(
+        "Compound Match: 'ความรัก' query returns 'ความรัก' in matchedTerms for compound-containing songs",
+        has_full_compound,
+        "Full compound highlighted as cohesive phrase"
+    )
+
+    # 2. Songs containing only root 'รัก' (no 'ความรัก', e.g. ยาใจคนจน) should be retrieved with 'รัก' in matchedTerms
+    res_root_only = [
+        r for r in res_compound
+        if "รัก" in SONGS[r['idx']]['lyrics'] and "ความรัก" not in SONGS[r['idx']]['lyrics']
+    ]
+    has_root_match = (
+        len(res_root_only) > 0 and
+        any("รัก" in r['evidence']['matchedTerms'] for r in res_root_only)
+    )
+    report.assert_test(
+        "Decompounding Root Match: 'ความรัก' query retrieves songs with root 'รัก' and includes 'รัก' in matchedTerms",
+        has_root_match,
+        f"Found {len(res_root_only)} songs with decompounded root 'รัก'"
+    )
+
+    # 3. Bound prefix 'ความ' alone should NEVER be in matchedTerms
+    kwam_alone_leaked = any("ความ" in r['evidence']['matchedTerms'] for r in res_compound)
+    report.assert_test(
+        "Affix Isolation: 'ความ' prefix alone is NEVER added to matchedTerms (no noisy partial highlights)",
+        not kwam_alone_leaked,
+        "Ensured bound morpheme 'ความ' is not treated as a standalone highlighted term"
+    )
+
+    # 4. Incomplete Thai syllable onset rejection (e.g. 'าว', 'ิน')
+    report.assert_test(
+        "Invalid Syllable Onset Rejection: 'าว' and 'ิน' fragments return 0 results",
+        len(enhanced_search("าว")) == 0 and len(enhanced_search("ิน")) == 0,
+        "Non-word combining vowel fragments rejected cleanly"
     )
 
     print("\n========================================================")
