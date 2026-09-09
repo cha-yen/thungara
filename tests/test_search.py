@@ -79,11 +79,31 @@ def normalize_text(text):
 
 NORM_SONGS = []
 for s in SONGS:
+    raw_artist = s.get('artist', '')
+    if ',' in raw_artist or ';' in raw_artist or '/' in raw_artist:
+        sub_artists = [a.strip() for a in re.split(r'[,/;&]', raw_artist) if a.strip()]
+    else:
+        sub_artists = [raw_artist] if raw_artist else []
     NORM_SONGS.append({
         'norm_title': normalize_text(s['title']),
         'norm_artist': normalize_text(s['artist']),
         'norm_lyrics': normalize_text(s['lyrics']),
+        'sub_artists': sub_artists,
+        'sub_artists_norm': [normalize_text(a) for a in sub_artists],
     })
+
+
+ARTIST_SET = set()
+if 'artists' in DATA:
+    for a in DATA['artists']:
+        na = normalize_text(a)
+        if na:
+            ARTIST_SET.add(na)
+for s in SONGS:
+    na = normalize_text(s.get('artist', ''))
+    if na:
+        ARTIST_SET.add(na)
+
 
 def tokenize_query(text):
     """Greedy longest match tokenizer."""
@@ -259,7 +279,7 @@ def extract_sub_tokens(tokens):
 
 def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
     """
-    Standardized Tiered Normalized Search Algorithm [0.0 - 1.0]
+    Standardized Tiered Normalized Search Algorithm [0.0 - 1.0] with Omnibox Artist Support
     """
     if not query.strip() and not filter_artist and not filter_emotion and not filter_year:
         return []
@@ -269,11 +289,13 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
         return []
 
     norm_q = normalize_text(raw_q)
+    is_exact_artist = norm_q in ARTIST_SET
+
     tokens = tokenize_query(raw_q)
     sub_tokens = extract_sub_tokens(tokens)
-    if raw_q and not tokens and len(norm_q) < 3:
+    if raw_q and not tokens and len(norm_q) < 3 and not is_exact_artist:
         return []
-    
+
     q_vec = query_to_vector(tokens)
     mag_a = math.sqrt(sum(v * v for v in q_vec.values())) if q_vec else 0.0
 
@@ -298,24 +320,83 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
         matched_synonym_count = 0
         matched_sub_token_count = 0
         matched_sub_synonym_count = 0
+        artist_score = 0.0
+        title_score = 0.0
 
         if norm_q:
-            # 1. Title matching
-            title_score = 0.0
-            if ns['norm_title'] == norm_q:
-                exact_title_match = True
-                title_score = 1.0
-                matched_terms.append(song['title'])
-            elif norm_q in ns['norm_title']:
-                ratio = len(norm_q) / max(len(ns['norm_title']), 1)
-                title_score = 0.82 + 0.14 * ratio
-                matched_terms.append(song['title'])
-            elif ns['norm_title'] in norm_q and len(ns['norm_title']) >= 3:
-                ratio = len(ns['norm_title']) / len(norm_q)
-                title_score = 0.78 + 0.12 * ratio
-                matched_terms.append(song['title'])
+            # 1. Artist Matching (Omnibox)
+            if ns['norm_artist']:
+                matched_collab = None
+                matched_collab_in_q = None
+                matched_collab_in_q_norm = ''
 
-            # 2. Lyrics phrase matching
+                if ns['sub_artists_norm']:
+                    for sub_name, sub_norm in zip(ns['sub_artists'], ns['sub_artists_norm']):
+                        if sub_norm == norm_q:
+                            matched_collab = sub_name
+                            break
+                        elif len(sub_norm) >= 3 and sub_norm in norm_q:
+                            matched_collab_in_q = sub_name
+                            matched_collab_in_q_norm = sub_norm
+
+                if ns['norm_artist'] == norm_q or matched_collab:
+                    artist_score = 0.94
+                    matched_terms.append(matched_collab or song['artist'])
+                    if raw_q:
+                        matched_terms.append(raw_q)
+                elif norm_q in ns['norm_artist'] and len(norm_q) >= 3:
+                    ratio = len(norm_q) / max(len(ns['norm_artist']), 1)
+                    artist_score = 0.82 + 0.10 * ratio
+                    matched_terms.append(song['artist'])
+                    if raw_q:
+                        matched_terms.append(raw_q)
+
+                target_artist_norm = ''
+                matched_artist_name = ''
+                if ns['norm_artist'] in norm_q and len(ns['norm_artist']) >= 3:
+                    target_artist_norm = ns['norm_artist']
+                    matched_artist_name = song['artist']
+                elif matched_collab_in_q:
+                    target_artist_norm = matched_collab_in_q_norm
+                    matched_artist_name = matched_collab_in_q
+
+                if target_artist_norm:
+                    rem_q = norm_q.replace(target_artist_norm, '')
+                    if rem_q and ns['norm_title'] == rem_q:
+                        exact_title_match = True
+                        title_score = 1.0
+                        artist_score = 0.95
+                        matched_terms.append(matched_artist_name)
+                        matched_terms.append(song['title'])
+                    elif rem_q and rem_q in ns['norm_title']:
+                        title_score = 0.92
+                        artist_score = 0.92
+                        matched_terms.append(matched_artist_name)
+                        matched_terms.append(song['title'])
+                    elif rem_q and rem_q in ns['norm_lyrics']:
+                        exact_lyrics_match = True
+                        artist_score = 0.90
+                        matched_terms.append(matched_artist_name)
+                    elif not artist_score:
+                        artist_score = 0.85
+                        matched_terms.append(matched_artist_name)
+
+            # 2. Title matching
+            if not exact_title_match:
+                if ns['norm_title'] == norm_q:
+                    exact_title_match = True
+                    title_score = 1.0
+                    matched_terms.append(song['title'])
+                elif norm_q in ns['norm_title']:
+                    ratio = len(norm_q) / max(len(ns['norm_title']), 1)
+                    title_score = 0.82 + 0.14 * ratio
+                    matched_terms.append(song['title'])
+                elif ns['norm_title'] in norm_q and len(ns['norm_title']) >= 3:
+                    ratio = len(ns['norm_title']) / len(norm_q)
+                    title_score = 0.78 + 0.12 * ratio
+                    matched_terms.append(song['title'])
+
+            # 3. Lyrics phrase matching
             lyrics_phrase_score = 0.0
             is_bound_prefix_only = norm_q in BOUND_PREFIXES and len(tokens) == 0
             if not is_bound_prefix_only and norm_q in ns['norm_lyrics']:
@@ -327,9 +408,9 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                     lyrics_phrase_score += 0.02 * min(count - 1, 3)
                 matched_terms.append(raw_q)
 
-            # 3. Fuzzy matching
+            # 4. Fuzzy matching
             fuzzy_score = 0.0
-            if not exact_lyrics_match and not exact_title_match and 3 <= len(norm_q) <= 30:
+            if not exact_lyrics_match and not exact_title_match and artist_score == 0 and len(norm_q) >= 3:
                 f_title, diff_t, sub_t = fuzzy_match_window(norm_q, ns['norm_title'], max_diff=1, allow_length_change=True)
                 if f_title:
                     fuzzy_title_match = True
@@ -337,7 +418,7 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                     if sub_t:
                         matched_terms.append(sub_t)
 
-                if len(norm_q) <= 24:
+                if not is_exact_artist and len(norm_q) <= 24:
                     f_lyrics, diff_l, sub_l = fuzzy_match_window(norm_q, ns['norm_lyrics'], max_diff=1)
                     if f_lyrics:
                         fuzzy_lyrics_match = True
@@ -345,9 +426,9 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                         if sub_l:
                             matched_terms.append(sub_l)
 
-            # 4. Token & Synonym coverage + Decompounded Sub-tokens
+            # 5. Token & Synonym coverage + Decompounded Sub-tokens
             token_coverage = 0.0
-            if tokens:
+            if tokens and (not is_exact_artist or artist_score > 0):
                 for t in tokens:
                     nt = normalize_text(t)
                     if nt in ns['norm_lyrics'] or nt in ns['norm_title']:
@@ -385,33 +466,32 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                     0.50 * matched_sub_synonym_count
                 ) / len(tokens)
 
-            # 5. TF-IDF Cosine Similarity
+            # 6. TF-IDF Cosine Similarity
             cos_sim = 0.0
-            if mag_a > 0:
+            if mag_a > 0 and (not is_exact_artist or artist_score > 0):
                 cos_sim = cosine_similarity(q_vec, VECTORS[i], song_idx=i, mag_a=mag_a)
 
-            # 6. Artist boost
-            artist_boost = 0.0
-            if ns['norm_artist'] and (norm_q in ns['norm_artist'] or ns['norm_artist'] in norm_q):
-                artist_boost = 0.08
-                matched_terms.append(song['artist'])
-
             # 7. Tiered Normalized Confidence Score [0.0 - 1.0]
-            if exact_title_match:
+            if exact_title_match and artist_score > 0:
+                score = 1.0
+            elif exact_title_match:
                 score = min(1.0, 0.98 + 0.02 * (cos_sim if mag_a > 0 else 1.0))
+            elif artist_score > 0 and title_score > 0:
+                score = min(0.98, max(title_score, artist_score) + 0.04)
             elif title_score > 0:
                 score = min(0.96, title_score + 0.02 * token_coverage + 0.02 * cos_sim)
+            elif artist_score > 0 and exact_lyrics_match:
+                score = min(0.96, max(lyrics_phrase_score, artist_score) + 0.03)
             elif exact_lyrics_match:
                 score = min(0.94, lyrics_phrase_score + 0.03 * token_coverage + 0.02 * cos_sim)
+            elif artist_score > 0:
+                score = min(0.94, artist_score + 0.02 * token_coverage + 0.02 * cos_sim)
             elif fuzzy_title_match:
                 score = min(0.80, fuzzy_score + 0.05 * token_coverage + 0.03 * cos_sim)
             elif fuzzy_lyrics_match:
                 score = min(0.72, fuzzy_score + 0.06 * token_coverage + 0.04 * cos_sim)
             elif token_coverage > 0 or cos_sim > 0:
                 score = min(0.68, 0.45 * token_coverage + 0.20 * cos_sim)
-
-            if artist_boost > 0 and score > 0:
-                score = min(0.99, score + artist_boost)
 
         min_threshold = 0.20 if norm_q else 0.01
         exact_lyric_phrase = exact_lyrics_match and (len(norm_q) >= 6 or len(tokens) >= 2)
@@ -715,6 +795,50 @@ def run_all_tests():
         "Invalid Syllable Onset Rejection: 'าว' and 'ิน' fragments return 0 results",
         len(enhanced_search("าว")) == 0 and len(enhanced_search("ิน")) == 0,
         "Non-word combining vowel fragments rejected cleanly"
+    )
+
+    print("\nCategory 10: Omnibox Direct & Combined Artist Search")
+    # 1. Direct exact artist search (ต่าย อรทัย) -> 100% precision, all songs feature artist
+    res_artist_direct = enhanced_search("ต่าย อรทัย")
+    all_tai = all("ต่าย อรทัย" in r['artist'] for r in res_artist_direct)
+    report.assert_test(
+        "Direct Artist Search: 'ต่าย อรทัย' retrieves all songs featuring artist with 100% precision",
+        len(res_artist_direct) >= 40 and all_tai,
+        f"Found {len(res_artist_direct)} songs, all featuring ต่าย อรทัย"
+    )
+
+    # 2. Direct artist high confidence score and evidence highlight
+    high_conf_artist = all(r['score'] >= 0.90 for r in res_artist_direct)
+    has_artist_in_terms = all("ต่าย อรทัย" in r['evidence']['matchedTerms'] for r in res_artist_direct)
+    report.assert_test(
+        "Artist Confidence & Highlighting: 'ต่าย อรทัย' achieves tier-1 score (>= 0.90) with artist in matchedTerms",
+        high_conf_artist and has_artist_in_terms,
+        f"Top score: {res_artist_direct[0]['score']}, Matched terms: {res_artist_direct[0]['evidence']['matchedTerms']}"
+    )
+
+    # 3. Combined query: Artist + Song Title ('ต่าย อรทัย ขอใจกันหนาว') -> #1 score 1.0
+    res_comb = enhanced_search("ต่าย อรทัย ขอใจกันหนาว")
+    top_comb = res_comb[0] if res_comb else None
+    is_top_comb = (
+        top_comb is not None and
+        top_comb['title'] == "ขอใจกันหนาว" and
+        top_comb['score'] == 1.0 and
+        "ต่าย อรทัย" in top_comb['evidence']['matchedTerms'] and
+        "ขอใจกันหนาว" in top_comb['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Combined Omnibox Query: 'ต่าย อรทัย ขอใจกันหนาว' ranks exact song at #1 with score 1.0 and both terms matched",
+        is_top_comb,
+        f"Top result: {top_comb['title'] if top_comb else 'None'} - Score: {top_comb['score'] if top_comb else 0}"
+    )
+
+    # 4. Partial artist search ('มนต์แคน') -> Top songs belong to Monkaen
+    res_partial_artist = enhanced_search("มนต์แคน")
+    top_10_monkaen = all("มนต์แคน" in r['artist'] for r in res_partial_artist[:10])
+    report.assert_test(
+        "Partial Artist Search: 'มนต์แคน' ranks Monkaen Kaenkoon songs at top ranks (score >= 0.85)",
+        len(res_partial_artist) > 0 and top_10_monkaen and res_partial_artist[0]['score'] >= 0.85,
+        f"Top 5 artists: {[r['artist'] for r in res_partial_artist[:5]]}"
     )
 
     print("\n========================================================")

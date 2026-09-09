@@ -459,6 +459,59 @@ const TEST_CASES = [
         detail: pass ? "กรองเศษสระ/วรรณยุกต์ที่ไม่มีพยัญชนะต้นทิ้งได้ 100%" : `พบผลลัพธ์ไม่พึงประสงค์ (${res1.length}, ${res2.length})`
       };
     }
+  },
+  {
+    category: "10. ค้นหาชื่อนักร้องตรงผ่านช่องค้นหาหลัก (Omnibox Artist Search)",
+    name: "ค้นหาชื่อนักร้อง 'ต่าย อรทัย' ต้องได้ผลลัพธ์ที่เป็นเพลงของต่าย อรทัย 100% (Precision 100%)",
+    run: async () => {
+      const res = await workerSearch("ต่าย อรทัย");
+      const pass = res.length >= 40 && res.every(r => r.artist.includes("ต่าย อรทัย"));
+      return {
+        pass,
+        detail: pass ? `พบเพลงของต่าย อรทัยครบถ้วน (${res.length} เพลง) แม่นยำ 100%` : `พบผลลัพธ์ผิดพลาด (${res.length} เพลง)`
+      };
+    }
+  },
+  {
+    category: "10. ค้นหาชื่อนักร้องตรงผ่านช่องค้นหาหลัก (Omnibox Artist Search)",
+    name: "คะแนนความมั่นใจนักร้องต้องสูง (>= 90%) และส่งชื่อนักร้องใน evidence.matchedTerms",
+    run: async () => {
+      const res = await workerSearch("ต่าย อรทัย");
+      const highConf = res.length > 0 && res.every(r => r.score >= 0.90);
+      const hasTerms = res.length > 0 && res.every(r => r.evidence && r.evidence.matchedTerms && r.evidence.matchedTerms.includes("ต่าย อรทัย"));
+      const pass = highConf && hasTerms;
+      return {
+        pass,
+        detail: pass ? `คะแนนสูงสุด ${(res[0].score * 100).toFixed(1)}% พร้อมไฮไลท์ชื่อนักร้อง` : `คะแนนหรือ matchedTerms ไม่ถูกต้อง`
+      };
+    }
+  },
+  {
+    category: "10. ค้นหาชื่อนักร้องตรงผ่านช่องค้นหาหลัก (Omnibox Artist Search)",
+    name: "ค้นหาแบบผสม ชื่อนักร้อง + ชื่อเพลง 'ต่าย อรทัย ขอใจกันหนาว' ต้องได้อันดับ 1 คะแนนเต็ม 1.0 (100%)",
+    run: async () => {
+      const res = await workerSearch("ต่าย อรทัย ขอใจกันหนาว");
+      const top = res.length > 0 ? res[0] : null;
+      const pass = top && top.title === "ขอใจกันหนาว" && top.score === 1.0 &&
+        top.evidence.matchedTerms.includes("ต่าย อรทัย") && top.evidence.matchedTerms.includes("ขอใจกันหนาว");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: ${top.title} (${top.artist}) คะแนน 100%` : `ไม่พบเพลงตรงอันดับ 1`
+      };
+    }
+  },
+  {
+    category: "10. ค้นหาชื่อนักร้องตรงผ่านช่องค้นหาหลัก (Omnibox Artist Search)",
+    name: "ค้นหาชื่อนักร้องบางส่วน 'มนต์แคน' ผลลัพธ์อันดับต้นๆ ต้องเป็นเพลงของมนต์แคน แก่นคูน ทั้งหมด",
+    run: async () => {
+      const res = await workerSearch("มนต์แคน");
+      const top10 = res.slice(0, 10);
+      const pass = top10.length > 0 && top10.every(r => r.artist.includes("มนต์แคน")) && res[0].score >= 0.85;
+      return {
+        pass,
+        detail: pass ? `10 อันดับแรกเป็นเพลงของมนต์แคนทั้งหมด คะแนนสูงสุด ${(res[0].score * 100).toFixed(1)}%` : `ผลการค้นหาไม่ตรงตามเกณฑ์`
+      };
+    }
   }
 ];
 
