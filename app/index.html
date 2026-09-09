@@ -1133,6 +1133,7 @@ let wordToIndex = null;
 let maxWordLen = 0;
 let NORM_SONGS = [];
 let VECTOR_MAGS = [];
+let ARTIST_SET = new Set();
 let isRecording = false;
 let recognition = null;
 let manualStopRequested = false;
@@ -1238,16 +1239,36 @@ async function loadData() {
     DATA.vocab.forEach((w, i) => wordToIndex.set(w, i));
     maxWordLen = DATA.maxWordLen || 15;
 
-    NORM_SONGS = DATA.songs.map(song => ({
-      normTitle: normalizeText(song.title),
-      normArtist: normalizeText(song.artist),
-      normLyrics: normalizeText(song.lyrics),
-    }));
+    NORM_SONGS = DATA.songs.map(song => {
+      const rawArtist = song.artist || '';
+      const subArtists = (rawArtist.includes(',') || rawArtist.includes(';') || rawArtist.includes('/'))
+        ? rawArtist.split(/[,/;&]/).map(a => a.trim()).filter(Boolean)
+        : (rawArtist ? [rawArtist] : []);
+      return {
+        normTitle: normalizeText(song.title),
+        normArtist: normalizeText(song.artist),
+        normLyrics: normalizeText(song.lyrics),
+        subArtists,
+        subArtistsNorm: subArtists.map(normalizeText),
+      };
+    });
 
     VECTOR_MAGS = DATA.vectors.map(vec => {
       let sumSq = 0;
       for (const v of Object.values(vec)) sumSq += v * v;
       return Math.sqrt(sumSq);
+    });
+
+    ARTIST_SET = new Set();
+    if (DATA.artists) {
+      DATA.artists.forEach(a => {
+        const na = normalizeText(a);
+        if (na) ARTIST_SET.add(na);
+      });
+    }
+    DATA.songs.forEach(song => {
+      const na = normalizeText(song.artist);
+      if (na) ARTIST_SET.add(na);
     });
 
     populateFilters();
@@ -1559,9 +1580,11 @@ function search(query) {
   if (rawQ && !isValidThaiQuery(rawQ)) return [];
 
   const normQ = normalizeText(rawQ);
+  const isExactArtist = ARTIST_SET.has(normQ);
+
   const tokens = tokenizeQuery(rawQ);
   const subTokens = extractSubTokens(tokens);
-  if (rawQ && tokens.length === 0 && normQ.length < 3) return [];
+  if (rawQ && tokens.length === 0 && normQ.length < 3 && !isExactArtist) return [];
 
   const { vec: qVec, mag: qMag } = queryToVector(tokens);
   const hasVector = qMag > 0;
@@ -1592,25 +1615,93 @@ function search(query) {
     let matchedSynonymCount = 0;
     let matchedSubTokenCount = 0;
     let matchedSubSynonymCount = 0;
+    let artistScore = 0.0;
+    let titleScore = 0.0;
 
     if (normQ) {
-      // 1. Title matching
-      let titleScore = 0.0;
-      if (ns.normTitle === normQ) {
-        exactTitleMatch = true;
-        titleScore = 1.0;
-        matchedTerms.push(song.title);
-      } else if (ns.normTitle.includes(normQ)) {
-        const ratio = normQ.length / Math.max(ns.normTitle.length, 1);
-        titleScore = 0.82 + 0.14 * ratio;
-        matchedTerms.push(song.title);
-      } else if (normQ.includes(ns.normTitle) && ns.normTitle.length >= 3) {
-        const ratio = ns.normTitle.length / normQ.length;
-        titleScore = 0.78 + 0.12 * ratio;
-        matchedTerms.push(song.title);
+      // 1. Artist Matching (Omnibox)
+      if (ns.normArtist) {
+        let matchedCollab = null;
+        let matchedCollabInQ = null;
+        let matchedCollabInQNorm = '';
+
+        if (ns.subArtistsNorm && ns.subArtistsNorm.length > 0) {
+          const len = ns.subArtistsNorm.length;
+          for (let k = 0; k < len; k++) {
+            const sn = ns.subArtistsNorm[k];
+            if (sn === normQ) {
+              matchedCollab = ns.subArtists[k];
+              break;
+            } else if (sn.length >= 3 && normQ.includes(sn)) {
+              matchedCollabInQ = ns.subArtists[k];
+              matchedCollabInQNorm = sn;
+            }
+          }
+        }
+
+        if (ns.normArtist === normQ || matchedCollab) {
+          artistScore = 0.94;
+          matchedTerms.push(matchedCollab || song.artist);
+          if (rawQ) matchedTerms.push(rawQ);
+        } else if (ns.normArtist.includes(normQ) && normQ.length >= 3) {
+          const ratio = normQ.length / Math.max(ns.normArtist.length, 1);
+          artistScore = 0.82 + 0.10 * ratio;
+          matchedTerms.push(song.artist);
+          if (rawQ) matchedTerms.push(rawQ);
+        }
+
+        let targetArtistNorm = '';
+        let matchedArtistName = '';
+        if (normQ.includes(ns.normArtist) && ns.normArtist.length >= 3) {
+          targetArtistNorm = ns.normArtist;
+          matchedArtistName = song.artist;
+        } else if (matchedCollabInQ) {
+          targetArtistNorm = matchedCollabInQNorm;
+          matchedArtistName = matchedCollabInQ;
+        }
+
+        if (targetArtistNorm) {
+          const remQ = normQ.replace(targetArtistNorm, '');
+          if (remQ && ns.normTitle === remQ) {
+            exactTitleMatch = true;
+            titleScore = 1.0;
+            artistScore = 0.95;
+            matchedTerms.push(matchedArtistName);
+            matchedTerms.push(song.title);
+          } else if (remQ && ns.normTitle.includes(remQ)) {
+            titleScore = 0.92;
+            artistScore = 0.92;
+            matchedTerms.push(matchedArtistName);
+            matchedTerms.push(song.title);
+          } else if (remQ && ns.normLyrics.includes(remQ)) {
+            exactLyricsMatch = true;
+            artistScore = 0.90;
+            matchedTerms.push(matchedArtistName);
+          } else if (!artistScore) {
+            artistScore = 0.85;
+            matchedTerms.push(matchedArtistName);
+          }
+        }
       }
 
-      // 2. Lyrics phrase matching
+      // 2. Title matching
+      if (!exactTitleMatch) {
+        if (ns.normTitle === normQ) {
+          exactTitleMatch = true;
+          titleScore = 1.0;
+          matchedTerms.push(song.title);
+        } else if (ns.normTitle.includes(normQ)) {
+          const ratio = normQ.length / Math.max(ns.normTitle.length, 1);
+          titleScore = 0.82 + 0.14 * ratio;
+          matchedTerms.push(song.title);
+        } else if (normQ.includes(ns.normTitle) && ns.normTitle.length >= 3) {
+          const ratio = ns.normTitle.length / normQ.length;
+          titleScore = 0.78 + 0.12 * ratio;
+          matchedTerms.push(song.title);
+        }
+      }
+
+      // 3. Lyrics phrase matching
       let lyricsPhraseScore = 0.0;
       const isBoundPrefixOnly = BOUND_PREFIXES.has(normQ) && tokens.length === 0;
       if (!isBoundPrefixOnly && ns.normLyrics.includes(normQ)) {
@@ -1624,26 +1715,28 @@ function search(query) {
         matchedTerms.push(rawQ);
       }
 
-      // 3. Fuzzy matching
+      // 4. Fuzzy matching
       let fuzzyScore = 0.0;
-      if (!exactLyricsMatch && !exactTitleMatch && normQ.length >= 3) {
+      if (!exactLyricsMatch && !exactTitleMatch && artistScore === 0 && normQ.length >= 3) {
         const fTitle = fuzzyMatchWindow(normQ, ns.normTitle, 1, true);
         if (fTitle && fTitle.matched) {
           fuzzyTitleMatch = true;
           fuzzyScore = Math.max(fuzzyScore, 0.72);
           if (fTitle.sub) matchedTerms.push(fTitle.sub);
         }
-        const fLyrics = fuzzyMatchWindow(normQ, ns.normLyrics, 1, false);
-        if (fLyrics && fLyrics.matched) {
-          fuzzyLyricsMatch = true;
-          fuzzyScore = Math.max(fuzzyScore, 0.56);
-          if (fLyrics.sub) matchedTerms.push(fLyrics.sub);
+        if (!isExactArtist) {
+          const fLyrics = fuzzyMatchWindow(normQ, ns.normLyrics, 1, false);
+          if (fLyrics && fLyrics.matched) {
+            fuzzyLyricsMatch = true;
+            fuzzyScore = Math.max(fuzzyScore, 0.56);
+            if (fLyrics.sub) matchedTerms.push(fLyrics.sub);
+          }
         }
       }
 
-      // 4. Token & Synonym coverage + Decompounded Sub-tokens
+      // 5. Token & Synonym coverage
       let tokenCoverage = 0.0;
-      if (tokens.length > 0) {
+      if (tokens.length > 0 && (!isExactArtist || artistScore > 0)) {
         for (const t of tokens) {
           const nt = normalizeText(t);
           if (ns.normLyrics.includes(nt) || ns.normTitle.includes(nt)) {
@@ -1692,36 +1785,33 @@ function search(query) {
         ) / tokens.length;
       }
 
-      // 5. TF-IDF Cosine Similarity
+      // 6. TF-IDF Cosine Similarity
       let cosSim = 0.0;
-      if (hasVector) {
+      if (hasVector && (!isExactArtist || artistScore > 0)) {
         cosSim = cosineSim(qVec, qMag, i);
       }
 
-      // 6. Artist boost
-      let artistBoost = 0.0;
-      if (ns.normArtist && (normQ.includes(ns.normArtist) || ns.normArtist.includes(normQ))) {
-        artistBoost = 0.08;
-        matchedTerms.push(song.artist);
-      }
-
       // 7. Tiered Normalized Confidence Score in [0.0, 1.0]
-      if (exactTitleMatch) {
+      if (exactTitleMatch && artistScore > 0) {
+        score = 1.0;
+      } else if (exactTitleMatch) {
         score = Math.min(1.0, 0.98 + 0.02 * (hasVector ? cosSim : 1.0));
+      } else if (artistScore > 0 && titleScore > 0) {
+        score = Math.min(0.98, Math.max(titleScore, artistScore) + 0.04);
       } else if (titleScore > 0) {
         score = Math.min(0.96, titleScore + 0.02 * tokenCoverage + 0.02 * cosSim);
+      } else if (artistScore > 0 && exactLyricsMatch) {
+        score = Math.min(0.96, Math.max(lyricsPhraseScore, artistScore) + 0.03);
       } else if (exactLyricsMatch) {
         score = Math.min(0.94, lyricsPhraseScore + 0.03 * tokenCoverage + 0.02 * cosSim);
+      } else if (artistScore > 0) {
+        score = Math.min(0.94, artistScore + 0.02 * tokenCoverage + 0.02 * cosSim);
       } else if (fuzzyTitleMatch) {
         score = Math.min(0.80, fuzzyScore + 0.05 * tokenCoverage + 0.03 * cosSim);
       } else if (fuzzyLyricsMatch) {
         score = Math.min(0.72, fuzzyScore + 0.06 * tokenCoverage + 0.04 * cosSim);
       } else if (tokenCoverage > 0 || cosSim > 0) {
         score = Math.min(0.68, 0.45 * tokenCoverage + 0.20 * cosSim);
-      }
-
-      if (artistBoost > 0 && score > 0) {
-        score = Math.min(0.99, score + artistBoost);
       }
     }
 
