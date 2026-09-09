@@ -102,7 +102,7 @@ class FullSystemTester:
         print("\n--- Phase 3: Search Engine Core & Ranking Tests ---")
         report = run_all_tests()
         self.check(
-            f"Search Engine Core Test Suite (26/26 assertions)",
+            f"Search Engine Core Test Suite ({report.total}/{report.total} assertions)",
             report.failed == 0,
             f"Passed: {report.passed}/{report.total}"
         )
