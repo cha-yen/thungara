@@ -1025,13 +1025,13 @@ header p {
 <header>
   <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง"></button>
   <h1>Thungara</h1>
-  <p>ค้นหาเพลงจากเนื้อร้อง หรือชื่อเพลง พิมพ์หรือร้องได้เลย</p>
+  <p>ค้นหาเพลงจากเนื้อร้อง ชื่อเพลง หรือชื่อศิลปิน — พิมพ์หรือร้องได้เลย</p>
 </header>
 
 <div class="search-area">
   <div class="search-box container">
     <div class="search-input-wrap">
-      <textarea id="search-input" rows="1" placeholder="พิมพ์หรือร้องเนื้อเพลง..."></textarea>
+      <textarea id="search-input" rows="1" placeholder="พิมพ์ชื่อเพลง, เนื้อร้อง, หรือชื่อศิลปิน (เช่น ต่าย อรทัย, ขอใจกันหนาว)..."></textarea>
       <button class="btn-clear" id="btn-clear" onclick="clearSearch()">&times;</button>
     </div>
     <div class="search-actions">
@@ -1862,6 +1862,7 @@ function renderResults(results, query) {
       + '<ul>'
       + '<li>พิมพ์เนื้อเพลงสั้นลง เช่น วลีที่จำได้</li>'
       + '<li>ตรวจสอบตัวสะกดอีกครั้ง</li>'
+      + '<li>ค้นหาด้วยชื่อศิลปิน หรือชื่อเพลงโดยตรง</li>'
       + '<li>ลองร้องผ่านไมค์แทนการพิมพ์</li>'
       + '<li>ลองเอาตัวกรองศิลปิน/อารมณ์/ปี ออก</li>'
       + '</ul></div>';
@@ -1872,7 +1873,7 @@ function renderResults(results, query) {
   if (currentResults.length === 0) {
     container.style.display = 'none';
     emptyState.style.display = 'block';
-    emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์เนื้อเพลงหรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้</p>';
+    emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้ทันที</p>';
     stats.textContent = DATA ? DATA.songs.length + ' เพลงพร้อมค้นหา' : '';
     return;
   }
