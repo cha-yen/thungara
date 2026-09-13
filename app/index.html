@@ -988,6 +988,64 @@ header p {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+.skeleton-grid {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+.skeleton-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.skeleton-line {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg-input) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s ease-in-out infinite;
+  border-radius: 6px;
+}
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-title {
+  height: 18px;
+  width: 46%;
+}
+.skeleton-badge {
+  height: 18px;
+  width: 44px;
+  border-radius: 99px;
+}
+.skeleton-artist {
+  height: 14px;
+  width: 32%;
+  margin-bottom: 12px;
+}
+.skeleton-meta {
+  height: 12px;
+  width: 22%;
+  margin-bottom: 12px;
+}
+.skeleton-lyric {
+  height: 13px;
+  width: 88%;
+  margin-bottom: 8px;
+}
+.skeleton-lyric-short {
+  height: 13px;
+  width: 58%;
+}
 
 .empty-state {
   text-align: center;
@@ -1204,6 +1262,28 @@ header p {
 <div class="loading container" id="loading">
   <div class="spinner"></div>
   <div class="loading-text">กำลังโหลดข้อมูล 1,500 เพลง...</div>
+  <div class="skeleton-grid" aria-hidden="true">
+    <div class="skeleton-card">
+      <div class="skeleton-header">
+        <div class="skeleton-line skeleton-title"></div>
+        <div class="skeleton-line skeleton-badge"></div>
+      </div>
+      <div class="skeleton-line skeleton-artist"></div>
+      <div class="skeleton-line skeleton-meta"></div>
+      <div class="skeleton-line skeleton-lyric"></div>
+      <div class="skeleton-line skeleton-lyric-short"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton-header">
+        <div class="skeleton-line skeleton-title"></div>
+        <div class="skeleton-line skeleton-badge"></div>
+      </div>
+      <div class="skeleton-line skeleton-artist"></div>
+      <div class="skeleton-line skeleton-meta"></div>
+      <div class="skeleton-line skeleton-lyric"></div>
+      <div class="skeleton-line skeleton-lyric-short"></div>
+    </div>
+  </div>
 </div>
 
 <div class="results container" id="results" style="display:none"></div>
