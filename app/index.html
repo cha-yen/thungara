@@ -255,6 +255,33 @@ header p {
 }
 .btn-clear:hover { background: rgba(229,62,62,0.2); transform: scale(1.1); }
 .btn-clear.show { display: flex; }
+.kbd-hint {
+  position: absolute;
+  top: 13px;
+  right: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  color: var(--text-muted);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 6px;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1.4;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 4;
+}
+.search-input-wrap:focus-within .kbd-hint,
+.btn-clear.show ~ .kbd-hint {
+  opacity: 0;
+  transform: scale(0.85);
+}
+@media (max-width: 640px) {
+  .kbd-hint { display: none; }
+}
 .btn-mic {
   border: none;
   color: #FFF;
@@ -1123,6 +1150,7 @@ header p {
     <div class="search-input-wrap">
       <textarea id="search-input" rows="1" placeholder="พิมพ์ชื่อเพลง, เนื้อร้อง, หรือชื่อศิลปิน (เช่น ต่าย อรทัย, ขอใจกันหนาว)..."></textarea>
       <button class="btn-clear" id="btn-clear" onclick="clearSearch()">&times;</button>
+      <kbd class="kbd-hint" id="kbd-hint" title="กดปุ่ม / เพื่อค้นหา">/</kbd>
     </div>
     <div class="search-actions">
       <button class="btn-mic" id="mic-btn" onclick="toggleRecording()" title="กดเพื่อร้องค้นหา">
@@ -2632,9 +2660,35 @@ document.getElementById('search-input').addEventListener('keydown', function(e) 
 });
 
 document.addEventListener('keydown', function(e) {
+  const modalOverlay = document.getElementById('modal-overlay');
+  const isModalOpen = modalOverlay && modalOverlay.classList.contains('show');
+
   if (e.key === 'Escape') {
-    document.getElementById('modal-overlay').classList.remove('show');
-    document.body.style.overflow = '';
+    if (isModalOpen) {
+      closeModalDirect();
+      e.preventDefault();
+      return;
+    }
+    const input = document.getElementById('search-input');
+    if (input && (document.activeElement === input || input.value)) {
+      clearSearch();
+      input.blur();
+      e.preventDefault();
+    }
+    return;
+  }
+
+  if (e.key === '/' && !isModalOpen) {
+    const activeEl = document.activeElement;
+    const isEditing = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+    if (!isEditing) {
+      e.preventDefault();
+      const input = document.getElementById('search-input');
+      if (input) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }
   }
 });
 
