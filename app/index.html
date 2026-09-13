@@ -255,6 +255,33 @@ header p {
 }
 .btn-clear:hover { background: rgba(229,62,62,0.2); transform: scale(1.1); }
 .btn-clear.show { display: flex; }
+.kbd-hint {
+  position: absolute;
+  top: 13px;
+  right: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  color: var(--text-muted);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 6px;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1.4;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 4;
+}
+.search-input-wrap:focus-within .kbd-hint,
+.btn-clear.show ~ .kbd-hint {
+  opacity: 0;
+  transform: scale(0.85);
+}
+@media (max-width: 640px) {
+  .kbd-hint { display: none; }
+}
 .btn-mic {
   border: none;
   color: #FFF;
@@ -438,6 +465,96 @@ header p {
 .filter-select:focus {
   outline: none;
   border-color: var(--primary);
+}
+
+.search-chips-wrap {
+  margin-top: 14px;
+  animation: cardFadeIn 0.25s ease;
+}
+.search-chips-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.search-chips-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+.btn-text-action {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-family: 'Prompt', sans-serif;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+.btn-text-action:hover {
+  color: var(--red);
+  background: rgba(229,62,62,0.08);
+}
+.chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-family: 'Prompt', sans-serif;
+  padding: 4px 12px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.chip:hover {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+  background: rgba(245,158,11,0.08);
+  transform: translateY(-1px);
+}
+.chip-suggest {
+  background: rgba(245,158,11,0.06);
+  border-color: rgba(245,158,11,0.25);
+  color: var(--primary-dark);
+  font-weight: 500;
+}
+.chip-suggest:hover {
+  background: var(--primary);
+  color: #FFF;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+}
+.chip-btn-del {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0 2px;
+  margin-right: -4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: color 0.15s;
+}
+.chip-btn-del:hover {
+  color: var(--red);
 }
 
 .stats {
@@ -871,6 +988,64 @@ header p {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+.skeleton-grid {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+.skeleton-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.skeleton-line {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg-input) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s ease-in-out infinite;
+  border-radius: 6px;
+}
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-title {
+  height: 18px;
+  width: 46%;
+}
+.skeleton-badge {
+  height: 18px;
+  width: 44px;
+  border-radius: 99px;
+}
+.skeleton-artist {
+  height: 14px;
+  width: 32%;
+  margin-bottom: 12px;
+}
+.skeleton-meta {
+  height: 12px;
+  width: 22%;
+  margin-bottom: 12px;
+}
+.skeleton-lyric {
+  height: 13px;
+  width: 88%;
+  margin-bottom: 8px;
+}
+.skeleton-lyric-short {
+  height: 13px;
+  width: 58%;
+}
 
 .empty-state {
   text-align: center;
@@ -1033,6 +1208,7 @@ header p {
     <div class="search-input-wrap">
       <textarea id="search-input" rows="1" placeholder="พิมพ์ชื่อเพลง, เนื้อร้อง, หรือชื่อศิลปิน (เช่น ต่าย อรทัย, ขอใจกันหนาว)..."></textarea>
       <button class="btn-clear" id="btn-clear" onclick="clearSearch()">&times;</button>
+      <kbd class="kbd-hint" id="kbd-hint" title="กดปุ่ม / เพื่อค้นหา">/</kbd>
     </div>
     <div class="search-actions">
       <button class="btn-mic" id="mic-btn" onclick="toggleRecording()" title="กดเพื่อร้องค้นหา">
@@ -1052,6 +1228,32 @@ header p {
         <option value="">ปีทั้งหมด</option>
       </select>
     </div>
+    <div class="search-chips-wrap" id="recent-searches-wrap" style="display: none;">
+      <div class="search-chips-header">
+        <span class="search-chips-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ประวัติการค้นหาล่าสุด
+        </span>
+        <button class="btn-text-action" onclick="clearRecentSearches()" title="ล้างประวัติทั้งหมด">ล้างประวัติ</button>
+      </div>
+      <div class="chips-list" id="recent-chips"></div>
+    </div>
+    <div class="search-chips-wrap" id="quick-suggestions-wrap">
+      <div class="search-chips-header">
+        <span class="search-chips-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          คำค้นหายอดนิยม
+        </span>
+      </div>
+      <div class="chips-list">
+        <button class="chip chip-suggest" onclick="selectSuggestion('ขอใจกันหนาว')">#ขอใจกันหนาว</button>
+        <button class="chip chip-suggest" onclick="selectSuggestion('ต่าย อรทัย')">#ต่าย อรทัย</button>
+        <button class="chip chip-suggest" onclick="selectSuggestion('ดอกหญ้าในป่าปูน')">#ดอกหญ้าในป่าปูน</button>
+        <button class="chip chip-suggest" onclick="selectSuggestion('มนต์แคน แก่นคูน')">#มนต์แคน แก่นคูน</button>
+        <button class="chip chip-suggest" onclick="selectSuggestion('คิดฮอด')">#คิดฮอด</button>
+        <button class="chip chip-suggest" onclick="selectSuggestion('กำลังใจ')">#กำลังใจ</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1060,6 +1262,28 @@ header p {
 <div class="loading container" id="loading">
   <div class="spinner"></div>
   <div class="loading-text">กำลังโหลดข้อมูล 1,500 เพลง...</div>
+  <div class="skeleton-grid" aria-hidden="true">
+    <div class="skeleton-card">
+      <div class="skeleton-header">
+        <div class="skeleton-line skeleton-title"></div>
+        <div class="skeleton-line skeleton-badge"></div>
+      </div>
+      <div class="skeleton-line skeleton-artist"></div>
+      <div class="skeleton-line skeleton-meta"></div>
+      <div class="skeleton-line skeleton-lyric"></div>
+      <div class="skeleton-line skeleton-lyric-short"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton-header">
+        <div class="skeleton-line skeleton-title"></div>
+        <div class="skeleton-line skeleton-badge"></div>
+      </div>
+      <div class="skeleton-line skeleton-artist"></div>
+      <div class="skeleton-line skeleton-meta"></div>
+      <div class="skeleton-line skeleton-lyric"></div>
+      <div class="skeleton-line skeleton-lyric-short"></div>
+    </div>
+  </div>
 </div>
 
 <div class="results container" id="results" style="display:none"></div>
@@ -1280,9 +1504,14 @@ async function loadData() {
         if (e.data.type === 'results') {
           document.getElementById('search-progress').classList.remove('active');
           renderResults(e.data.payload, e.data.query);
+          if (e.data.query && e.data.query.trim().length >= 2 && e.data.payload && e.data.payload.length > 0) {
+            saveRecentSearch(e.data.query.trim());
+          }
         }
       };
     }
+
+    renderRecentSearches();
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('empty-state').style.display = 'block';
@@ -2341,6 +2570,9 @@ function doSearch() {
     const results = search(query || '  ');
     document.getElementById('search-progress').classList.remove('active');
     renderResults(results, query);
+    if (query && query.trim().length >= 2 && results && results.length > 0) {
+      saveRecentSearch(query.trim());
+    }
   }
 }
 
@@ -2355,6 +2587,92 @@ function clearSearch() {
   document.getElementById('filter-year').value = '';
   renderResults([], '');
   el.focus();
+}
+
+const RECENT_KEY = 'thungara_recent_searches';
+function getRecentSearches() {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRecentSearch(q) {
+  if (!q || q.length < 2) return;
+  try {
+    let list = getRecentSearches();
+    list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
+    list.unshift(q);
+    if (list.length > 5) list = list.slice(0, 5);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    renderRecentSearches();
+  } catch (e) {}
+}
+
+function removeRecentSearch(q, e) {
+  if (e) e.stopPropagation();
+  try {
+    let list = getRecentSearches();
+    list = list.filter(item => item !== q);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    renderRecentSearches();
+  } catch (e) {}
+}
+
+function clearRecentSearches() {
+  try {
+    localStorage.removeItem(RECENT_KEY);
+    renderRecentSearches();
+  } catch (e) {}
+}
+
+function applyRecentSearch(q) {
+  const input = document.getElementById('search-input');
+  if (input) {
+    input.value = q;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+    doSearch();
+  }
+}
+
+function renderRecentSearches() {
+  const wrap = document.getElementById('recent-searches-wrap');
+  const chipsList = document.getElementById('recent-chips');
+  if (!wrap || !chipsList) return;
+  const list = getRecentSearches();
+  if (!list || list.length === 0) {
+    wrap.style.display = 'none';
+    chipsList.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'block';
+  let html = '';
+  list.forEach(item => {
+    html += '<div class="chip" onclick="applyRecentSearch(\'' + esc(item).replace(/'/g, "\\'") + '\')">'
+      + '<span>' + esc(item) + '</span>'
+      + '<button class="chip-btn-del" onclick="removeRecentSearch(\'' + esc(item).replace(/'/g, "\\'") + '\', event)" title="ลบ">&times;</button>'
+      + '</div>';
+  });
+  chipsList.innerHTML = html;
+}
+
+function selectSuggestion(text) {
+  const el = document.getElementById('search-input');
+  if (el) {
+    el.value = text;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+    doSearch();
+    const resultsArea = document.getElementById('results');
+    if (resultsArea) {
+      const searchBox = document.querySelector('.search-area');
+      const offset = searchBox ? searchBox.offsetHeight + 40 : 200;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+  }
 }
 
 function getTheme() {
@@ -2422,9 +2740,35 @@ document.getElementById('search-input').addEventListener('keydown', function(e) 
 });
 
 document.addEventListener('keydown', function(e) {
+  const modalOverlay = document.getElementById('modal-overlay');
+  const isModalOpen = modalOverlay && modalOverlay.classList.contains('show');
+
   if (e.key === 'Escape') {
-    document.getElementById('modal-overlay').classList.remove('show');
-    document.body.style.overflow = '';
+    if (isModalOpen) {
+      closeModalDirect();
+      e.preventDefault();
+      return;
+    }
+    const input = document.getElementById('search-input');
+    if (input && (document.activeElement === input || input.value)) {
+      clearSearch();
+      input.blur();
+      e.preventDefault();
+    }
+    return;
+  }
+
+  if (e.key === '/' && !isModalOpen) {
+    const activeEl = document.activeElement;
+    const isEditing = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+    if (!isEditing) {
+      e.preventDefault();
+      const input = document.getElementById('search-input');
+      if (input) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }
   }
 });
 

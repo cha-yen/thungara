@@ -107,6 +107,21 @@ class FullSystemTester:
             f"Passed: {report.passed}/{report.total}"
         )
 
+        # Section 4: UI & Frontend Experience Audit
+        print("\n--- Phase 4: UI & Frontend Experience Audit ---")
+        index_html_path = os.path.join(PROJECT_ROOT, 'app', 'index.html')
+        worker_js_path = os.path.join(PROJECT_ROOT, 'app', 'search-worker.js')
+        self.check("app/index.html exists and is readable", os.path.exists(index_html_path))
+        self.check("app/search-worker.js exists", os.path.exists(worker_js_path))
+
+        with open(index_html_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+
+        self.check("Recent search history UI implemented", "recent-searches-wrap" in html_content and "thungara_recent_searches" in html_content)
+        self.check("Quick suggestion tags UI implemented", "quick-suggestions-wrap" in html_content and "selectSuggestion" in html_content)
+        self.check("Keyboard shortcuts implemented (/ and Esc)", "kbd-hint" in html_content and "e.key === '/'" in html_content and "e.key === 'Escape'" in html_content)
+        self.check("Modern skeleton loading shimmer implemented", "skeleton-grid" in html_content and "skeletonShimmer" in html_content)
+
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
