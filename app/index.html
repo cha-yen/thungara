@@ -1583,10 +1583,40 @@ async function loadData() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('empty-state').style.display = 'block';
     document.getElementById('stats').textContent = DATA.songs.length + ' เพลงพร้อมค้นหา';
+    handleUrlParams();
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<p style="color:var(--mic-recording)">โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรช</p>';
   }
+}
+
+function handleUrlParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const songParam = params.get('song');
+    const qParam = params.get('q');
+    const artistParam = params.get('artist');
+
+    if (songParam !== null && DATA && DATA.songs) {
+      const songIdx = parseInt(songParam, 10);
+      if (!isNaN(songIdx) && songIdx >= 0 && songIdx < DATA.songs.length) {
+        setTimeout(() => openModal(songIdx), 150);
+        return;
+      }
+    }
+
+    if (qParam || artistParam) {
+      const initialQuery = (qParam || artistParam || '').trim();
+      const input = document.getElementById('search-input');
+      if (input && initialQuery) {
+        input.value = initialQuery;
+        autoResize(input);
+        currentQuery = initialQuery;
+        document.getElementById('btn-clear').classList.add('show');
+        doSearch();
+      }
+    }
+  } catch (e) {}
 }
 
 function populateFilters() {
@@ -2513,7 +2543,8 @@ async function shareSong(idx) {
   const ytUrl = ytId ? 'https://youtu.be/' + ytId : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' ' + song.artist);
   
   const snippet = song.lyrics.split('\n').filter(l => l.trim()).slice(0, 3).join('\n');
-  const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\nฟังเพลง: ' + ytUrl;
+  const appUrl = (window.location.origin && window.location.pathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
+  const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\n' + (appUrl ? 'อ่านเนื้อเพลง: ' + appUrl + '\n' : '') + 'ฟังเพลง: ' + ytUrl;
 
   if (navigator.share) {
     try {
