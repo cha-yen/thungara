@@ -1227,6 +1227,13 @@ header p {
       <select class="filter-select" id="filter-year" onchange="doSearch()">
         <option value="">ปีทั้งหมด</option>
       </select>
+      <select class="filter-select" id="filter-sort" onchange="applySortAndRender()" title="เรียงลำดับผลลัพธ์">
+        <option value="relevance">เรียง: ความเกี่ยวข้อง</option>
+        <option value="year_desc">เรียง: ปีใหม่ล่าสุด</option>
+        <option value="year_asc">เรียง: ปีเก่าสุด</option>
+        <option value="title_asc">เรียง: ชื่อเพลง (ก-ฮ)</option>
+        <option value="artist_asc">เรียง: ศิลปิน (ก-ฮ)</option>
+      </select>
     </div>
     <div class="search-chips-wrap" id="recent-searches-wrap" style="display: none;">
       <div class="search-chips-header">
@@ -1364,6 +1371,7 @@ let manualStopRequested = false;
 let currentQuery = '';
 let debounceTimer = null;
 let searchWorker = null;
+let rawSearchResults = [];
 let currentResults = [];
 let displayedCount = 0;
 const PAGE_SIZE = 30;
@@ -2073,12 +2081,68 @@ function search(query) {
   return results;
 }
 
+function sortResultsList(list) {
+  if (!list || list.length <= 1 || !DATA || !DATA.songs) return list || [];
+  const sortSelect = document.getElementById('filter-sort');
+  const sortMode = sortSelect ? sortSelect.value : 'relevance';
+  if (sortMode === 'relevance') {
+    return [...list].sort((a, b) => b.score - a.score);
+  }
+  return [...list].sort((a, b) => {
+    const sA = DATA.songs[a.idx];
+    const sB = DATA.songs[b.idx];
+    if (!sA || !sB) return 0;
+    if (sortMode === 'year_desc') {
+      const yA = parseInt(sA.year, 10) || 0;
+      const yB = parseInt(sB.year, 10) || 0;
+      if (yB !== yA) return yB - yA;
+      return b.score - a.score;
+    }
+    if (sortMode === 'year_asc') {
+      const yA = parseInt(sA.year, 10) || 9999;
+      const yB = parseInt(sB.year, 10) || 9999;
+      if (yA !== yB) return yA - yB;
+      return b.score - a.score;
+    }
+    if (sortMode === 'title_asc') {
+      const tA = (sA.title || '').trim();
+      const tB = (sB.title || '').trim();
+      const comp = tA.localeCompare(tB, 'th');
+      return comp !== 0 ? comp : (b.score - a.score);
+    }
+    if (sortMode === 'artist_asc') {
+      const aA = (sA.artist || '').trim();
+      const aB = (sB.artist || '').trim();
+      const comp = aA.localeCompare(aB, 'th');
+      return comp !== 0 ? comp : (b.score - a.score);
+    }
+    return b.score - a.score;
+  });
+}
+
+function applySortAndRender() {
+  if (!rawSearchResults || rawSearchResults.length === 0) {
+    if (currentQuery || (document.getElementById('filter-artist') && document.getElementById('filter-artist').value)
+        || (document.getElementById('filter-emotion') && document.getElementById('filter-emotion').value)
+        || (document.getElementById('filter-year') && document.getElementById('filter-year').value)) {
+      doSearch();
+    }
+    return;
+  }
+  currentResults = sortResultsList(rawSearchResults);
+  displayedCount = 0;
+  const cardsWrap = document.getElementById('song-cards-wrap');
+  if (cardsWrap) cardsWrap.innerHTML = '';
+  appendNextBatch(currentQuery);
+}
+
 function renderResults(results, query) {
   const container = document.getElementById('results');
   const emptyState = document.getElementById('empty-state');
   const stats = document.getElementById('stats');
 
-  currentResults = results || [];
+  rawSearchResults = results || [];
+  currentResults = sortResultsList(rawSearchResults);
   displayedCount = 0;
 
   if (currentResults.length === 0 && query.trim()) {
@@ -2581,6 +2645,7 @@ function clearSearch() {
   el.value = '';
   el.style.height = 'auto';
   currentQuery = '';
+  rawSearchResults = [];
   document.getElementById('btn-clear').classList.remove('show');
   document.getElementById('filter-artist').value = '';
   document.getElementById('filter-emotion').value = '';
