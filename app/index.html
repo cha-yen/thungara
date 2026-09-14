@@ -768,6 +768,32 @@ header p {
   font-size: 0.95rem;
   color: var(--text-secondary);
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.btn-artist-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+  color: var(--primary-dark);
+  font-size: 0.76rem;
+  font-weight: 500;
+  font-family: 'Prompt', sans-serif;
+  padding: 2px 9px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-artist-pill:hover {
+  background: var(--primary);
+  color: #FFF;
+  border-color: var(--primary);
+  transform: translateY(-1px);
 }
 .modal-meta {
   display: flex;
@@ -2376,6 +2402,39 @@ function highlightText(text, query, matchedTerms) {
 
 let currentModalSongIdx = null;
 
+function getArtistSongCount(artistName) {
+  if (!DATA || !DATA.songs || !artistName) return 0;
+  const targetNorm = normalizeText(artistName);
+  if (!targetNorm) return 0;
+  let count = 0;
+  for (let i = 0; i < DATA.songs.length; i++) {
+    const aNorm = normalizeText(DATA.songs[i].artist);
+    if (aNorm === targetNorm || aNorm.includes(targetNorm) || targetNorm.includes(aNorm)) {
+      count++;
+    }
+  }
+  return count;
+}
+
+function filterByArtistFromModal(artistName) {
+  if (!artistName) return;
+  closeModalDirect();
+  const input = document.getElementById('search-input');
+  if (input) {
+    input.value = artistName;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+    doSearch();
+    const resultsArea = document.getElementById('results');
+    if (resultsArea) {
+      const searchBox = document.querySelector('.search-area');
+      const offset = searchBox ? searchBox.offsetHeight + 40 : 200;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+    showToast('🎤 ค้นหาผลงานทั้งหมดของ: ' + artistName);
+  }
+}
+
 function openModal(idx) {
   if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
   currentModalSongIdx = idx;
@@ -2385,8 +2444,12 @@ function openModal(idx) {
   const r = currentResults.find(res => res.idx === idx);
   const matchedTerms = (r && r.evidence && r.evidence.matchedTerms) ? r.evidence.matchedTerms : [];
 
+  const artistCount = getArtistSongCount(song.artist);
+  const countBadge = artistCount > 1
+    ? ' <button class="btn-artist-pill" onclick="filterByArtistFromModal(\'' + esc(song.artist).replace(/'/g, "\\'") + '\')" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
+    : '';
   document.getElementById('modal-title').innerHTML = highlightText(song.title, query, matchedTerms);
-  document.getElementById('modal-artist').innerHTML = highlightText(song.artist, query, matchedTerms);
+  document.getElementById('modal-artist').innerHTML = '<span>' + highlightText(song.artist, query, matchedTerms) + '</span>' + countBadge;
 
   let meta = '';
   if (song.year) meta += '<span class="badge">' + esc(song.year) + '</span>';
