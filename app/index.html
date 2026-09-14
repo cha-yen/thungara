@@ -314,6 +314,34 @@ header p {
   opacity: 0.3;
   pointer-events: none;
 }
+.btn-random {
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-shrink: 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  font-family: 'Prompt', sans-serif;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+.btn-random svg { width: 16px; height: 16px; color: var(--primary-dark); }
+.btn-random:hover {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+  background: rgba(245,158,11,0.08);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-random:active { transform: translateY(0); }
 
 .rec-overlay {
   position: fixed;
@@ -740,6 +768,32 @@ header p {
   font-size: 0.95rem;
   color: var(--text-secondary);
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.btn-artist-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+  color: var(--primary-dark);
+  font-size: 0.76rem;
+  font-weight: 500;
+  font-family: 'Prompt', sans-serif;
+  padding: 2px 9px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-artist-pill:hover {
+  background: var(--primary);
+  color: #FFF;
+  border-color: var(--primary);
+  transform: translateY(-1px);
 }
 .modal-meta {
   display: flex;
@@ -1215,6 +1269,10 @@ header p {
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
         ร้องค้นหา
       </button>
+      <button class="btn-random" id="btn-random" onclick="pickRandomSong()" title="สุ่มเพลงจากคลัง 1,500 เพลง">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/></svg>
+        สุ่มเพลงโดนใจ
+      </button>
     </div>
     <div class="search-progress" id="search-progress"><div class="bar"></div></div>
     <div class="filters">
@@ -1226,6 +1284,13 @@ header p {
       </select>
       <select class="filter-select" id="filter-year" onchange="doSearch()">
         <option value="">ปีทั้งหมด</option>
+      </select>
+      <select class="filter-select" id="filter-sort" onchange="applySortAndRender()" title="เรียงลำดับผลลัพธ์">
+        <option value="relevance">เรียง: ความเกี่ยวข้อง</option>
+        <option value="year_desc">เรียง: ปีใหม่ล่าสุด</option>
+        <option value="year_asc">เรียง: ปีเก่าสุด</option>
+        <option value="title_asc">เรียง: ชื่อเพลง (ก-ฮ)</option>
+        <option value="artist_asc">เรียง: ศิลปิน (ก-ฮ)</option>
       </select>
     </div>
     <div class="search-chips-wrap" id="recent-searches-wrap" style="display: none;">
@@ -1246,6 +1311,7 @@ header p {
         </span>
       </div>
       <div class="chips-list">
+        <button class="chip chip-suggest" onclick="pickRandomSong()" title="สุ่มเพลงจากคลัง">🎲 สุ่มเพลง</button>
         <button class="chip chip-suggest" onclick="selectSuggestion('ขอใจกันหนาว')">#ขอใจกันหนาว</button>
         <button class="chip chip-suggest" onclick="selectSuggestion('ต่าย อรทัย')">#ต่าย อรทัย</button>
         <button class="chip chip-suggest" onclick="selectSuggestion('ดอกหญ้าในป่าปูน')">#ดอกหญ้าในป่าปูน</button>
@@ -1364,6 +1430,7 @@ let manualStopRequested = false;
 let currentQuery = '';
 let debounceTimer = null;
 let searchWorker = null;
+let rawSearchResults = [];
 let currentResults = [];
 let displayedCount = 0;
 const PAGE_SIZE = 30;
@@ -1516,10 +1583,40 @@ async function loadData() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('empty-state').style.display = 'block';
     document.getElementById('stats').textContent = DATA.songs.length + ' เพลงพร้อมค้นหา';
+    handleUrlParams();
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<p style="color:var(--mic-recording)">โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรช</p>';
   }
+}
+
+function handleUrlParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const songParam = params.get('song');
+    const qParam = params.get('q');
+    const artistParam = params.get('artist');
+
+    if (songParam !== null && DATA && DATA.songs) {
+      const songIdx = parseInt(songParam, 10);
+      if (!isNaN(songIdx) && songIdx >= 0 && songIdx < DATA.songs.length) {
+        setTimeout(() => openModal(songIdx), 150);
+        return;
+      }
+    }
+
+    if (qParam || artistParam) {
+      const initialQuery = (qParam || artistParam || '').trim();
+      const input = document.getElementById('search-input');
+      if (input && initialQuery) {
+        input.value = initialQuery;
+        autoResize(input);
+        currentQuery = initialQuery;
+        document.getElementById('btn-clear').classList.add('show');
+        doSearch();
+      }
+    }
+  } catch (e) {}
 }
 
 function populateFilters() {
@@ -2073,12 +2170,68 @@ function search(query) {
   return results;
 }
 
+function sortResultsList(list) {
+  if (!list || list.length <= 1 || !DATA || !DATA.songs) return list || [];
+  const sortSelect = document.getElementById('filter-sort');
+  const sortMode = sortSelect ? sortSelect.value : 'relevance';
+  if (sortMode === 'relevance') {
+    return [...list].sort((a, b) => b.score - a.score);
+  }
+  return [...list].sort((a, b) => {
+    const sA = DATA.songs[a.idx];
+    const sB = DATA.songs[b.idx];
+    if (!sA || !sB) return 0;
+    if (sortMode === 'year_desc') {
+      const yA = parseInt(sA.year, 10) || 0;
+      const yB = parseInt(sB.year, 10) || 0;
+      if (yB !== yA) return yB - yA;
+      return b.score - a.score;
+    }
+    if (sortMode === 'year_asc') {
+      const yA = parseInt(sA.year, 10) || 9999;
+      const yB = parseInt(sB.year, 10) || 9999;
+      if (yA !== yB) return yA - yB;
+      return b.score - a.score;
+    }
+    if (sortMode === 'title_asc') {
+      const tA = (sA.title || '').trim();
+      const tB = (sB.title || '').trim();
+      const comp = tA.localeCompare(tB, 'th');
+      return comp !== 0 ? comp : (b.score - a.score);
+    }
+    if (sortMode === 'artist_asc') {
+      const aA = (sA.artist || '').trim();
+      const aB = (sB.artist || '').trim();
+      const comp = aA.localeCompare(aB, 'th');
+      return comp !== 0 ? comp : (b.score - a.score);
+    }
+    return b.score - a.score;
+  });
+}
+
+function applySortAndRender() {
+  if (!rawSearchResults || rawSearchResults.length === 0) {
+    if (currentQuery || (document.getElementById('filter-artist') && document.getElementById('filter-artist').value)
+        || (document.getElementById('filter-emotion') && document.getElementById('filter-emotion').value)
+        || (document.getElementById('filter-year') && document.getElementById('filter-year').value)) {
+      doSearch();
+    }
+    return;
+  }
+  currentResults = sortResultsList(rawSearchResults);
+  displayedCount = 0;
+  const cardsWrap = document.getElementById('song-cards-wrap');
+  if (cardsWrap) cardsWrap.innerHTML = '';
+  appendNextBatch(currentQuery);
+}
+
 function renderResults(results, query) {
   const container = document.getElementById('results');
   const emptyState = document.getElementById('empty-state');
   const stats = document.getElementById('stats');
 
-  currentResults = results || [];
+  rawSearchResults = results || [];
+  currentResults = sortResultsList(rawSearchResults);
   displayedCount = 0;
 
   if (currentResults.length === 0 && query.trim()) {
@@ -2279,6 +2432,39 @@ function highlightText(text, query, matchedTerms) {
 
 let currentModalSongIdx = null;
 
+function getArtistSongCount(artistName) {
+  if (!DATA || !DATA.songs || !artistName) return 0;
+  const targetNorm = normalizeText(artistName);
+  if (!targetNorm) return 0;
+  let count = 0;
+  for (let i = 0; i < DATA.songs.length; i++) {
+    const aNorm = normalizeText(DATA.songs[i].artist);
+    if (aNorm === targetNorm || aNorm.includes(targetNorm) || targetNorm.includes(aNorm)) {
+      count++;
+    }
+  }
+  return count;
+}
+
+function filterByArtistFromModal(artistName) {
+  if (!artistName) return;
+  closeModalDirect();
+  const input = document.getElementById('search-input');
+  if (input) {
+    input.value = artistName;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+    doSearch();
+    const resultsArea = document.getElementById('results');
+    if (resultsArea) {
+      const searchBox = document.querySelector('.search-area');
+      const offset = searchBox ? searchBox.offsetHeight + 40 : 200;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+    showToast('🎤 ค้นหาผลงานทั้งหมดของ: ' + artistName);
+  }
+}
+
 function openModal(idx) {
   if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
   currentModalSongIdx = idx;
@@ -2288,8 +2474,12 @@ function openModal(idx) {
   const r = currentResults.find(res => res.idx === idx);
   const matchedTerms = (r && r.evidence && r.evidence.matchedTerms) ? r.evidence.matchedTerms : [];
 
+  const artistCount = getArtistSongCount(song.artist);
+  const countBadge = artistCount > 1
+    ? ' <button class="btn-artist-pill" onclick="filterByArtistFromModal(\'' + esc(song.artist).replace(/'/g, "\\'") + '\')" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
+    : '';
   document.getElementById('modal-title').innerHTML = highlightText(song.title, query, matchedTerms);
-  document.getElementById('modal-artist').innerHTML = highlightText(song.artist, query, matchedTerms);
+  document.getElementById('modal-artist').innerHTML = '<span>' + highlightText(song.artist, query, matchedTerms) + '</span>' + countBadge;
 
   let meta = '';
   if (song.year) meta += '<span class="badge">' + esc(song.year) + '</span>';
@@ -2353,7 +2543,8 @@ async function shareSong(idx) {
   const ytUrl = ytId ? 'https://youtu.be/' + ytId : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' ' + song.artist);
   
   const snippet = song.lyrics.split('\n').filter(l => l.trim()).slice(0, 3).join('\n');
-  const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\nฟังเพลง: ' + ytUrl;
+  const appUrl = (window.location.origin && window.location.pathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
+  const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\n' + (appUrl ? 'อ่านเนื้อเพลง: ' + appUrl + '\n' : '') + 'ฟังเพลง: ' + ytUrl;
 
   if (navigator.share) {
     try {
@@ -2581,6 +2772,7 @@ function clearSearch() {
   el.value = '';
   el.style.height = 'auto';
   currentQuery = '';
+  rawSearchResults = [];
   document.getElementById('btn-clear').classList.remove('show');
   document.getElementById('filter-artist').value = '';
   document.getElementById('filter-emotion').value = '';
@@ -2672,6 +2864,27 @@ function selectSuggestion(text) {
       const offset = searchBox ? searchBox.offsetHeight + 40 : 200;
       window.scrollTo({ top: offset, behavior: 'smooth' });
     }
+  }
+}
+
+function pickRandomSong() {
+  if (!DATA || !DATA.songs || DATA.songs.length === 0) return;
+  const btn = document.getElementById('btn-random');
+  if (btn) {
+    btn.style.transform = 'scale(0.92)';
+    setTimeout(() => { if (btn) btn.style.transform = ''; }, 180);
+  }
+  let targetIdx;
+  if (currentResults && currentResults.length > 0) {
+    const r = currentResults[Math.floor(Math.random() * currentResults.length)];
+    targetIdx = r.idx;
+  } else {
+    targetIdx = Math.floor(Math.random() * DATA.songs.length);
+  }
+  const song = DATA.songs[targetIdx];
+  if (song) {
+    showToast('🎲 สุ่มได้เพลง: ' + song.title + ' (' + song.artist + ')');
+    openModal(targetIdx);
   }
 }
 
