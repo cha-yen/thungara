@@ -314,34 +314,6 @@ header p {
   opacity: 0.3;
   pointer-events: none;
 }
-.btn-random {
-  border: 1.5px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  flex-shrink: 0;
-  font-size: 0.88rem;
-  font-weight: 500;
-  font-family: 'Prompt', sans-serif;
-  transition: all 0.2s;
-  box-shadow: var(--shadow);
-}
-.btn-random svg { width: 16px; height: 16px; color: var(--primary-dark); }
-.btn-random:hover {
-  border-color: var(--primary);
-  color: var(--primary-dark);
-  background: rgba(245,158,11,0.08);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-.btn-random:active { transform: translateY(0); }
 
 .rec-overlay {
   position: fixed;
@@ -1256,10 +1228,6 @@ header p {
       <button class="btn-mic" id="mic-btn" onclick="toggleRecording()" title="กดเพื่อร้องค้นหา">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
         ร้องค้นหา
-      </button>
-      <button class="btn-random" id="btn-random" onclick="pickRandomSong()" title="สุ่มเพลงจากคลัง 1,500 เพลง">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/></svg>
-        สุ่มเพลงโดนใจ
       </button>
     </div>
     <div class="search-progress" id="search-progress"><div class="bar"></div></div>
@@ -2820,27 +2788,6 @@ function renderRecentSearches() {
       + '</div>';
   });
   chipsList.innerHTML = html;
-}
-
-function pickRandomSong() {
-  if (!DATA || !DATA.songs || DATA.songs.length === 0) return;
-  const btn = document.getElementById('btn-random');
-  if (btn) {
-    btn.style.transform = 'scale(0.92)';
-    setTimeout(() => { if (btn) btn.style.transform = ''; }, 180);
-  }
-  let targetIdx;
-  if (currentResults && currentResults.length > 0) {
-    const r = currentResults[Math.floor(Math.random() * currentResults.length)];
-    targetIdx = r.idx;
-  } else {
-    targetIdx = Math.floor(Math.random() * DATA.songs.length);
-  }
-  const song = DATA.songs[targetIdx];
-  if (song) {
-    showToast('🎲 สุ่มได้เพลง: ' + song.title + ' (' + song.artist + ')');
-    openModal(targetIdx);
-  }
 }
 
 function getTheme() {
