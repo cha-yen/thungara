@@ -554,18 +554,6 @@ header p {
   background: rgba(245,158,11,0.08);
   transform: translateY(-1px);
 }
-.chip-suggest {
-  background: rgba(245,158,11,0.06);
-  border-color: rgba(245,158,11,0.25);
-  color: var(--primary-dark);
-  font-weight: 500;
-}
-.chip-suggest:hover {
-  background: var(--primary);
-  color: #FFF;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
-}
 .chip-btn-del {
   border: none;
   background: none;
@@ -1302,23 +1290,6 @@ header p {
         <button class="btn-text-action" onclick="clearRecentSearches()" title="ล้างประวัติทั้งหมด">ล้างประวัติ</button>
       </div>
       <div class="chips-list" id="recent-chips"></div>
-    </div>
-    <div class="search-chips-wrap" id="quick-suggestions-wrap">
-      <div class="search-chips-header">
-        <span class="search-chips-title">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-          คำค้นหายอดนิยม
-        </span>
-      </div>
-      <div class="chips-list">
-        <button class="chip chip-suggest" onclick="pickRandomSong()" title="สุ่มเพลงจากคลัง">🎲 สุ่มเพลง</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('ขอใจกันหนาว')">#ขอใจกันหนาว</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('ต่าย อรทัย')">#ต่าย อรทัย</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('ดอกหญ้าในป่าปูน')">#ดอกหญ้าในป่าปูน</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('มนต์แคน แก่นคูน')">#มนต์แคน แก่นคูน</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('คิดฮอด')">#คิดฮอด</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('กำลังใจ')">#กำลังใจ</button>
-      </div>
     </div>
   </div>
 </div>
@@ -2849,22 +2820,6 @@ function renderRecentSearches() {
       + '</div>';
   });
   chipsList.innerHTML = html;
-}
-
-function selectSuggestion(text) {
-  const el = document.getElementById('search-input');
-  if (el) {
-    el.value = text;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 150) + 'px';
-    doSearch();
-    const resultsArea = document.getElementById('results');
-    if (resultsArea) {
-      const searchBox = document.querySelector('.search-area');
-      const offset = searchBox ? searchBox.offsetHeight + 40 : 200;
-      window.scrollTo({ top: offset, behavior: 'smooth' });
-    }
-  }
 }
 
 function pickRandomSong() {
