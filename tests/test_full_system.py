@@ -118,13 +118,12 @@ class FullSystemTester:
             html_content = f.read()
 
         self.check("Recent search history UI implemented", "recent-searches-wrap" in html_content and "thungara_recent_searches" in html_content)
-        self.check("Quick suggestion tags UI implemented", "quick-suggestions-wrap" in html_content and "selectSuggestion" in html_content)
         self.check("Keyboard shortcuts implemented (/ and Esc)", "kbd-hint" in html_content and "e.key === '/'" in html_content and "e.key === 'Escape'" in html_content)
         self.check("Modern skeleton loading shimmer implemented", "skeleton-grid" in html_content and "skeletonShimmer" in html_content)
         self.check("Smart sorting controls implemented", "filter-sort" in html_content and "sortResultsList" in html_content and "applySortAndRender" in html_content)
-        self.check("Lucky dip random song picker implemented", "btn-random" in html_content and "pickRandomSong" in html_content)
         self.check("Artist discography insight and filter implemented", "btn-artist-pill" in html_content and "getArtistSongCount" in html_content and "filterByArtistFromModal" in html_content)
         self.check("URL query params and deep-linking implemented", "handleUrlParams" in html_content and "URLSearchParams" in html_content)
+        self.check("Streamlined search UI (clean actions and no redundant chips)", "quick-suggestions-wrap" not in html_content and "btn-random" not in html_content)
 
         # Final Summary
         print("\n" + "=" * 65)

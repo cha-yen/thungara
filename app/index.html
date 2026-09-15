@@ -207,7 +207,6 @@ header p {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   margin-top: 14px;
 }
 .search-progress {
@@ -314,34 +313,6 @@ header p {
   opacity: 0.3;
   pointer-events: none;
 }
-.btn-random {
-  border: 1.5px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  flex-shrink: 0;
-  font-size: 0.88rem;
-  font-weight: 500;
-  font-family: 'Prompt', sans-serif;
-  transition: all 0.2s;
-  box-shadow: var(--shadow);
-}
-.btn-random svg { width: 16px; height: 16px; color: var(--primary-dark); }
-.btn-random:hover {
-  border-color: var(--primary);
-  color: var(--primary-dark);
-  background: rgba(245,158,11,0.08);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-.btn-random:active { transform: translateY(0); }
 
 .rec-overlay {
   position: fixed;
@@ -497,6 +468,8 @@ header p {
 
 .search-chips-wrap {
   margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
   animation: cardFadeIn 0.25s ease;
 }
 .search-chips-header {
@@ -553,18 +526,6 @@ header p {
   color: var(--primary-dark);
   background: rgba(245,158,11,0.08);
   transform: translateY(-1px);
-}
-.chip-suggest {
-  background: rgba(245,158,11,0.06);
-  border-color: rgba(245,158,11,0.25);
-  color: var(--primary-dark);
-  font-weight: 500;
-}
-.chip-suggest:hover {
-  background: var(--primary);
-  color: #FFF;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
 }
 .chip-btn-del {
   border: none;
@@ -1269,10 +1230,6 @@ header p {
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
         ร้องค้นหา
       </button>
-      <button class="btn-random" id="btn-random" onclick="pickRandomSong()" title="สุ่มเพลงจากคลัง 1,500 เพลง">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/></svg>
-        สุ่มเพลงโดนใจ
-      </button>
     </div>
     <div class="search-progress" id="search-progress"><div class="bar"></div></div>
     <div class="filters">
@@ -1302,23 +1259,6 @@ header p {
         <button class="btn-text-action" onclick="clearRecentSearches()" title="ล้างประวัติทั้งหมด">ล้างประวัติ</button>
       </div>
       <div class="chips-list" id="recent-chips"></div>
-    </div>
-    <div class="search-chips-wrap" id="quick-suggestions-wrap">
-      <div class="search-chips-header">
-        <span class="search-chips-title">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-          คำค้นหายอดนิยม
-        </span>
-      </div>
-      <div class="chips-list">
-        <button class="chip chip-suggest" onclick="pickRandomSong()" title="สุ่มเพลงจากคลัง">🎲 สุ่มเพลง</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('ขอใจกันหนาว')">#ขอใจกันหนาว</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('ต่าย อรทัย')">#ต่าย อรทัย</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('ดอกหญ้าในป่าปูน')">#ดอกหญ้าในป่าปูน</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('มนต์แคน แก่นคูน')">#มนต์แคน แก่นคูน</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('คิดฮอด')">#คิดฮอด</button>
-        <button class="chip chip-suggest" onclick="selectSuggestion('กำลังใจ')">#กำลังใจ</button>
-      </div>
     </div>
   </div>
 </div>
@@ -2849,43 +2789,6 @@ function renderRecentSearches() {
       + '</div>';
   });
   chipsList.innerHTML = html;
-}
-
-function selectSuggestion(text) {
-  const el = document.getElementById('search-input');
-  if (el) {
-    el.value = text;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 150) + 'px';
-    doSearch();
-    const resultsArea = document.getElementById('results');
-    if (resultsArea) {
-      const searchBox = document.querySelector('.search-area');
-      const offset = searchBox ? searchBox.offsetHeight + 40 : 200;
-      window.scrollTo({ top: offset, behavior: 'smooth' });
-    }
-  }
-}
-
-function pickRandomSong() {
-  if (!DATA || !DATA.songs || DATA.songs.length === 0) return;
-  const btn = document.getElementById('btn-random');
-  if (btn) {
-    btn.style.transform = 'scale(0.92)';
-    setTimeout(() => { if (btn) btn.style.transform = ''; }, 180);
-  }
-  let targetIdx;
-  if (currentResults && currentResults.length > 0) {
-    const r = currentResults[Math.floor(Math.random() * currentResults.length)];
-    targetIdx = r.idx;
-  } else {
-    targetIdx = Math.floor(Math.random() * DATA.songs.length);
-  }
-  const song = DATA.songs[targetIdx];
-  if (song) {
-    showToast('🎲 สุ่มได้เพลง: ' + song.title + ' (' + song.artist + ')');
-    openModal(targetIdx);
-  }
 }
 
 function getTheme() {
