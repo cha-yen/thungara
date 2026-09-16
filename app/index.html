@@ -2,13 +2,21 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง — พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือร้องผ่านไมค์ก็ค้นได้ทันที">
 <meta name="theme-color" content="#F59E0B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="Thungara - ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง">
+<meta property="og:description" content="ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง พร้อมเล่น MV ทันที">
+<meta property="og:type" content="website">
 <title>Thungara</title>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/app/manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1213,36 +1221,36 @@ header p {
 <body>
 
 <header>
-  <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง"></button>
+  <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง" aria-label="สลับโหมดมืดหรือสว่าง"></button>
   <h1>Thungara</h1>
   <p>ค้นหาเพลงจากเนื้อร้อง ชื่อเพลง หรือชื่อศิลปิน — พิมพ์หรือร้องได้เลย</p>
 </header>
 
 <div class="search-area">
-  <div class="search-box container">
+  <div class="search-box container" role="search">
     <div class="search-input-wrap">
-      <textarea id="search-input" rows="1" placeholder="พิมพ์ชื่อเพลง, เนื้อร้อง, หรือชื่อศิลปิน (เช่น ต่าย อรทัย, ขอใจกันหนาว)..."></textarea>
-      <button class="btn-clear" id="btn-clear" onclick="clearSearch()">&times;</button>
+      <textarea id="search-input" rows="1" placeholder="พิมพ์ชื่อเพลง, เนื้อร้อง, หรือชื่อศิลปิน (เช่น ต่าย อรทัย, ขอใจกันหนาว)..." aria-label="ช่องค้นหาเพลง เนื้อร้อง หรือชื่อศิลปิน"></textarea>
+      <button class="btn-clear" id="btn-clear" onclick="clearSearch()" aria-label="ล้างข้อความค้นหา">&times;</button>
       <kbd class="kbd-hint" id="kbd-hint" title="กดปุ่ม / เพื่อค้นหา">/</kbd>
     </div>
     <div class="search-actions">
-      <button class="btn-mic" id="mic-btn" onclick="toggleRecording()" title="กดเพื่อร้องค้นหา">
+      <button class="btn-mic" id="mic-btn" onclick="toggleRecording()" title="กดเพื่อร้องค้นหา" aria-label="กดเพื่อร้องหรือพูดค้นหาเพลง">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
         ร้องค้นหา
       </button>
     </div>
     <div class="search-progress" id="search-progress"><div class="bar"></div></div>
     <div class="filters">
-      <select class="filter-select" id="filter-artist" onchange="doSearch()">
+      <select class="filter-select" id="filter-artist" onchange="doSearch()" aria-label="กรองตามชื่อศิลปิน">
         <option value="">ศิลปินทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-emotion" onchange="doSearch()">
+      <select class="filter-select" id="filter-emotion" onchange="doSearch()" aria-label="กรองตามอารมณ์เพลง">
         <option value="">อารมณ์ทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-year" onchange="doSearch()">
+      <select class="filter-select" id="filter-year" onchange="doSearch()" aria-label="กรองตามปีที่เผยแพร่">
         <option value="">ปีทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-sort" onchange="applySortAndRender()" title="เรียงลำดับผลลัพธ์">
+      <select class="filter-select" id="filter-sort" onchange="applySortAndRender()" title="เรียงลำดับผลลัพธ์" aria-label="เรียงลำดับผลการค้นหา">
         <option value="relevance">เรียง: ความเกี่ยวข้อง</option>
         <option value="year_desc">เรียง: ปีใหม่ล่าสุด</option>
         <option value="year_asc">เรียง: ปีเก่าสุด</option>
@@ -1256,14 +1264,14 @@ header p {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           ประวัติการค้นหาล่าสุด
         </span>
-        <button class="btn-text-action" onclick="clearRecentSearches()" title="ล้างประวัติทั้งหมด">ล้างประวัติ</button>
+        <button class="btn-text-action" onclick="clearRecentSearches()" title="ล้างประวัติทั้งหมด" aria-label="ล้างประวัติการค้นหาทั้งหมด">ล้างประวัติ</button>
       </div>
       <div class="chips-list" id="recent-chips"></div>
     </div>
   </div>
 </div>
 
-<div class="stats container" id="stats"></div>
+<div class="stats container" id="stats" aria-live="polite"></div>
 
 <div class="loading container" id="loading">
   <div class="spinner"></div>
@@ -1292,7 +1300,7 @@ header p {
   </div>
 </div>
 
-<div class="results container" id="results" style="display:none"></div>
+<div class="results container" id="results" role="region" aria-label="ผลการค้นหาเพลง" style="display:none"></div>
 
 <div class="empty-state container" id="empty-state" style="display:none">
   <div class="icon">&#x1F3B5;</div>
@@ -1300,10 +1308,10 @@ header p {
 </div>
 
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-header-bar">
       <div class="modal-handle"></div>
-      <button class="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง">&times;</button>
+      <button class="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง" aria-label="ปิดหน้าต่างเนื้อเพลง">&times;</button>
     </div>
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-artist" id="modal-artist"></div>
@@ -1315,7 +1323,7 @@ header p {
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
           <span>เนื้อเพลง</span>
         </div>
-        <button class="btn-copy-lyrics" id="btn-copy-lyrics" onclick="copyCurrentLyrics()" title="คัดลอกเนื้อเพลงทั้งหมด">
+        <button class="btn-copy-lyrics" id="btn-copy-lyrics" onclick="copyCurrentLyrics()" title="คัดลอกเนื้อเพลงทั้งหมด" aria-label="คัดลอกเนื้อเพลงทั้งหมด">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
           <span>คัดลอกเนื้อ</span>
         </button>
@@ -1326,7 +1334,7 @@ header p {
     <div class="modal-video-wrap" id="modal-video-wrap" style="display:none"></div>
 
     <div class="modal-share-wrap">
-      <button class="btn-action-share" id="btn-modal-share" onclick="shareCurrentSong()" title="แชร์เพลงนี้">
+      <button class="btn-action-share" id="btn-modal-share" onclick="shareCurrentSong()" title="แชร์เพลงนี้" aria-label="แชร์เพลงนี้">
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         <span>แชร์เพลงนี้</span>
       </button>
@@ -1352,7 +1360,7 @@ header p {
   <div class="rec-hint" id="rec-hint">แตะเพื่อหยุด</div>
 </div>
 
-<button class="btn-top" id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="กลับขึ้นบน">
+<button class="btn-top" id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="กลับขึ้นบน" aria-label="เลื่อนกลับขึ้นด้านบนสุด">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
@@ -1505,17 +1513,28 @@ async function loadData() {
     populateFilters();
 
     if (window.Worker) {
-      searchWorker = new Worker('/app/search-worker.js?v=' + Date.now());
-      searchWorker.postMessage({ type: 'init', payload: DATA });
-      searchWorker.onmessage = function(e) {
-        if (e.data.type === 'results') {
-          document.getElementById('search-progress').classList.remove('active');
-          renderResults(e.data.payload, e.data.query);
-          if (e.data.query && e.data.query.trim().length >= 2 && e.data.payload && e.data.payload.length > 0) {
-            saveRecentSearch(e.data.query.trim());
+      try {
+        searchWorker = new Worker('/app/search-worker.js?v=' + Date.now());
+        searchWorker.postMessage({ type: 'init', payload: DATA });
+        searchWorker.onmessage = function(e) {
+          if (e.data.type === 'results') {
+            document.getElementById('search-progress').classList.remove('active');
+            renderResults(e.data.payload, e.data.query);
+            if (e.data.query && e.data.query.trim().length >= 2 && e.data.payload && e.data.payload.length > 0) {
+              saveRecentSearch(e.data.query.trim());
+            }
           }
-        }
-      };
+        };
+        searchWorker.onerror = function(err) {
+          console.warn('Search worker error encountered, falling back to main thread:', err);
+          searchWorker = null;
+          document.getElementById('search-progress').classList.remove('active');
+          doSearch();
+        };
+      } catch (workerInitErr) {
+        console.warn('Search worker initialization failed, using main thread:', workerInitErr);
+        searchWorker = null;
+      }
     }
 
     renderRecentSearches();
@@ -2696,7 +2715,18 @@ function doSearch() {
 
   if (searchWorker) {
     document.getElementById('search-progress').classList.add('active');
-    searchWorker.postMessage({ type: 'search', payload: { query: query || '  ', filterArtist: fa, filterEmotion: fe, filterYear: fy } });
+    try {
+      searchWorker.postMessage({ type: 'search', payload: { query: query || '  ', filterArtist: fa, filterEmotion: fe, filterYear: fy } });
+    } catch (e) {
+      console.warn('Worker postMessage failed, falling back to main thread:', e);
+      searchWorker = null;
+      const results = search(query || '  ');
+      document.getElementById('search-progress').classList.remove('active');
+      renderResults(results, query);
+      if (query && query.trim().length >= 2 && results && results.length > 0) {
+        saveRecentSearch(query.trim());
+      }
+    }
   } else {
     const results = search(query || '  ');
     document.getElementById('search-progress').classList.remove('active');
@@ -2721,43 +2751,77 @@ function clearSearch() {
   el.focus();
 }
 
+const SafeStorage = {
+  get(key, fallback = null) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return fallback;
+      const val = window.localStorage.getItem(key);
+      return val !== null ? val : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  getJSON(key, fallback = null) {
+    try {
+      const raw = this.get(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return false;
+      window.localStorage.setItem(key, String(value));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  setJSON(key, value) {
+    try {
+      return this.set(key, JSON.stringify(value));
+    } catch (e) {
+      return false;
+    }
+  },
+  remove(key) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return false;
+      window.localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+};
+
 const RECENT_KEY = 'thungara_recent_searches';
 function getRecentSearches() {
-  try {
-    const raw = localStorage.getItem(RECENT_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
+  return SafeStorage.getJSON(RECENT_KEY, []);
 }
 
 function saveRecentSearch(q) {
   if (!q || q.length < 2) return;
-  try {
-    let list = getRecentSearches();
-    list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
-    list.unshift(q);
-    if (list.length > 5) list = list.slice(0, 5);
-    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-    renderRecentSearches();
-  } catch (e) {}
+  let list = getRecentSearches();
+  list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
+  list.unshift(q);
+  if (list.length > 5) list = list.slice(0, 5);
+  SafeStorage.setJSON(RECENT_KEY, list);
+  renderRecentSearches();
 }
 
 function removeRecentSearch(q, e) {
   if (e) e.stopPropagation();
-  try {
-    let list = getRecentSearches();
-    list = list.filter(item => item !== q);
-    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-    renderRecentSearches();
-  } catch (e) {}
+  let list = getRecentSearches();
+  list = list.filter(item => item !== q);
+  SafeStorage.setJSON(RECENT_KEY, list);
+  renderRecentSearches();
 }
 
 function clearRecentSearches() {
-  try {
-    localStorage.removeItem(RECENT_KEY);
-    renderRecentSearches();
-  } catch (e) {}
+  SafeStorage.remove(RECENT_KEY);
+  renderRecentSearches();
 }
 
 function applyRecentSearch(q) {
@@ -2774,25 +2838,29 @@ function renderRecentSearches() {
   const wrap = document.getElementById('recent-searches-wrap');
   const chipsList = document.getElementById('recent-chips');
   if (!wrap || !chipsList) return;
-  const list = getRecentSearches();
-  if (!list || list.length === 0) {
+
+  const searches = getRecentSearches();
+  if (searches.length === 0) {
     wrap.style.display = 'none';
     chipsList.innerHTML = '';
     return;
   }
+
   wrap.style.display = 'block';
   let html = '';
-  list.forEach(item => {
-    html += '<div class="chip" onclick="applyRecentSearch(\'' + esc(item).replace(/'/g, "\\'") + '\')">'
-      + '<span>' + esc(item) + '</span>'
-      + '<button class="chip-btn-del" onclick="removeRecentSearch(\'' + esc(item).replace(/'/g, "\\'") + '\', event)" title="ลบ">&times;</button>'
-      + '</div>';
+  searches.forEach(term => {
+    const escaped = esc(term);
+    const escapedParam = escaped.replace(/'/g, "\\'");
+    html += `<div class="chip" onclick="applyRecentSearch('${escapedParam}')">` +
+      `<span>${escaped}</span>` +
+      `<button class="chip-btn-del" onclick="removeRecentSearch('${escapedParam}', event)" title="ลบ" aria-label="ลบคำค้นหา ${escaped}">&times;</button>` +
+      `</div>`;
   });
   chipsList.innerHTML = html;
 }
 
 function getTheme() {
-  try { return localStorage.getItem('theme') || 'auto'; } catch { return 'auto'; }
+  return SafeStorage.get('theme', 'auto');
 }
 function applyTheme(theme) {
   const root = document.documentElement;
@@ -2808,7 +2876,7 @@ function applyTheme(theme) {
 function toggleTheme() {
   const isDark = isDarkActive();
   const next = isDark ? 'light' : 'dark';
-  try { localStorage.setItem('theme', next); } catch {}
+  SafeStorage.set('theme', next);
   applyTheme(next);
 }
 function isDarkActive() {
