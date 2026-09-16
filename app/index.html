@@ -1221,36 +1221,36 @@ header p {
 <body>
 
 <header>
-  <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง"></button>
+  <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง" aria-label="สลับโหมดมืดหรือสว่าง"></button>
   <h1>Thungara</h1>
   <p>ค้นหาเพลงจากเนื้อร้อง ชื่อเพลง หรือชื่อศิลปิน — พิมพ์หรือร้องได้เลย</p>
 </header>
 
 <div class="search-area">
-  <div class="search-box container">
+  <div class="search-box container" role="search">
     <div class="search-input-wrap">
-      <textarea id="search-input" rows="1" placeholder="พิมพ์ชื่อเพลง, เนื้อร้อง, หรือชื่อศิลปิน (เช่น ต่าย อรทัย, ขอใจกันหนาว)..."></textarea>
-      <button class="btn-clear" id="btn-clear" onclick="clearSearch()">&times;</button>
+      <textarea id="search-input" rows="1" placeholder="พิมพ์ชื่อเพลง, เนื้อร้อง, หรือชื่อศิลปิน (เช่น ต่าย อรทัย, ขอใจกันหนาว)..." aria-label="ช่องค้นหาเพลง เนื้อร้อง หรือชื่อศิลปิน"></textarea>
+      <button class="btn-clear" id="btn-clear" onclick="clearSearch()" aria-label="ล้างข้อความค้นหา">&times;</button>
       <kbd class="kbd-hint" id="kbd-hint" title="กดปุ่ม / เพื่อค้นหา">/</kbd>
     </div>
     <div class="search-actions">
-      <button class="btn-mic" id="mic-btn" onclick="toggleRecording()" title="กดเพื่อร้องค้นหา">
+      <button class="btn-mic" id="mic-btn" onclick="toggleRecording()" title="กดเพื่อร้องค้นหา" aria-label="กดเพื่อร้องหรือพูดค้นหาเพลง">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
         ร้องค้นหา
       </button>
     </div>
     <div class="search-progress" id="search-progress"><div class="bar"></div></div>
     <div class="filters">
-      <select class="filter-select" id="filter-artist" onchange="doSearch()">
+      <select class="filter-select" id="filter-artist" onchange="doSearch()" aria-label="กรองตามชื่อศิลปิน">
         <option value="">ศิลปินทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-emotion" onchange="doSearch()">
+      <select class="filter-select" id="filter-emotion" onchange="doSearch()" aria-label="กรองตามอารมณ์เพลง">
         <option value="">อารมณ์ทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-year" onchange="doSearch()">
+      <select class="filter-select" id="filter-year" onchange="doSearch()" aria-label="กรองตามปีที่เผยแพร่">
         <option value="">ปีทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-sort" onchange="applySortAndRender()" title="เรียงลำดับผลลัพธ์">
+      <select class="filter-select" id="filter-sort" onchange="applySortAndRender()" title="เรียงลำดับผลลัพธ์" aria-label="เรียงลำดับผลการค้นหา">
         <option value="relevance">เรียง: ความเกี่ยวข้อง</option>
         <option value="year_desc">เรียง: ปีใหม่ล่าสุด</option>
         <option value="year_asc">เรียง: ปีเก่าสุด</option>
@@ -1264,14 +1264,14 @@ header p {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           ประวัติการค้นหาล่าสุด
         </span>
-        <button class="btn-text-action" onclick="clearRecentSearches()" title="ล้างประวัติทั้งหมด">ล้างประวัติ</button>
+        <button class="btn-text-action" onclick="clearRecentSearches()" title="ล้างประวัติทั้งหมด" aria-label="ล้างประวัติการค้นหาทั้งหมด">ล้างประวัติ</button>
       </div>
       <div class="chips-list" id="recent-chips"></div>
     </div>
   </div>
 </div>
 
-<div class="stats container" id="stats"></div>
+<div class="stats container" id="stats" aria-live="polite"></div>
 
 <div class="loading container" id="loading">
   <div class="spinner"></div>
@@ -1300,7 +1300,7 @@ header p {
   </div>
 </div>
 
-<div class="results container" id="results" style="display:none"></div>
+<div class="results container" id="results" role="region" aria-label="ผลการค้นหาเพลง" style="display:none"></div>
 
 <div class="empty-state container" id="empty-state" style="display:none">
   <div class="icon">&#x1F3B5;</div>
@@ -1308,10 +1308,10 @@ header p {
 </div>
 
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-header-bar">
       <div class="modal-handle"></div>
-      <button class="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง">&times;</button>
+      <button class="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง" aria-label="ปิดหน้าต่างเนื้อเพลง">&times;</button>
     </div>
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-artist" id="modal-artist"></div>
@@ -1323,7 +1323,7 @@ header p {
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
           <span>เนื้อเพลง</span>
         </div>
-        <button class="btn-copy-lyrics" id="btn-copy-lyrics" onclick="copyCurrentLyrics()" title="คัดลอกเนื้อเพลงทั้งหมด">
+        <button class="btn-copy-lyrics" id="btn-copy-lyrics" onclick="copyCurrentLyrics()" title="คัดลอกเนื้อเพลงทั้งหมด" aria-label="คัดลอกเนื้อเพลงทั้งหมด">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
           <span>คัดลอกเนื้อ</span>
         </button>
@@ -1334,7 +1334,7 @@ header p {
     <div class="modal-video-wrap" id="modal-video-wrap" style="display:none"></div>
 
     <div class="modal-share-wrap">
-      <button class="btn-action-share" id="btn-modal-share" onclick="shareCurrentSong()" title="แชร์เพลงนี้">
+      <button class="btn-action-share" id="btn-modal-share" onclick="shareCurrentSong()" title="แชร์เพลงนี้" aria-label="แชร์เพลงนี้">
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         <span>แชร์เพลงนี้</span>
       </button>
@@ -1360,7 +1360,7 @@ header p {
   <div class="rec-hint" id="rec-hint">แตะเพื่อหยุด</div>
 </div>
 
-<button class="btn-top" id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="กลับขึ้นบน">
+<button class="btn-top" id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="กลับขึ้นบน" aria-label="เลื่อนกลับขึ้นด้านบนสุด">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
