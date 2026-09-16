@@ -11,7 +11,10 @@
 - **ตัวเรียงลำดับผลลัพธ์อัจฉริยะ (Smart Sorting Controls)** — เลือกเรียงลำดับผลการค้นหาตามความเกี่ยวข้อง (Relevance), ปีใหม่ล่าสุด, ปีเก่าสุด, ชื่อเพลง (ก-ฮ), หรือชื่อศิลปิน (ก-ฮ) ได้ทันทีแบบ Real-time
 - **ข้อมูลผลงานศิลปินและการกรองด่วน (Artist Discography Insight)** — แสดงจำนวนเพลงทั้งหมดของศิลปินในระบบบนหน้าต่างเนื้อเพลง พร้อมปุ่มลัดแตะเพื่อค้นหาผลงานทั้งหมดของศิลปินท่านนั้นได้ทันที
 - **ลิงก์เปิดตรงและแชร์เพลง (URL Deep-Linking & Web Share)** — รองรับการแชร์และเปิดเพลงตรงผ่าน URL parameters (เช่น `?q=...`, `?artist=...`, หรือ `?song=idx`) ช่วยให้ส่งต่อเพลงให้เพื่อนเปิดได้ทันที
-- **ประวัติการค้นหาล่าสุด (Recent Search History)** — จดจำคำค้นหาล่าสุด 5 รายการผ่าน `localStorage` แตะเพื่อค้นหาซ้ำได้ทันที รองรับการลบทีละรายการและล้างประวัติทั้งหมด
+- **การเข้าถึงที่ครอบคลุม (Accessibility & WCAG Compliance)** — ออกแบบตามมาตรฐาน WAI-ARIA ครบถ้วน ทั้ง `role="search"`, `role="dialog"`, `aria-modal`, `aria-label`, และ `aria-live="polite"` บนผลการค้นหา พร้อม Mobile Viewport ที่รองรับการซูมขยายอย่างอิสระ
+- **ระบบป้องกันการขัดข้อง (Fault-Tolerant Storage & Web Worker Fallback)** — ห่อหุ้ม `localStorage` ด้วย `SafeStorage` ป้องกันข้อผิดพลาดในโหมดไม่ระบุตัวตน (Safari/iOS Incognito) พร้อม Fallback กลับมาค้นหาบน Main Thread ได้อย่างไร้รอยต่อหาก Web Worker ถูกปิดกั้น
+- **การเพิ่มประสิทธิภาพเครือข่าย (Resource Hints & Network Optimization)** — ใช้ `<link rel="preconnect">` และ `dns-prefetch` เชื่อมต่อ Google Fonts ล่วงหน้า ช่วยลด Latency และเร่งความเร็วในการแสดงผล (FCP)
+- **ประวัติการค้นหาล่าสุด (Recent Search History)** — จดจำคำค้นหาล่าสุด 5 รายการผ่าน `SafeStorage` แตะเพื่อค้นหาซ้ำได้ทันที รองรับการลบทีละรายการและล้างประวัติทั้งหมด
 - **คีย์ลัดสำหรับผู้ใช้ระดับโปร (Keyboard Shortcuts)** — กด `/` เพื่อโฟกัสช่องค้นหาได้จากทุกที่ และกด `Esc` เพื่อปิด Modal หรือล้างคำค้นหา
 - **Skeleton Shimmer Loading State** — แอนิเมชันโครงร่างการ์ดโหลดข้อมูลแบบ Shimmer ให้ความรู้สึกลื่นไหลและตอบสนองอย่างเป็นธรรมชาติ
 - **ร้องค้นหา (Voice Search)** — กดไมค์แล้วร้องหรือพูดเนื้อเพลง ระบบแปลงเสียงพูดเป็นข้อความภาษาไทยด้วย Web Speech API แล้วค้นหาให้อัตโนมัติ
@@ -24,11 +27,12 @@
 ## Tech Stack
 
 - **Frontend**: HTML5, CSS3, Modern JavaScript (Pure Vanilla — Zero External Frameworks)
+- **Web Standards & A11y**: WAI-ARIA 1.2, Resource Hints (Preconnect/DNS-Prefetch), SafeStorage Wrapper
 - **Search Engine**: TF-IDF Sparse Vector Space Model + Cosine Similarity + Greedy Longest-Match Tokenizer
 - **Scoring Architecture**: Standardized Multi-Tiered Confidence Matrix ($[0.0, 1.0]$)
 - **Speech Recognition**: Web Speech API (`th-TH`)
 - **Offline & Cache**: Service Worker + Cache Storage API
-- **Concurrency**: Dedicated Web Worker (`search-worker.js`)
+- **Concurrency**: Dedicated Web Worker (`search-worker.js`) with Main-Thread Fallback
 
 ## Project Structure
 
@@ -44,8 +48,8 @@ data/
 	data.json         — ฐานข้อมูลเพลง 1,500 เพลง พร้อม TF-IDF Vectors
 	youtube_ids.json  — YouTube Video IDs สำหรับฟังเพลงจริง
 tests/
-	test_search.py    — ชุดทดสอบ Core Search Engine (10 Categories, 34 Assertions)
-	test_full_system.py — ชุดตรวจสอบและตรวจสอบความปลอดภัยทั้งระบบ (Comprehensive Audit Suite)
+	test_search.py    — ชุดทดสอบ Core Search Engine (11 Categories, 37 Assertions)
+	test_full_system.py — ชุดตรวจสอบและตรวจสอบความปลอดภัยทั้งระบบ (Comprehensive Audit Suite: 29 Checks)
 	test_runner.html  — หน้าทดสอบบนเบราว์เซอร์พร้อม UI แสดงผลและจับเวลา Latency
 	run_test.bat      — สคริปต์รันการทดสอบอัตโนมัติบน Windows
 LICENSE
