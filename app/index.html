@@ -2751,43 +2751,77 @@ function clearSearch() {
   el.focus();
 }
 
+const SafeStorage = {
+  get(key, fallback = null) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return fallback;
+      const val = window.localStorage.getItem(key);
+      return val !== null ? val : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  getJSON(key, fallback = null) {
+    try {
+      const raw = this.get(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return false;
+      window.localStorage.setItem(key, String(value));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  setJSON(key, value) {
+    try {
+      return this.set(key, JSON.stringify(value));
+    } catch (e) {
+      return false;
+    }
+  },
+  remove(key) {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return false;
+      window.localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+};
+
 const RECENT_KEY = 'thungara_recent_searches';
 function getRecentSearches() {
-  try {
-    const raw = localStorage.getItem(RECENT_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
+  return SafeStorage.getJSON(RECENT_KEY, []);
 }
 
 function saveRecentSearch(q) {
   if (!q || q.length < 2) return;
-  try {
-    let list = getRecentSearches();
-    list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
-    list.unshift(q);
-    if (list.length > 5) list = list.slice(0, 5);
-    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-    renderRecentSearches();
-  } catch (e) {}
+  let list = getRecentSearches();
+  list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
+  list.unshift(q);
+  if (list.length > 5) list = list.slice(0, 5);
+  SafeStorage.setJSON(RECENT_KEY, list);
+  renderRecentSearches();
 }
 
 function removeRecentSearch(q, e) {
   if (e) e.stopPropagation();
-  try {
-    let list = getRecentSearches();
-    list = list.filter(item => item !== q);
-    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-    renderRecentSearches();
-  } catch (e) {}
+  let list = getRecentSearches();
+  list = list.filter(item => item !== q);
+  SafeStorage.setJSON(RECENT_KEY, list);
+  renderRecentSearches();
 }
 
 function clearRecentSearches() {
-  try {
-    localStorage.removeItem(RECENT_KEY);
-    renderRecentSearches();
-  } catch (e) {}
+  SafeStorage.remove(RECENT_KEY);
+  renderRecentSearches();
 }
 
 function applyRecentSearch(q) {
@@ -2804,25 +2838,29 @@ function renderRecentSearches() {
   const wrap = document.getElementById('recent-searches-wrap');
   const chipsList = document.getElementById('recent-chips');
   if (!wrap || !chipsList) return;
-  const list = getRecentSearches();
-  if (!list || list.length === 0) {
+
+  const searches = getRecentSearches();
+  if (searches.length === 0) {
     wrap.style.display = 'none';
     chipsList.innerHTML = '';
     return;
   }
+
   wrap.style.display = 'block';
   let html = '';
-  list.forEach(item => {
-    html += '<div class="chip" onclick="applyRecentSearch(\'' + esc(item).replace(/'/g, "\\'") + '\')">'
-      + '<span>' + esc(item) + '</span>'
-      + '<button class="chip-btn-del" onclick="removeRecentSearch(\'' + esc(item).replace(/'/g, "\\'") + '\', event)" title="ลบ">&times;</button>'
-      + '</div>';
+  searches.forEach(term => {
+    const escaped = esc(term);
+    const escapedParam = escaped.replace(/'/g, "\\'");
+    html += `<div class="chip" onclick="applyRecentSearch('${escapedParam}')">` +
+      `<span>${escaped}</span>` +
+      `<button class="chip-btn-del" onclick="removeRecentSearch('${escapedParam}', event)" title="ลบ" aria-label="ลบคำค้นหา ${escaped}">&times;</button>` +
+      `</div>`;
   });
   chipsList.innerHTML = html;
 }
 
 function getTheme() {
-  try { return localStorage.getItem('theme') || 'auto'; } catch { return 'auto'; }
+  return SafeStorage.get('theme', 'auto');
 }
 function applyTheme(theme) {
   const root = document.documentElement;
@@ -2838,7 +2876,7 @@ function applyTheme(theme) {
 function toggleTheme() {
   const isDark = isDarkActive();
   const next = isDark ? 'light' : 'dark';
-  try { localStorage.setItem('theme', next); } catch {}
+  SafeStorage.set('theme', next);
   applyTheme(next);
 }
 function isDarkActive() {
