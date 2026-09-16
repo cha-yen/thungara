@@ -841,6 +841,31 @@ def run_all_tests():
         f"Top 5 artists: {[r['artist'] for r in res_partial_artist[:5]]}"
     )
 
+    print("\nCategory 11: Edge-Case & Boundary Query Handling")
+    # 1. Punctuation-only query
+    res_punct = enhanced_search("!@#$%^&*()_+-=[]{}|;':,.<>?/")
+    report.assert_test(
+        "Punctuation-Only Query: returns 0 results cleanly without error",
+        len(res_punct) == 0,
+        f"Results count: {len(res_punct)}"
+    )
+
+    # 2. Whitespace-only string
+    res_space = enhanced_search("    \t\n  ")
+    report.assert_test(
+        "Whitespace-Only Query: returns 0 results cleanly without error",
+        len(res_space) == 0,
+        f"Results count: {len(res_space)}"
+    )
+
+    # 3. Numeric string query handling
+    res_numeric = enhanced_search("2560")
+    report.assert_test(
+        "Numeric Query: returns matches or handles cleanly without error",
+        isinstance(res_numeric, list),
+        f"Results returned: {len(res_numeric)}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

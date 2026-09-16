@@ -124,6 +124,22 @@ class FullSystemTester:
         self.check("Artist discography insight and filter implemented", "btn-artist-pill" in html_content and "getArtistSongCount" in html_content and "filterByArtistFromModal" in html_content)
         self.check("URL query params and deep-linking implemented", "handleUrlParams" in html_content and "URLSearchParams" in html_content)
         self.check("Streamlined search UI (clean actions and no redundant chips)", "quick-suggestions-wrap" not in html_content and "btn-random" not in html_content)
+        self.check(
+            "Accessibility attributes (ARIA labels, roles, live regions) implemented",
+            'role="search"' in html_content and
+            'aria-label="ช่องค้นหาเพลง เนื้อร้อง หรือชื่อศิลปิน"' in html_content and
+            'aria-live="polite"' in html_content and
+            'role="dialog"' in html_content and
+            'aria-modal="true"' in html_content
+        )
+        self.check("SafeStorage defensive wrapper implemented", "const SafeStorage" in html_content and "SafeStorage.getJSON" in html_content)
+        self.check("Web Worker fault-tolerance fallback implemented", "searchWorker.onerror" in html_content)
+        self.check(
+            "Network preconnect hints and scalable viewport implemented",
+            "rel=\"preconnect\"" in html_content and
+            "rel=\"dns-prefetch\"" in html_content and
+            "user-scalable=no" not in html_content
+        )
 
         # Final Summary
         print("\n" + "=" * 65)
