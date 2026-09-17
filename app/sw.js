@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thungara-v11';
+const CACHE_NAME = 'thungara-v12';
 const ASSETS = [
   '/app/index.html',
   '/data/data.json',
@@ -25,13 +25,30 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) return;
+
+  // Bypass media streaming and external video embeddings
+  if (event.request.url.includes('youtube.com') || event.request.url.includes('googlevideo.com')) {
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request).then(response => {
-      if (response.ok && event.request.method === 'GET') {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-      }
-      return response;
-    }).catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
+    caches.match(event.request).then(cached => {
+      const fetchPromise = fetch(event.request).then(response => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(err => {
+        if (event.request.mode === 'navigate') {
+          return caches.match('/app/index.html').then(fallback => fallback || caches.match('index.html'));
+        }
+        throw err;
+      });
+
+      return cached || fetchPromise;
+    })
   );
 });
