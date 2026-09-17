@@ -1,18 +1,22 @@
 {
-  "name": "Thungara",
+  "name": "Thungara - ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง",
   "short_name": "Thungara",
-  "description": "ค้นหาเพลงลูกทุ่งจากเนื้อร้อง พิมพ์หรือร้องได้เลย",
-  "start_url": "./index.html",
+  "description": "ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง — พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือร้องผ่านไมค์ก็ค้นได้ทันที",
+  "start_url": "/app/index.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#FFFBF0",
   "theme_color": "#F59E0B",
   "orientation": "portrait-primary",
   "lang": "th",
+  "dir": "ltr",
+  "categories": ["music", "entertainment", "utilities"],
   "icons": [
     {
       "src": "/assets/favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
