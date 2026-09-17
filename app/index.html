@@ -20,6 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
+  color-scheme: light;
   --primary: #F59E0B;
   --primary-dark: #D97706;
   --primary-light: #FEF3C7;
@@ -44,6 +45,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #0F0F14;
     --page-gradient: linear-gradient(180deg, #0E0906 0%, #24170D 24%, #202936 64%, #303B4A 100%);
     --bg-card: #222834;
@@ -59,6 +61,7 @@
   }
 }
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #0F0F14;
   --page-gradient: linear-gradient(180deg, #0E0906 0%, #24170D 24%, #202936 64%, #303B4A 100%);
   --bg-card: #222834;
@@ -72,8 +75,32 @@
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
   --primary-light: #5B3A0C;
 }
+:root[data-theme="light"] {
+  color-scheme: light;
+}
 
-* { margin:0; padding:0; box-sizing:border-box; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 ::-webkit-scrollbar {
   width: 6px;
