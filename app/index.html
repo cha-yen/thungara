@@ -7,11 +7,13 @@
 <meta name="theme-color" content="#F59E0B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thungara">
 <meta property="og:title" content="Thungara - ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง">
 <meta property="og:description" content="ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง พร้อมเล่น MV ทันที">
 <meta property="og:type" content="website">
 <title>Thungara</title>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
 <link rel="manifest" href="/app/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
+  color-scheme: light;
   --primary: #F59E0B;
   --primary-dark: #D97706;
   --primary-light: #FEF3C7;
@@ -44,6 +47,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #0F0F14;
     --page-gradient: linear-gradient(180deg, #0E0906 0%, #24170D 24%, #202936 64%, #303B4A 100%);
     --bg-card: #222834;
@@ -59,6 +63,7 @@
   }
 }
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #0F0F14;
   --page-gradient: linear-gradient(180deg, #0E0906 0%, #24170D 24%, #202936 64%, #303B4A 100%);
   --bg-card: #222834;
@@ -72,8 +77,32 @@
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
   --primary-light: #5B3A0C;
 }
+:root[data-theme="light"] {
+  color-scheme: light;
+}
 
-* { margin:0; padding:0; box-sizing:border-box; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -2963,7 +2992,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v11') caches.delete(k);
+      if (k !== 'thungara-v12') caches.delete(k);
     });
   });
 }
