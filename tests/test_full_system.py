@@ -140,6 +140,34 @@ class FullSystemTester:
             "rel=\"dns-prefetch\"" in html_content and
             "user-scalable=no" not in html_content
         )
+        self.check(
+            "Accessible focus-visible styles and reduced-motion media query implemented",
+            ":focus-visible" in html_content and "prefers-reduced-motion" in html_content
+        )
+
+        manifest_path = os.path.join(PROJECT_ROOT, 'app', 'manifest.json')
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            manifest_text = f.read()
+        self.check(
+            "PWA manifest enriched with categories, scope, and maskable icons",
+            "categories" in manifest_text and '"scope": "/"' in manifest_text and "any maskable" in manifest_text
+        )
+
+        sw_path = os.path.join(PROJECT_ROOT, 'app', 'sw.js')
+        with open(sw_path, 'r', encoding='utf-8') as f:
+            sw_text = f.read()
+        self.check(
+            "Service Worker offline navigation fallback and scheme guards implemented",
+            "mode === 'navigate'" in sw_text and "request.method !== 'GET'" in sw_text
+        )
+
+        runner_path = os.path.join(PROJECT_ROOT, 'tests', 'test_runner.html')
+        with open(runner_path, 'r', encoding='utf-8') as f:
+            runner_text = f.read()
+        self.check(
+            "Browser test runner synced with Category 11 edge-case query tests",
+            "11. การจัดการกรณีข้อความพิเศษและขอบเขต" in runner_text
+        )
 
         # Final Summary
         print("\n" + "=" * 65)

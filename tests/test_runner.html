@@ -512,6 +512,42 @@ const TEST_CASES = [
         detail: pass ? `10 อันดับแรกเป็นเพลงของมนต์แคนทั้งหมด คะแนนสูงสุด ${(res[0].score * 100).toFixed(1)}%` : `ผลการค้นหาไม่ตรงตามเกณฑ์`
       };
     }
+  },
+  {
+    category: "11. การจัดการกรณีข้อความพิเศษและขอบเขต (Edge-Case & Boundary Queries)",
+    name: "ค้นหาเครื่องหมายวรรคตอนล้วน '!@#$%^&*()_+-=[]{}|;':,.<>?/' ต้องได้ 0 รายการโดยไม่ error",
+    run: async () => {
+      const res = await workerSearch("!@#$%^&*()_+-=[]{}|;':,.<>?/");
+      const pass = Array.isArray(res) && res.length === 0;
+      return {
+        pass,
+        detail: pass ? "กรองอักขระพิเศษล้วนทิ้งได้ 100% โดยไม่เกิดข้อผิดพลาด" : `พบผลลัพธ์ไม่พึงประสงค์ (${res.length} รายการ)`
+      };
+    }
+  },
+  {
+    category: "11. การจัดการกรณีข้อความพิเศษและขอบเขต (Edge-Case & Boundary Queries)",
+    name: "ค้นหาช่องว่างและอักขระเว้นวรรคล้วน ('    \\t\\n  ') ต้องได้ 0 รายการโดยไม่ error",
+    run: async () => {
+      const res = await workerSearch("    \t\n  ");
+      const pass = Array.isArray(res) && res.length === 0;
+      return {
+        pass,
+        detail: pass ? "จัดการช่องว่างล้วนได้อย่างถูกต้องและปลอดภัย" : `พบผลลัพธ์ไม่พึงประสงค์ (${res.length} รายการ)`
+      };
+    }
+  },
+  {
+    category: "11. การจัดการกรณีข้อความพิเศษและขอบเขต (Edge-Case & Boundary Queries)",
+    name: "ค้นหาตัวเลขปี พ.ศ. ('2560') ต้องส่งผลลัพธ์เป็น Array โดยไม่เกิด Exception",
+    run: async () => {
+      const res = await workerSearch("2560");
+      const pass = Array.isArray(res);
+      return {
+        pass,
+        detail: pass ? `ประมวลผลคำค้นหาตัวเลขสำเร็จ (พบ ${res.length} รายการ)` : "ผลลัพธ์ไม่ใช่ Array"
+      };
+    }
   }
 ];
 
