@@ -88,54 +88,75 @@ function extractSubTokens(tokens) {
 }
 
 self.onmessage = function(e) {
-  const { type, payload } = e.data;
+  try {
+    if (!e || !e.data) return;
+    const { type, payload } = e.data;
 
-  if (type === 'init') {
-    DATA = payload;
-    vocabSet = new Set(DATA.vocab);
-    wordToIndex = new Map();
-    DATA.vocab.forEach((w, i) => wordToIndex.set(w, i));
-    maxWordLen = DATA.maxWordLen || 15;
+    if (type === 'init') {
+      if (!payload || !payload.vocab || !payload.songs) {
+        self.postMessage({ type: 'error', error: 'Invalid data payload in init' });
+        return;
+      }
+      DATA = payload;
+      vocabSet = new Set(DATA.vocab);
+      wordToIndex = new Map();
+      DATA.vocab.forEach((w, i) => wordToIndex.set(w, i));
+      maxWordLen = DATA.maxWordLen || 15;
 
-    NORM_SONGS = DATA.songs.map(song => {
-      const rawArtist = song.artist || '';
-      const subArtists = (rawArtist.includes(',') || rawArtist.includes(';') || rawArtist.includes('/'))
-        ? rawArtist.split(/[,/;&]/).map(a => a.trim()).filter(Boolean)
-        : (rawArtist ? [rawArtist] : []);
-      return {
-        normTitle: normalizeText(song.title),
-        normArtist: normalizeText(song.artist),
-        normLyrics: normalizeText(song.lyrics),
-        subArtists,
-        subArtistsNorm: subArtists.map(normalizeText),
-      };
-    });
+      NORM_SONGS = DATA.songs.map(song => {
+        const rawArtist = song.artist || '';
+        const subArtists = (rawArtist.includes(',') || rawArtist.includes(';') || rawArtist.includes('/'))
+          ? rawArtist.split(/[,/;&]/).map(a => a.trim()).filter(Boolean)
+          : (rawArtist ? [rawArtist] : []);
+        return {
+          normTitle: normalizeText(song.title),
+          normArtist: normalizeText(song.artist),
+          normLyrics: normalizeText(song.lyrics),
+          subArtists,
+          subArtistsNorm: subArtists.map(normalizeText),
+        };
+      });
 
-    VECTOR_MAGS = DATA.vectors.map(vec => {
-      let sumSq = 0;
-      for (const v of Object.values(vec)) sumSq += v * v;
-      return Math.sqrt(sumSq);
-    });
+      VECTOR_MAGS = DATA.vectors.map(vec => {
+        let sumSq = 0;
+        for (const v of Object.values(vec)) sumSq += v * v;
+        return Math.sqrt(sumSq);
+      });
 
-    ARTIST_SET = new Set();
-    if (DATA.artists) {
-      DATA.artists.forEach(a => {
-        const na = normalizeText(a);
+      ARTIST_SET = new Set();
+      if (DATA.artists) {
+        DATA.artists.forEach(a => {
+          const na = normalizeText(a);
+          if (na) ARTIST_SET.add(na);
+        });
+      }
+      DATA.songs.forEach(song => {
+        const na = normalizeText(song.artist);
         if (na) ARTIST_SET.add(na);
       });
+
+      self.postMessage({ type: 'ready' });
+      return;
     }
-    DATA.songs.forEach(song => {
-      const na = normalizeText(song.artist);
-      if (na) ARTIST_SET.add(na);
+
+    if (type === 'search') {
+      if (!DATA) {
+        self.postMessage({ type: 'results', payload: [], query: (payload && payload.query) || '' });
+        return;
+      }
+      const q = (payload && payload.query) || '';
+      const fa = (payload && payload.filterArtist) || '';
+      const fe = (payload && payload.filterEmotion) || '';
+      const fy = (payload && payload.filterYear) || '';
+      const results = search(q, fa, fe, fy);
+      self.postMessage({ type: 'results', payload: results, query: q });
+    }
+  } catch (err) {
+    self.postMessage({
+      type: 'error',
+      error: (err && err.message) || String(err),
+      query: (e && e.data && e.data.payload && e.data.payload.query) || ''
     });
-
-    self.postMessage({ type: 'ready' });
-    return;
-  }
-
-  if (type === 'search') {
-    const results = search(payload.query, payload.filterArtist, payload.filterEmotion, payload.filterYear);
-    self.postMessage({ type: 'results', payload: results, query: payload.query });
   }
 };
 

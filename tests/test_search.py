@@ -698,6 +698,9 @@ def run_all_tests():
     )
 
     print("\nCategory 7: Performance & Latency Benchmark")
+    # Warm-up run to eliminate cold-start timing jitter
+    _ = enhanced_search("ขอใจกันหนาว")
+
     benchmark_queries = [
         "ขอใจกันหนาว",
         "เมื่อเลิกงานเดินเหงามีเงาเป็นเพื่อนเข้าซอย",
@@ -864,6 +867,34 @@ def run_all_tests():
         "Numeric Query: returns matches or handles cleanly without error",
         isinstance(res_numeric, list),
         f"Results returned: {len(res_numeric)}"
+    )
+
+    print("\nCategory 12: Metadata Multi-Filter Verification (Emotion & Year)")
+    # 1. Filter Emotion Only
+    res_emo = enhanced_search("", filter_emotion="สนุก")
+    all_sanook = len(res_emo) == 500 and all(r['emotion'] == "สนุก" for r in res_emo)
+    report.assert_test(
+        "Emotion Filter: 'สนุก' retrieves all 500 upbeat songs with 100% precision",
+        all_sanook,
+        f"Retrieved {len(res_emo)} songs, all emotion='สนุก'"
+    )
+
+    # 2. Filter Year Only
+    res_yr = enhanced_search("", filter_year="2562")
+    all_2562 = len(res_yr) == 112 and all(r['year'] == "2562" for r in res_yr)
+    report.assert_test(
+        "Year Filter: '2562' retrieves all 112 songs published in 2562 with 100% precision",
+        all_2562,
+        f"Retrieved {len(res_yr)} songs, all year='2562'"
+    )
+
+    # 3. Composite Multi-Filter: Artist + Emotion
+    res_multi = enhanced_search("", filter_artist="ต่าย อรทัย", filter_emotion="เศร้า")
+    all_tai_sad = len(res_multi) > 0 and all(r['artist'] == "ต่าย อรทัย" and r['emotion'] == "เศร้า" for r in res_multi)
+    report.assert_test(
+        "Composite Multi-Filter: Artist 'ต่าย อรทัย' + Emotion 'เศร้า' retrieves matching intersection",
+        all_tai_sad,
+        f"Retrieved {len(res_multi)} songs matching both constraints"
     )
 
     print("\n========================================================")

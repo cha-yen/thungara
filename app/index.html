@@ -1494,12 +1494,20 @@ function extractSubTokens(tokens) {
   return subTokens;
 }
 
+async function fetchWithFallback(urlPrimary, urlFallback) {
+  try {
+    const res = await fetch(urlPrimary);
+    if (res.ok) return res;
+  } catch (e) {}
+  return fetch(urlFallback);
+}
+
 async function loadData() {
   try {
-    const res = await fetch('/data/data.json');
+    const res = await fetchWithFallback('/data/data.json', '../data/data.json');
     DATA = await res.json();
     try {
-      const ytRes = await fetch('/data/youtube_ids.json?v=' + Date.now());
+      const ytRes = await fetchWithFallback('/data/youtube_ids.json?v=' + Date.now(), '../data/youtube_ids.json?v=' + Date.now());
       if (ytRes.ok) YOUTUBE_MAP = await ytRes.json();
     } catch (e) {}
     vocabSet = new Set(DATA.vocab);
@@ -1543,15 +1551,25 @@ async function loadData() {
 
     if (window.Worker) {
       try {
-        searchWorker = new Worker('/app/search-worker.js?v=' + Date.now());
+        const workerPath = (window.location.pathname.endsWith('/app/index.html') || window.location.pathname.endsWith('/app/'))
+          ? 'search-worker.js?v=' + Date.now()
+          : '/app/search-worker.js?v=' + Date.now();
+        searchWorker = new Worker(workerPath);
         searchWorker.postMessage({ type: 'init', payload: DATA });
         searchWorker.onmessage = function(e) {
+          if (!e || !e.data) return;
           if (e.data.type === 'results') {
             document.getElementById('search-progress').classList.remove('active');
             renderResults(e.data.payload, e.data.query);
             if (e.data.query && e.data.query.trim().length >= 2 && e.data.payload && e.data.payload.length > 0) {
               saveRecentSearch(e.data.query.trim());
             }
+          } else if (e.data.type === 'error') {
+            console.warn('Search worker reported error, falling back to main thread:', e.data.error);
+            document.getElementById('search-progress').classList.remove('active');
+            const fallbackQuery = e.data.query || document.getElementById('search-input').value;
+            const results = search(fallbackQuery || '  ');
+            renderResults(results, fallbackQuery);
           }
         };
         searchWorker.onerror = function(err) {
@@ -2574,8 +2592,11 @@ function copyToClipboard(text, successMsg) {
 function fallbackCopy(text, successMsg) {
   const ta = document.createElement('textarea');
   ta.value = text;
+  ta.setAttribute('readonly', '');
   ta.style.position = 'fixed';
+  ta.style.top = '0';
   ta.style.left = '-9999px';
+  ta.style.fontSize = '12pt';
   document.body.appendChild(ta);
   ta.select();
   try {
@@ -2594,6 +2615,8 @@ function showToast(msg) {
     toast = document.createElement('div');
     toast.id = 'toast-msg';
     toast.className = 'toast-msg';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
     document.body.appendChild(toast);
   }
   toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + esc(msg);
