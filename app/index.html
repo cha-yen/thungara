@@ -1494,12 +1494,20 @@ function extractSubTokens(tokens) {
   return subTokens;
 }
 
+async function fetchWithFallback(urlPrimary, urlFallback) {
+  try {
+    const res = await fetch(urlPrimary);
+    if (res.ok) return res;
+  } catch (e) {}
+  return fetch(urlFallback);
+}
+
 async function loadData() {
   try {
-    const res = await fetch('/data/data.json');
+    const res = await fetchWithFallback('/data/data.json', '../data/data.json');
     DATA = await res.json();
     try {
-      const ytRes = await fetch('/data/youtube_ids.json?v=' + Date.now());
+      const ytRes = await fetchWithFallback('/data/youtube_ids.json?v=' + Date.now(), '../data/youtube_ids.json?v=' + Date.now());
       if (ytRes.ok) YOUTUBE_MAP = await ytRes.json();
     } catch (e) {}
     vocabSet = new Set(DATA.vocab);
@@ -1543,7 +1551,10 @@ async function loadData() {
 
     if (window.Worker) {
       try {
-        searchWorker = new Worker('/app/search-worker.js?v=' + Date.now());
+        const workerPath = (window.location.pathname.endsWith('/app/index.html') || window.location.pathname.endsWith('/app/'))
+          ? 'search-worker.js?v=' + Date.now()
+          : '/app/search-worker.js?v=' + Date.now();
+        searchWorker = new Worker(workerPath);
         searchWorker.postMessage({ type: 'init', payload: DATA });
         searchWorker.onmessage = function(e) {
           if (!e || !e.data) return;
