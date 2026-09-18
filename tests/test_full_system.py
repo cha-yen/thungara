@@ -168,6 +168,26 @@ class FullSystemTester:
             "Browser test runner synced with Category 11 edge-case query tests",
             "11. การจัดการกรณีข้อความพิเศษและขอบเขต" in runner_text
         )
+        self.check(
+            "Toast screen-reader accessibility and iOS copy fix implemented",
+            "toast.setAttribute('role', 'status')" in html_content and
+            "ta.setAttribute('readonly', '')" in html_content
+        )
+        self.check(
+            "Path-agnostic asset loading with fetchWithFallback implemented",
+            "fetchWithFallback" in html_content
+        )
+
+        with open(worker_js_path, 'r', encoding='utf-8') as f:
+            worker_text = f.read()
+        self.check(
+            "Web Worker defensive try-catch boundary and error recovery implemented",
+            "type: 'error'" in worker_text and "type === 'error'" in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 12 multi-filter precision tests",
+            "12. การตรวจสอบตัวกรองอารมณ์ ปี และตัวกรองผสม" in runner_text
+        )
 
         # Final Summary
         print("\n" + "=" * 65)
