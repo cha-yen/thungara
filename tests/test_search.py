@@ -698,6 +698,9 @@ def run_all_tests():
     )
 
     print("\nCategory 7: Performance & Latency Benchmark")
+    # Warm-up run to eliminate cold-start timing jitter
+    _ = enhanced_search("ขอใจกันหนาว")
+
     benchmark_queries = [
         "ขอใจกันหนาว",
         "เมื่อเลิกงานเดินเหงามีเงาเป็นเพื่อนเข้าซอย",

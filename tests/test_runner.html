@@ -548,6 +548,42 @@ const TEST_CASES = [
         detail: pass ? `ประมวลผลคำค้นหาตัวเลขสำเร็จ (พบ ${res.length} รายการ)` : "ผลลัพธ์ไม่ใช่ Array"
       };
     }
+  },
+  {
+    category: "12. การตรวจสอบตัวกรองอารมณ์ ปี และตัวกรองผสม (Metadata Multi-Filter Verification)",
+    name: "กรองตามอารมณ์เพลง 'สนุก' ต้องได้ผลลัพธ์ที่เป็นเพลงอารมณ์สนุกครบทั้ง 500 เพลง (Precision 100%)",
+    run: async () => {
+      const res = await workerSearch("", "", "สนุก", "");
+      const pass = res.length === 500 && res.every(r => DATA.songs[r.idx].emotion === "สนุก");
+      return {
+        pass,
+        detail: pass ? `พบเพลงอารมณ์สนุกครบถ้วน 500 เพลง ถูกต้อง 100%` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (พบ ${res.length} เพลง)`
+      };
+    }
+  },
+  {
+    category: "12. การตรวจสอบตัวกรองอารมณ์ ปี และตัวกรองผสม (Metadata Multi-Filter Verification)",
+    name: "กรองตามปี พ.ศ. '2562' ต้องได้ผลลัพธ์เฉพาะเพลงที่ออกในปี 2562 ครบทั้ง 112 เพลง (Precision 100%)",
+    run: async () => {
+      const res = await workerSearch("", "", "", "2562");
+      const pass = res.length === 112 && res.every(r => String(DATA.songs[r.idx].year) === "2562");
+      return {
+        pass,
+        detail: pass ? `พบเพลงปี 2562 ครบถ้วน 112 เพลง ถูกต้อง 100%` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (พบ ${res.length} เพลง)`
+      };
+    }
+  },
+  {
+    category: "12. การตรวจสอบตัวกรองอารมณ์ ปี และตัวกรองผสม (Metadata Multi-Filter Verification)",
+    name: "กรองแบบผสมหลายเงื่อนไข: ศิลปิน 'ต่าย อรทัย' + อารมณ์ 'เศร้า' ต้องตรงเงื่อนไขร่วมทุกเพลง",
+    run: async () => {
+      const res = await workerSearch("", "ต่าย อรทัย", "เศร้า", "");
+      const pass = res.length > 0 && res.every(r => DATA.songs[r.idx].artist.includes("ต่าย อรทัย") && DATA.songs[r.idx].emotion === "เศร้า");
+      return {
+        pass,
+        detail: pass ? `พบ ${res.length} เพลงที่ตรงเงื่อนไขทั้งศิลปินและอารมณ์เพลง 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขร่วม"
+      };
+    }
   }
 ];
 
