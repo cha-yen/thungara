@@ -1546,12 +1546,19 @@ async function loadData() {
         searchWorker = new Worker('/app/search-worker.js?v=' + Date.now());
         searchWorker.postMessage({ type: 'init', payload: DATA });
         searchWorker.onmessage = function(e) {
+          if (!e || !e.data) return;
           if (e.data.type === 'results') {
             document.getElementById('search-progress').classList.remove('active');
             renderResults(e.data.payload, e.data.query);
             if (e.data.query && e.data.query.trim().length >= 2 && e.data.payload && e.data.payload.length > 0) {
               saveRecentSearch(e.data.query.trim());
             }
+          } else if (e.data.type === 'error') {
+            console.warn('Search worker reported error, falling back to main thread:', e.data.error);
+            document.getElementById('search-progress').classList.remove('active');
+            const fallbackQuery = e.data.query || document.getElementById('search-input').value;
+            const results = search(fallbackQuery || '  ');
+            renderResults(results, fallbackQuery);
           }
         };
         searchWorker.onerror = function(err) {
