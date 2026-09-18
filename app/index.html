@@ -2592,8 +2592,11 @@ function copyToClipboard(text, successMsg) {
 function fallbackCopy(text, successMsg) {
   const ta = document.createElement('textarea');
   ta.value = text;
+  ta.setAttribute('readonly', '');
   ta.style.position = 'fixed';
+  ta.style.top = '0';
   ta.style.left = '-9999px';
+  ta.style.fontSize = '12pt';
   document.body.appendChild(ta);
   ta.select();
   try {
@@ -2612,6 +2615,8 @@ function showToast(msg) {
     toast = document.createElement('div');
     toast.id = 'toast-msg';
     toast.className = 'toast-msg';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
     document.body.appendChild(toast);
   }
   toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + esc(msg);
