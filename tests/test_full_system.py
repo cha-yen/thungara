@@ -188,6 +188,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 12 multi-filter precision tests",
             "12. การตรวจสอบตัวกรองอารมณ์ ปี และตัวกรองผสม" in runner_text
         )
+        self.check(
+            "Modal dialog focus management and safe esc guard implemented",
+            "btn-modal-close" in html_content and "previousActiveElement" in html_content and "s === null || s === undefined" in html_content
+        )
+        self.check(
+            "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v13" in sw_text
+        )
+        self.check(
+            "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
+            "replace(/&amp;/gi, '&')" in worker_text and "subArtistsNorm" in worker_text
+        )
+        self.check(
+            "Browser test runner synced with Category 13 collaboration test suite",
+            "13. การค้นหาผลงานเพลงคู่และศิลปินร่วม" in runner_text
+        )
 
         # Final Summary
         print("\n" + "=" * 65)

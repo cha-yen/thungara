@@ -1,18 +1,23 @@
-const CACHE_NAME = 'thungara-v12';
+const CACHE_NAME = 'thungara-v13';
 const ASSETS = [
-  '/app/index.html',
-  '/data/data.json',
-  '/data/youtube_ids.json',
-  '/app/manifest.json',
-  '/app/search-worker.js',
-  '/assets/favicon.svg',
+  './index.html',
+  '../data/data.json',
+  '../data/youtube_ids.json',
+  './manifest.json',
+  './search-worker.js',
+  '../assets/favicon.svg',
 ];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      return Promise.allSettled(
+        ASSETS.map(url => cache.add(url).catch(err => {
+          console.warn('SW caching warning for ' + url + ':', err);
+        }))
+      );
+    })
   );
 });
 
@@ -43,7 +48,9 @@ self.addEventListener('fetch', event => {
         return response;
       }).catch(err => {
         if (event.request.mode === 'navigate') {
-          return caches.match('/app/index.html').then(fallback => fallback || caches.match('index.html'));
+          return caches.match('/app/index.html')
+            .then(fallback => fallback || caches.match('index.html'))
+            .then(fallback => fallback || caches.match('./index.html'));
         }
         throw err;
       });

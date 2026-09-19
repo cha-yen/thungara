@@ -386,6 +386,7 @@ const TEST_CASES = [
     category: "7. ประสิทธิภาพและความเร็ว (Performance Benchmark)",
     name: "ความเร็วเฉลี่ยในการค้นหา 1,500 เพลง ต้องต่ำกว่า 25ms",
     run: async () => {
+      await workerSearch("ขอใจกันหนาว");
       const queries = ["ขอใจกันหนาว", "เมื่อเลิกงานเดินเหงามีเงา", "ควายรัก", "คิดถึงคนต้นทาง", "บ่ฮัก"];
       const times = [];
       for (const q of queries) {
@@ -582,6 +583,42 @@ const TEST_CASES = [
       return {
         pass,
         detail: pass ? `พบ ${res.length} เพลงที่ตรงเงื่อนไขทั้งศิลปินและอารมณ์เพลง 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขร่วม"
+      };
+    }
+  },
+  {
+    category: "13. การค้นหาผลงานเพลงคู่และศิลปินร่วม (Collaboration & Featured Artists)",
+    name: "ค้นหาศิลปินร่วม 'ดอกอ้อ ทุ่งทอง' ต้องพบเพลง 'หนุ่มบ้านเฮา สาวโรงงาน' (ร้องร่วมกับ ศร สินชัย) ด้วยคะแนน tier-1",
+    run: async () => {
+      const res = await workerSearch("ดอกอ้อ ทุ่งทอง");
+      const found = res.some(r => r.title === "หนุ่มบ้านเฮา สาวโรงงาน" && r.score >= 0.90);
+      return {
+        pass: found,
+        detail: found ? "พบเพลงคู่ 'หนุ่มบ้านเฮา สาวโรงงาน' ด้วยคะแนน >= 0.90 ถูกต้อง" : "ไม่พบเพลงคู่ตามเกณฑ์"
+      };
+    }
+  },
+  {
+    category: "13. การค้นหาผลงานเพลงคู่และศิลปินร่วม (Collaboration & Featured Artists)",
+    name: "ค้นหาศิลปินรับเชิญ 'ยุ่งยิ่ง กนกนันทน์' ต้องพบเพลง 'ฉันยังรักเธอ' (เต้ย อภิวัฒน์ feat.) ด้วยคะแนน tier-1",
+    run: async () => {
+      const res = await workerSearch("ยุ่งยิ่ง กนกนันทน์");
+      const found = res.some(r => r.title === "ฉันยังรักเธอ" && r.score >= 0.90);
+      return {
+        pass: found,
+        detail: found ? "พบเพลงศิลปินรับเชิญ 'ฉันยังรักเธอ' ด้วยคะแนน >= 0.90 ถูกต้อง" : "ไม่พบเพลงรับเชิญตามเกณฑ์"
+      };
+    }
+  },
+  {
+    category: "13. การค้นหาผลงานเพลงคู่และศิลปินร่วม (Collaboration & Featured Artists)",
+    name: "ค้นหาศิลปินร้องคู่ 'โจ๊ก SO COOL' ต้องพบเพลง 'อย่าไว้ใจทาง อย่าวางใจแฟน' (ร้องคู่กับ ศิริพร อำไพพงษ์) ด้วยคะแนน tier-1",
+    run: async () => {
+      const res = await workerSearch("โจ๊ก SO COOL");
+      const found = res.some(r => r.title === "อย่าไว้ใจทาง อย่าวางใจแฟน" && r.score >= 0.90);
+      return {
+        pass: found,
+        detail: found ? "พบเพลงร้องคู่ 'อย่าไว้ใจทาง อย่าวางใจแฟน' ด้วยคะแนน >= 0.90 ถูกต้อง" : "ไม่พบเพลงร้องคู่ตามเกณฑ์"
       };
     }
   }
