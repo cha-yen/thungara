@@ -1340,7 +1340,7 @@ header p {
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-header-bar">
       <div class="modal-handle"></div>
-      <button class="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง" aria-label="ปิดหน้าต่างเนื้อเพลง">&times;</button>
+      <button class="btn-modal-close" id="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง" aria-label="ปิดหน้าต่างเนื้อเพลง">&times;</button>
     </div>
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-artist" id="modal-artist"></div>
@@ -2480,8 +2480,11 @@ function filterByArtistFromModal(artistName) {
   }
 }
 
+let previousActiveElement = null;
+
 function openModal(idx) {
   if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
+  previousActiveElement = document.activeElement;
   currentModalSongIdx = idx;
   const song = DATA.songs[idx];
   const query = (document.getElementById('search-input') ? document.getElementById('search-input').value.trim() : '') || currentQuery || '';
@@ -2509,6 +2512,8 @@ function openModal(idx) {
   const overlay = document.getElementById('modal-overlay');
   overlay.classList.add('show');
   document.body.style.overflow = 'hidden';
+  const closeBtn = document.getElementById('btn-modal-close');
+  if (closeBtn) closeBtn.focus();
 }
 
 function renderVideoPreview(song, idx) {
@@ -2643,6 +2648,10 @@ function closeModalDirect() {
   const videoWrap = document.getElementById('modal-video-wrap');
   if (videoWrap) videoWrap.innerHTML = '';
   currentModalSongIdx = null;
+  if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+    try { previousActiveElement.focus(); } catch (e) {}
+    previousActiveElement = null;
+  }
 }
 
 function closeModal(e) {
@@ -2953,8 +2962,9 @@ function updateThemeIcon() {
 applyTheme(getTheme());
 
 function esc(s) {
+  if (s === null || s === undefined) return '';
   const d = document.createElement('div');
-  d.textContent = s;
+  d.textContent = String(s);
   return d.innerHTML;
 }
 function escRegex(s) {
