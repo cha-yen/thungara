@@ -73,15 +73,15 @@ def normalize_text(text):
     """Normalize text: remove all whitespace, newlines, punctuation, and lowercase."""
     if not text:
         return ''
-    t = text.lower()
+    t = text.replace('&amp;', ' ').lower()
     t = re.sub(r'[^฀-๿a-z0-9]', '', t)
     return t
 
 NORM_SONGS = []
 for s in SONGS:
-    raw_artist = s.get('artist', '')
-    if ',' in raw_artist or ';' in raw_artist or '/' in raw_artist:
-        sub_artists = [a.strip() for a in re.split(r'[,/;&]', raw_artist) if a.strip()]
+    raw_artist = s.get('artist', '').replace('&amp;', '&')
+    if any(k in raw_artist for k in [',', ';', '/', '&', ':']) or re.search(r'\bfeat\.?|\bft\.?', raw_artist, re.I):
+        sub_artists = [a.strip() for a in re.split(r'[,/;&:]|\bfeat\.?\s*|\bft\.?\s*', raw_artist, flags=re.I) if a.strip()]
     else:
         sub_artists = [raw_artist] if raw_artist else []
     NORM_SONGS.append({
@@ -103,6 +103,10 @@ for s in SONGS:
     na = normalize_text(s.get('artist', ''))
     if na:
         ARTIST_SET.add(na)
+for ns in NORM_SONGS:
+    for na in ns['sub_artists_norm']:
+        if na:
+            ARTIST_SET.add(na)
 
 
 def tokenize_query(text):
@@ -895,6 +899,34 @@ def run_all_tests():
         "Composite Multi-Filter: Artist 'ต่าย อรทัย' + Emotion 'เศร้า' retrieves matching intersection",
         all_tai_sad,
         f"Retrieved {len(res_multi)} songs matching both constraints"
+    )
+
+    print("\nCategory 13: Collaboration & Featured Artist Search (Duet & Collab)")
+    # 1. Collab with &amp;
+    res_collab_amp = enhanced_search("ดอกอ้อ ทุ่งทอง")
+    has_collab_song = any(r['title'] == "หนุ่มบ้านเฮา สาวโรงงาน" and r['score'] >= 0.90 for r in res_collab_amp)
+    report.assert_test(
+        "Collab Artist with '&': 'ดอกอ้อ ทุ่งทอง' retrieves 'หนุ่มบ้านเฮา สาวโรงงาน' (with ศร สินชัย) at score >= 0.90",
+        has_collab_song,
+        f"Found collab song: {has_collab_song}"
+    )
+
+    # 2. Featured Artist with feat.
+    res_collab_feat = enhanced_search("ยุ่งยิ่ง กนกนันทน์")
+    has_feat_song = any(r['title'] == "ฉันยังรักเธอ" and r['score'] >= 0.90 for r in res_collab_feat)
+    report.assert_test(
+        "Featured Artist with 'feat.': 'ยุ่งยิ่ง กนกนันทน์' retrieves 'ฉันยังรักเธอ' (เต้ย อภิวัฒน์ feat.) at score >= 0.90",
+        has_feat_song,
+        f"Found featured song: {has_feat_song}"
+    )
+
+    # 3. Collab artist with &amp; solo search
+    res_collab_joke = enhanced_search("โจ๊ก SO COOL")
+    has_joke_song = any(r['title'] == "อย่าไว้ใจทาง อย่าวางใจแฟน" and r['score'] >= 0.90 for r in res_collab_joke)
+    report.assert_test(
+        "Duet Artist: 'โจ๊ก SO COOL' retrieves 'อย่าไว้ใจทาง อย่าวางใจแฟน' (with ศิริพร อำไพพงษ์) at score >= 0.90",
+        has_joke_song,
+        f"Found duet song: {has_joke_song}"
     )
 
     print("\n========================================================")

@@ -12,9 +12,9 @@
 <meta property="og:description" content="ค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง พร้อมเล่น MV ทันที">
 <meta property="og:type" content="website">
 <title>Thungara</title>
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/assets/favicon.svg">
-<link rel="manifest" href="/app/manifest.json">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../assets/favicon.svg">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://fonts.googleapis.com">
@@ -1340,7 +1340,7 @@ header p {
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-header-bar">
       <div class="modal-handle"></div>
-      <button class="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง" aria-label="ปิดหน้าต่างเนื้อเพลง">&times;</button>
+      <button class="btn-modal-close" id="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง" aria-label="ปิดหน้าต่างเนื้อเพลง">&times;</button>
     </div>
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-artist" id="modal-artist"></div>
@@ -1451,7 +1451,7 @@ const SYNONYMS = {
 
 function normalizeText(text) {
   if (!text) return '';
-  return text.toLowerCase().replace(/[^฀-๿a-z0-9]/g, '');
+  return text.replace(/&amp;/gi, ' ').toLowerCase().replace(/[^฀-๿a-z0-9]/g, '');
 }
 
 function isValidThaiQuery(text) {
@@ -1516,9 +1516,10 @@ async function loadData() {
     maxWordLen = DATA.maxWordLen || 15;
 
     NORM_SONGS = DATA.songs.map(song => {
-      const rawArtist = song.artist || '';
-      const subArtists = (rawArtist.includes(',') || rawArtist.includes(';') || rawArtist.includes('/'))
-        ? rawArtist.split(/[,/;&]/).map(a => a.trim()).filter(Boolean)
+      const rawArtist = (song.artist || '').replace(/&amp;/gi, '&');
+      const hasDelim = /[,/;&:]|\bfeat\.?|\bft\.?/i.test(rawArtist);
+      const subArtists = hasDelim
+        ? rawArtist.split(/[,/;&:]|\bfeat\.?\s*|\bft\.?\s*/i).map(a => a.trim()).filter(Boolean)
         : (rawArtist ? [rawArtist] : []);
       return {
         normTitle: normalizeText(song.title),
@@ -1545,6 +1546,13 @@ async function loadData() {
     DATA.songs.forEach(song => {
       const na = normalizeText(song.artist);
       if (na) ARTIST_SET.add(na);
+    });
+    NORM_SONGS.forEach(ns => {
+      if (ns.subArtistsNorm) {
+        ns.subArtistsNorm.forEach(na => {
+          if (na) ARTIST_SET.add(na);
+        });
+      }
     });
 
     populateFilters();
@@ -2445,7 +2453,8 @@ function getArtistSongCount(artistName) {
   let count = 0;
   for (let i = 0; i < DATA.songs.length; i++) {
     const aNorm = normalizeText(DATA.songs[i].artist);
-    if (aNorm === targetNorm || aNorm.includes(targetNorm) || targetNorm.includes(aNorm)) {
+    const ns = NORM_SONGS[i];
+    if (aNorm === targetNorm || (ns && ns.subArtistsNorm && ns.subArtistsNorm.includes(targetNorm)) || aNorm.includes(targetNorm) || targetNorm.includes(aNorm)) {
       count++;
     }
   }
@@ -2471,8 +2480,11 @@ function filterByArtistFromModal(artistName) {
   }
 }
 
+let previousActiveElement = null;
+
 function openModal(idx) {
   if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
+  previousActiveElement = document.activeElement;
   currentModalSongIdx = idx;
   const song = DATA.songs[idx];
   const query = (document.getElementById('search-input') ? document.getElementById('search-input').value.trim() : '') || currentQuery || '';
@@ -2500,6 +2512,8 @@ function openModal(idx) {
   const overlay = document.getElementById('modal-overlay');
   overlay.classList.add('show');
   document.body.style.overflow = 'hidden';
+  const closeBtn = document.getElementById('btn-modal-close');
+  if (closeBtn) closeBtn.focus();
 }
 
 function renderVideoPreview(song, idx) {
@@ -2634,6 +2648,10 @@ function closeModalDirect() {
   const videoWrap = document.getElementById('modal-video-wrap');
   if (videoWrap) videoWrap.innerHTML = '';
   currentModalSongIdx = null;
+  if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+    try { previousActiveElement.focus(); } catch (e) {}
+    previousActiveElement = null;
+  }
 }
 
 function closeModal(e) {
@@ -2944,8 +2962,9 @@ function updateThemeIcon() {
 applyTheme(getTheme());
 
 function esc(s) {
+  if (s === null || s === undefined) return '';
   const d = document.createElement('div');
-  d.textContent = s;
+  d.textContent = String(s);
   return d.innerHTML;
 }
 function escRegex(s) {
@@ -3015,7 +3034,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v12') caches.delete(k);
+      if (k !== 'thungara-v13') caches.delete(k);
     });
   });
 }
