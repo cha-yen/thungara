@@ -44,7 +44,7 @@ const SYNONYMS = {
 
 function normalizeText(text) {
   if (!text) return '';
-  return text.toLowerCase().replace(/[^฀-๿a-z0-9]/g, '');
+  return text.replace(/&amp;/gi, ' ').toLowerCase().replace(/[^฀-๿a-z0-9]/g, '');
 }
 
 function isValidThaiQuery(text) {
@@ -104,9 +104,10 @@ self.onmessage = function(e) {
       maxWordLen = DATA.maxWordLen || 15;
 
       NORM_SONGS = DATA.songs.map(song => {
-        const rawArtist = song.artist || '';
-        const subArtists = (rawArtist.includes(',') || rawArtist.includes(';') || rawArtist.includes('/'))
-          ? rawArtist.split(/[,/;&]/).map(a => a.trim()).filter(Boolean)
+        const rawArtist = (song.artist || '').replace(/&amp;/gi, '&');
+        const hasDelim = /[,/;&:]|\bfeat\.?|\bft\.?/i.test(rawArtist);
+        const subArtists = hasDelim
+          ? rawArtist.split(/[,/;&:]|\bfeat\.?\s*|\bft\.?\s*/i).map(a => a.trim()).filter(Boolean)
           : (rawArtist ? [rawArtist] : []);
         return {
           normTitle: normalizeText(song.title),
@@ -133,6 +134,13 @@ self.onmessage = function(e) {
       DATA.songs.forEach(song => {
         const na = normalizeText(song.artist);
         if (na) ARTIST_SET.add(na);
+      });
+      NORM_SONGS.forEach(ns => {
+        if (ns.subArtistsNorm) {
+          ns.subArtistsNorm.forEach(na => {
+            if (na) ARTIST_SET.add(na);
+          });
+        }
       });
 
       self.postMessage({ type: 'ready' });
