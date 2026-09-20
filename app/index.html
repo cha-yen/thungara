@@ -2496,7 +2496,7 @@ function openModal(idx) {
 
   const artistCount = getArtistSongCount(song.artist);
   const countBadge = artistCount > 1
-    ? ' <button class="btn-artist-pill" onclick="filterByArtistFromModal(\'' + esc(song.artist).replace(/'/g, "\\'") + '\')" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
+    ? ' <button class="btn-artist-pill" id="btn-modal-artist-pill" onclick="filterByArtistFromModal(DATA.songs[' + idx + '].artist)" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
     : '';
   document.getElementById('modal-title').innerHTML = highlightText(song.title, query, matchedTerms);
   document.getElementById('modal-artist').innerHTML = '<span>' + highlightText(song.artist, query, matchedTerms) + '</span>' + countBadge;
