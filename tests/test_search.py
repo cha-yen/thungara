@@ -190,35 +190,47 @@ def fuzzy_match_window(query_norm, target_norm, max_diff=1, allow_length_change=
         qbgs.append(bg1)
 
     checked = set()
-    shifts = (-1, 0, 1) if allow_length_change else (0,)
-    deltas = (-max_diff, 0, max_diff) if allow_length_change else (0,)
     for offset, bg in enumerate(qbgs):
         pos = target_norm.find(bg)
         checks_count = 0
         while pos != -1 and checks_count < 3:
             base_start = max(0, pos - offset)
-            for shift in shifts:
-                start_idx = base_start + shift
-                for length_delta in deltas:
-                    length = n + length_delta
-                    key = (start_idx, length)
-                    if start_idx < 0 or length < 1 or start_idx + length > t_len or key in checked:
-                        continue
-                    checked.add(key)
-                    sub = target_norm[start_idx:start_idx + length]
-                    if length == n:
+            if not allow_length_change:
+                if base_start not in checked:
+                    checked.add(base_start)
+                    if base_start + n <= t_len:
+                        sub = target_norm[base_start:base_start + n]
                         diff = 0
-                        for c1, c2 in zip(query_norm, sub):
-                            if c1 != c2:
+                        for k in range(n):
+                            if query_norm[k] != sub[k]:
                                 diff += 1
                                 if diff > max_diff:
                                     break
                         if diff <= max_diff:
                             return True, diff, sub
-                    else:
-                        diff = edit_distance_at_most(query_norm, sub, max_diff)
-                        if diff is not None:
-                            return True, diff, sub
+            else:
+                for shift in (-1, 0, 1):
+                    start_idx = base_start + shift
+                    for length_delta in (-max_diff, 0, max_diff):
+                        length = n + length_delta
+                        key = (start_idx, length)
+                        if start_idx < 0 or length < 1 or start_idx + length > t_len or key in checked:
+                            continue
+                        checked.add(key)
+                        sub = target_norm[start_idx:start_idx + length]
+                        if length == n:
+                            diff = 0
+                            for k in range(n):
+                                if query_norm[k] != sub[k]:
+                                    diff += 1
+                                    if diff > max_diff:
+                                        break
+                            if diff <= max_diff:
+                                return True, diff, sub
+                        else:
+                            diff = edit_distance_at_most(query_norm, sub, max_diff)
+                            if diff is not None:
+                                return True, diff, sub
             checks_count += 1
             pos = target_norm.find(bg, pos + 1)
 
@@ -714,9 +726,6 @@ def run_all_tests():
     )
 
     print("\nCategory 7: Performance & Latency Benchmark")
-    # Warm-up run to eliminate cold-start timing jitter
-    _ = enhanced_search("ขอใจกันหนาว")
-
     benchmark_queries = [
         "ขอใจกันหนาว",
         "เมื่อเลิกงานเดินเหงามีเงาเป็นเพื่อนเข้าซอย",
@@ -726,6 +735,9 @@ def run_all_tests():
         "สาว 16",
         "หัวใจติดดินสวมกางเกงยีนส์เก่าๆ",
     ]
+    # Warm-up run to eliminate cold-start timing jitter and warm cache
+    for bq in benchmark_queries:
+        _ = enhanced_search(bq)
     latencies = []
     for bq in benchmark_queries:
         t0 = time.perf_counter()
