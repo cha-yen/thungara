@@ -606,10 +606,12 @@ header p {
   border: 1.5px solid var(--border);
   position: relative;
 }
-.song-card:hover {
+.song-card:hover, .song-card:focus-visible {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
   border-color: var(--primary);
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .song-card:active {
   transform: translateY(0);
@@ -1929,6 +1931,25 @@ function search(query) {
   const { vec: qVec, mag: qMag } = queryToVector(tokens);
   const hasVector = qMag > 0;
 
+  const preparedTokens = tokens.map(t => ({
+    raw: t,
+    norm: normalizeText(t),
+    synonyms: (SYNONYMS[t] || []).map(syn => ({
+      raw: syn,
+      norm: normalizeText(syn)
+    }))
+  }));
+
+  const preparedSubTokens = subTokens.map(st => ({
+    parent: st.parent,
+    root: st.root,
+    normRoot: normalizeText(st.root),
+    synonyms: (st.synonyms || []).map(syn => ({
+      raw: syn,
+      norm: normalizeText(syn)
+    }))
+  }));
+
   const results = [];
   const nSongs = DATA.songs.length;
 
@@ -2076,38 +2097,34 @@ function search(query) {
 
       // 5. Token & Synonym coverage
       let tokenCoverage = 0.0;
-      if (tokens.length > 0 && (!isExactArtist || artistScore > 0)) {
-        for (const t of tokens) {
-          const nt = normalizeText(t);
-          if (ns.normLyrics.includes(nt) || ns.normTitle.includes(nt)) {
+      if (preparedTokens.length > 0 && (!isExactArtist || artistScore > 0)) {
+        for (const pt of preparedTokens) {
+          if (ns.normLyrics.includes(pt.norm) || ns.normTitle.includes(pt.norm)) {
             matchedTokenCount++;
-            matchedTerms.push(t);
-          } else if (SYNONYMS[t]) {
-            for (const syn of SYNONYMS[t]) {
-              const nsyn = normalizeText(syn);
-              if (ns.normLyrics.includes(nsyn) || ns.normTitle.includes(nsyn)) {
+            matchedTerms.push(pt.raw);
+          } else if (pt.synonyms.length > 0) {
+            for (const syn of pt.synonyms) {
+              if (ns.normLyrics.includes(syn.norm) || ns.normTitle.includes(syn.norm)) {
                 matchedSynonymCount++;
-                matchedTerms.push(syn);
+                matchedTerms.push(syn.raw);
                 break;
               }
             }
           }
         }
 
-        if (subTokens.length > 0) {
-          for (const st of subTokens) {
-            const nroot = normalizeText(st.root);
-            if (ns.normLyrics.includes(nroot) || ns.normTitle.includes(nroot)) {
-              matchedTerms.push(st.root);
-              if (!matchedTerms.includes(st.parent)) {
+        if (preparedSubTokens.length > 0) {
+          for (const pst of preparedSubTokens) {
+            if (ns.normLyrics.includes(pst.normRoot) || ns.normTitle.includes(pst.normRoot)) {
+              matchedTerms.push(pst.root);
+              if (!matchedTerms.includes(pst.parent)) {
                 matchedSubTokenCount++;
               }
-            } else if (st.synonyms && st.synonyms.length > 0) {
-              for (const syn of st.synonyms) {
-                const nsyn = normalizeText(syn);
-                if (ns.normLyrics.includes(nsyn) || ns.normTitle.includes(nsyn)) {
-                  matchedTerms.push(syn);
-                  if (!matchedTerms.includes(st.parent)) {
+            } else if (pst.synonyms.length > 0) {
+              for (const syn of pst.synonyms) {
+                if (ns.normLyrics.includes(syn.norm) || ns.normTitle.includes(syn.norm)) {
+                  matchedTerms.push(syn.raw);
+                  if (!matchedTerms.includes(pst.parent)) {
                     matchedSubSynonymCount++;
                     break;
                   }
@@ -2122,7 +2139,7 @@ function search(query) {
           0.85 * matchedSynonymCount +
           0.60 * matchedSubTokenCount +
           0.50 * matchedSubSynonymCount
-        ) / tokens.length;
+        ) / preparedTokens.length;
       }
 
       // 6. TF-IDF Cosine Similarity
@@ -2309,7 +2326,7 @@ function appendNextBatch(query) {
     const preview = highlightText(getPreview(song.lyrics, query, matchedTerms), query, matchedTerms);
     const delay = Math.min(i * 0.03, 0.4);
 
-    html += '<div class="song-card" style="animation-delay:'+delay+'s" onclick="openModal('+r.idx+')">'
+    html += '<div class="song-card" style="animation-delay:'+delay+'s" tabindex="0" role="button" aria-label="ดูเนื้อเพลง ' + esc(song.title) + ' โดย ' + esc(song.artist) + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openModal('+r.idx+');}" onclick="openModal('+r.idx+')">'
       + '<div class="card-header">'
       + '<div class="song-title">' + highlightText(song.title, query, matchedTerms) + '</div>'
       + '<div class="match-score">' + pct + '</div>'
@@ -2494,7 +2511,7 @@ function openModal(idx) {
 
   const artistCount = getArtistSongCount(song.artist);
   const countBadge = artistCount > 1
-    ? ' <button class="btn-artist-pill" onclick="filterByArtistFromModal(\'' + esc(song.artist).replace(/'/g, "\\'") + '\')" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
+    ? ' <button class="btn-artist-pill" id="btn-modal-artist-pill" onclick="filterByArtistFromModal(DATA.songs[' + idx + '].artist)" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
     : '';
   document.getElementById('modal-title').innerHTML = highlightText(song.title, query, matchedTerms);
   document.getElementById('modal-artist').innerHTML = '<span>' + highlightText(song.artist, query, matchedTerms) + '</span>' + countBadge;

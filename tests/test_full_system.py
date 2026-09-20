@@ -204,6 +204,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 13 collaboration test suite",
             "13. การค้นหาผลงานเพลงคู่และศิลปินร่วม" in runner_text
         )
+        self.check(
+            "Song card keyboard navigation and aria-label accessibility implemented",
+            'tabindex="0"' in html_content and 'role="button"' in html_content and 'aria-label=' in html_content and "event.preventDefault();openModal" in html_content
+        )
+        self.check(
+            "Robust artist pill invocation with DATA.songs index reference implemented",
+            'id="btn-modal-artist-pill"' in html_content and "filterByArtistFromModal(DATA.songs[" in html_content
+        )
+        self.check(
+            "Search Worker token and synonym pre-normalization optimization implemented",
+            "preparedTokens" in worker_text and "preparedSubTokens" in worker_text and "preparedTokens" in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 14 compound prefix test suite",
+            "14. การแยกคำอุปสรรคและส่วนขยายภาษาถิ่น" in runner_text
+        )
 
         # Final Summary
         print("\n" + "=" * 65)

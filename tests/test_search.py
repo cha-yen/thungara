@@ -154,14 +154,15 @@ def cosine_similarity(vec_a, vec_b, song_idx=None, mag_a=None):
     if not vec_a or not vec_b:
         return 0.0
     if mag_a is None:
-        mag_a = math.sqrt(sum(v * v for v in vec_a.values()))
+        mag_a = math.sqrt(sum(v * v for v in (vec_a.values() if isinstance(vec_a, dict) else [v for _, v in vec_a])))
     if mag_a == 0:
         return 0.0
     mag_b = VECTOR_MAGS[song_idx] if song_idx is not None else math.sqrt(sum(v * v for v in vec_b.values()))
     if mag_b == 0:
         return 0.0
     dot = 0.0
-    for k, v in vec_a.items():
+    items = vec_a if isinstance(vec_a, list) else vec_a.items()
+    for k, v in items:
         if k in vec_b:
             dot += v * vec_b[k]
     if dot == 0:
@@ -189,35 +190,47 @@ def fuzzy_match_window(query_norm, target_norm, max_diff=1, allow_length_change=
         qbgs.append(bg1)
 
     checked = set()
-    shifts = (-1, 0, 1) if allow_length_change else (0,)
-    deltas = (-max_diff, 0, max_diff) if allow_length_change else (0,)
     for offset, bg in enumerate(qbgs):
         pos = target_norm.find(bg)
         checks_count = 0
         while pos != -1 and checks_count < 3:
             base_start = max(0, pos - offset)
-            for shift in shifts:
-                start_idx = base_start + shift
-                for length_delta in deltas:
-                    length = n + length_delta
-                    key = (start_idx, length)
-                    if start_idx < 0 or length < 1 or start_idx + length > t_len or key in checked:
-                        continue
-                    checked.add(key)
-                    sub = target_norm[start_idx:start_idx + length]
-                    if length == n:
+            if not allow_length_change:
+                if base_start not in checked:
+                    checked.add(base_start)
+                    if base_start + n <= t_len:
+                        sub = target_norm[base_start:base_start + n]
                         diff = 0
-                        for c1, c2 in zip(query_norm, sub):
-                            if c1 != c2:
+                        for k in range(n):
+                            if query_norm[k] != sub[k]:
                                 diff += 1
                                 if diff > max_diff:
                                     break
                         if diff <= max_diff:
                             return True, diff, sub
-                    else:
-                        diff = edit_distance_at_most(query_norm, sub, max_diff)
-                        if diff is not None:
-                            return True, diff, sub
+            else:
+                for shift in (-1, 0, 1):
+                    start_idx = base_start + shift
+                    for length_delta in (-max_diff, 0, max_diff):
+                        length = n + length_delta
+                        key = (start_idx, length)
+                        if start_idx < 0 or length < 1 or start_idx + length > t_len or key in checked:
+                            continue
+                        checked.add(key)
+                        sub = target_norm[start_idx:start_idx + length]
+                        if length == n:
+                            diff = 0
+                            for k in range(n):
+                                if query_norm[k] != sub[k]:
+                                    diff += 1
+                                    if diff > max_diff:
+                                        break
+                            if diff <= max_diff:
+                                return True, diff, sub
+                        else:
+                            diff = edit_distance_at_most(query_norm, sub, max_diff)
+                            if diff is not None:
+                                return True, diff, sub
             checks_count += 1
             pos = target_norm.find(bg, pos + 1)
 
@@ -246,10 +259,12 @@ def edit_distance_at_most(text_a, text_b, max_distance):
     distance += (len(text_a) - a) + (len(text_b) - b)
     return distance if distance <= max_distance else None
 
+RE_THAI_CHAR = re.compile(r'[\u0e01-\u0e5b]')
+
 def is_valid_thai_query(text):
     if not text:
         return False
-    m = re.search(r'[\u0e01-\u0e5b]', text)
+    m = RE_THAI_CHAR.search(text)
     if not m:
         return True
     code = ord(m.group(0))
@@ -302,6 +317,18 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
 
     q_vec = query_to_vector(tokens)
     mag_a = math.sqrt(sum(v * v for v in q_vec.values())) if q_vec else 0.0
+
+    prep_tokens = [
+        (t, normalize_text(t), [(normalize_text(syn), syn) for syn in SYNONYMS.get(t, [])])
+        for t in tokens
+    ]
+    prep_sub_tokens = [
+        (st['parent'], st['root'], normalize_text(st['root']), [(normalize_text(syn), syn) for syn in st['synonyms']])
+        for st in sub_tokens
+    ]
+    q_items = list(q_vec.items()) if q_vec else []
+    q_bg0 = norm_q[:2] if len(norm_q) >= 2 else ''
+    q_bg1 = norm_q[1:3] if len(norm_q) >= 3 else ''
 
     results = []
 
@@ -415,51 +442,48 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
             # 4. Fuzzy matching
             fuzzy_score = 0.0
             if not exact_lyrics_match and not exact_title_match and artist_score == 0 and len(norm_q) >= 3:
-                f_title, diff_t, sub_t = fuzzy_match_window(norm_q, ns['norm_title'], max_diff=1, allow_length_change=True)
-                if f_title:
-                    fuzzy_title_match = True
-                    fuzzy_score = max(fuzzy_score, 0.72)
-                    if sub_t:
-                        matched_terms.append(sub_t)
+                if (q_bg0 in ns['norm_title'] or (q_bg1 and q_bg1 in ns['norm_title'])) and len(ns['norm_title']) >= len(norm_q) - 1:
+                    f_title, diff_t, sub_t = fuzzy_match_window(norm_q, ns['norm_title'], max_diff=1, allow_length_change=True)
+                    if f_title:
+                        fuzzy_title_match = True
+                        fuzzy_score = max(fuzzy_score, 0.72)
+                        if sub_t:
+                            matched_terms.append(sub_t)
 
-                if not is_exact_artist and len(norm_q) <= 24:
-                    f_lyrics, diff_l, sub_l = fuzzy_match_window(norm_q, ns['norm_lyrics'], max_diff=1)
-                    if f_lyrics:
-                        fuzzy_lyrics_match = True
-                        fuzzy_score = max(fuzzy_score, 0.56)
-                        if sub_l:
-                            matched_terms.append(sub_l)
+                if not is_exact_artist and len(norm_q) <= 24 and not fuzzy_title_match:
+                    if q_bg0 in ns['norm_lyrics'] or (q_bg1 and q_bg1 in ns['norm_lyrics']):
+                        f_lyrics, diff_l, sub_l = fuzzy_match_window(norm_q, ns['norm_lyrics'], max_diff=1)
+                        if f_lyrics:
+                            fuzzy_lyrics_match = True
+                            fuzzy_score = max(fuzzy_score, 0.56)
+                            if sub_l:
+                                matched_terms.append(sub_l)
 
             # 5. Token & Synonym coverage + Decompounded Sub-tokens
             token_coverage = 0.0
-            if tokens and (not is_exact_artist or artist_score > 0):
-                for t in tokens:
-                    nt = normalize_text(t)
+            if prep_tokens and (not is_exact_artist or artist_score > 0):
+                for t, nt, syn_pairs in prep_tokens:
                     if nt in ns['norm_lyrics'] or nt in ns['norm_title']:
                         matched_token_count += 1
                         matched_terms.append(t)
-                    elif t in SYNONYMS:
-                        for syn in SYNONYMS[t]:
-                            nsyn = normalize_text(syn)
+                    elif syn_pairs:
+                        for nsyn, syn in syn_pairs:
                             if nsyn in ns['norm_lyrics'] or nsyn in ns['norm_title']:
                                 matched_synonym_count += 1
                                 matched_terms.append(syn)
                                 break
 
-                if sub_tokens:
-                    for st in sub_tokens:
-                        root = st['root']
-                        nroot = normalize_text(root)
+                if prep_sub_tokens:
+                    for parent, root, nroot, ssyn_pairs in prep_sub_tokens:
                         if nroot in ns['norm_lyrics'] or nroot in ns['norm_title']:
                             matched_terms.append(root)
-                            if st['parent'] not in matched_terms:
+                            if parent not in matched_terms:
                                 matched_sub_token_count += 1
-                        elif st['synonyms']:
-                            for ssyn in st['synonyms']:
-                                nssyn = normalize_text(ssyn)
+                        elif ssyn_pairs:
+                            for nssyn, ssyn in ssyn_pairs:
                                 if nssyn in ns['norm_lyrics'] or nssyn in ns['norm_title']:
                                     matched_terms.append(ssyn)
-                                    if st['parent'] not in matched_terms:
+                                    if parent not in matched_terms:
                                         matched_sub_synonym_count += 1
                                         break
 
@@ -468,12 +492,12 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                     0.85 * matched_synonym_count +
                     0.60 * matched_sub_token_count +
                     0.50 * matched_sub_synonym_count
-                ) / len(tokens)
+                ) / len(prep_tokens)
 
             # 6. TF-IDF Cosine Similarity
             cos_sim = 0.0
             if mag_a > 0 and (not is_exact_artist or artist_score > 0):
-                cos_sim = cosine_similarity(q_vec, VECTORS[i], song_idx=i, mag_a=mag_a)
+                cos_sim = cosine_similarity(q_items, VECTORS[i], song_idx=i, mag_a=mag_a)
 
             # 7. Tiered Normalized Confidence Score [0.0 - 1.0]
             if exact_title_match and artist_score > 0:
@@ -702,9 +726,6 @@ def run_all_tests():
     )
 
     print("\nCategory 7: Performance & Latency Benchmark")
-    # Warm-up run to eliminate cold-start timing jitter
-    _ = enhanced_search("ขอใจกันหนาว")
-
     benchmark_queries = [
         "ขอใจกันหนาว",
         "เมื่อเลิกงานเดินเหงามีเงาเป็นเพื่อนเข้าซอย",
@@ -714,6 +735,9 @@ def run_all_tests():
         "สาว 16",
         "หัวใจติดดินสวมกางเกงยีนส์เก่าๆ",
     ]
+    # Warm-up run to eliminate cold-start timing jitter and warm cache
+    for bq in benchmark_queries:
+        _ = enhanced_search(bq)
     latencies = []
     for bq in benchmark_queries:
         t0 = time.perf_counter()
@@ -927,6 +951,33 @@ def run_all_tests():
         "Duet Artist: 'โจ๊ก SO COOL' retrieves 'อย่าไว้ใจทาง อย่าวางใจแฟน' (with ศิริพร อำไพพงษ์) at score >= 0.90",
         has_joke_song,
         f"Found duet song: {has_joke_song}"
+    )
+
+    print("\nCategory 14: Compound Prefix Isolation & Subtoken Dialect Tests")
+    # 1. Prefix 'การ' Affix Isolation
+    res_prefix_kan = enhanced_search("การรอคอย")
+    has_root_rokoy = len(res_prefix_kan) > 0 and any("รอคอย" in r['evidence']['matchedTerms'] for r in res_prefix_kan[:5]) and all("การ" not in r['evidence']['matchedTerms'] for r in res_prefix_kan[:5])
+    report.assert_test(
+        "Compound Prefix Isolation: 'การรอคอย' isolates root 'รอคอย' and excludes bound prefix 'การ'",
+        has_root_rokoy,
+        f"Root 'รอคอย' isolated and 'การ' excluded in top results: {has_root_rokoy}"
+    )
+
+    # 2. Prefix 'น่า' Decompounding
+    res_prefix_na = enhanced_search("น่ารัก")
+    has_root_rak = len(res_prefix_na) > 0 and any("รัก" in r['evidence']['matchedTerms'] for r in res_prefix_na[:5])
+    report.assert_test(
+        "Compound Prefix Decompounding: 'น่ารัก' extracts root 'รัก' in matchedTerms",
+        has_root_rak,
+        f"Root 'รัก' extracted from 'น่ารัก': {has_root_rak}"
+    )
+
+    # 3. Subtoken Dialect Expansion: 'น่ารัก' -> 'รัก' -> 'ฮัก'
+    has_subtoken_dialect = any("ฮัก" in r['evidence']['matchedTerms'] for r in res_prefix_na)
+    report.assert_test(
+        "Subtoken Dialect Expansion: 'น่ารัก' expands subtoken root 'รัก' to Isan synonym 'ฮัก'",
+        has_subtoken_dialect,
+        f"Found Isan dialect match 'ฮัก' via subtoken: {has_subtoken_dialect}"
     )
 
     print("\n========================================================")

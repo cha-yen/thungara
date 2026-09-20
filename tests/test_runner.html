@@ -621,6 +621,42 @@ const TEST_CASES = [
         detail: found ? "พบเพลงร้องคู่ 'อย่าไว้ใจทาง อย่าวางใจแฟน' ด้วยคะแนน >= 0.90 ถูกต้อง" : "ไม่พบเพลงร้องคู่ตามเกณฑ์"
       };
     }
+  },
+  {
+    category: "14. การแยกคำอุปสรรคและส่วนขยายภาษาถิ่น (Compound Prefix Isolation & Subtoken Dialect)",
+    name: "ค้นหา 'การรอคอย' ต้องแยกรากคำ 'รอคอย' ได้ และต้องไม่ติด prefix ผูกติด 'การ' ใน matchedTerms",
+    run: async () => {
+      const res = await workerSearch("การรอคอย");
+      const pass = res.length > 0 && res.slice(0, 5).some(r => r.evidence && r.evidence.matchedTerms && r.evidence.matchedTerms.includes("รอคอย")) && res.slice(0, 5).every(r => !r.evidence || !r.evidence.matchedTerms || !r.evidence.matchedTerms.includes("การ"));
+      return {
+        pass,
+        detail: pass ? "แยกรากคำ 'รอคอย' สำเร็จ และคัดกรองอุปสรรคผูกติด 'การ' ออกจาก matchedTerms ถูกต้อง 100%" : "ผลลัพธ์ไม่ตรงตามเกณฑ์ Affix Isolation"
+      };
+    }
+  },
+  {
+    category: "14. การแยกคำอุปสรรคและส่วนขยายภาษาถิ่น (Compound Prefix Isolation & Subtoken Dialect)",
+    name: "ค้นหา 'น่ารัก' ต้องถอดรากคำ 'รัก' ออกจาก prefix 'น่า' และปรากฏใน matchedTerms",
+    run: async () => {
+      const res = await workerSearch("น่ารัก");
+      const pass = res.length > 0 && res.slice(0, 5).some(r => r.evidence && r.evidence.matchedTerms && r.evidence.matchedTerms.includes("รัก"));
+      return {
+        pass,
+        detail: pass ? "ถอดรากคำ 'รัก' ออกจาก 'น่ารัก' และบรรจุลงใน matchedTerms สำเร็จ" : "ไม่พบรากคำ 'รัก' ใน matchedTerms"
+      };
+    }
+  },
+  {
+    category: "14. การแยกคำอุปสรรคและส่วนขยายภาษาถิ่น (Compound Prefix Isolation & Subtoken Dialect)",
+    name: "ค้นหา 'น่ารัก' ต้องขยายคำพ้องความหมายภาษาอีสาน 'ฮัก' จากรากคำย่อย 'รัก' ได้",
+    run: async () => {
+      const res = await workerSearch("น่ารัก");
+      const pass = res.some(r => r.evidence && r.evidence.matchedTerms && r.evidence.matchedTerms.includes("ฮัก"));
+      return {
+        pass,
+        detail: pass ? "ขยายคำค้นหารากย่อย 'รัก' สู่คำพ้องอีสาน 'ฮัก' ใน matchedTerms สำเร็จ" : "ไม่พบการขยายสู่ภาษาอีสาน 'ฮัก'"
+      };
+    }
   }
 ];
 
