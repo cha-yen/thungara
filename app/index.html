@@ -606,10 +606,12 @@ header p {
   border: 1.5px solid var(--border);
   position: relative;
 }
-.song-card:hover {
+.song-card:hover, .song-card:focus-visible {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
   border-color: var(--primary);
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .song-card:active {
   transform: translateY(0);
@@ -2309,7 +2311,7 @@ function appendNextBatch(query) {
     const preview = highlightText(getPreview(song.lyrics, query, matchedTerms), query, matchedTerms);
     const delay = Math.min(i * 0.03, 0.4);
 
-    html += '<div class="song-card" style="animation-delay:'+delay+'s" onclick="openModal('+r.idx+')">'
+    html += '<div class="song-card" style="animation-delay:'+delay+'s" tabindex="0" role="button" aria-label="ดูเนื้อเพลง ' + esc(song.title) + ' โดย ' + esc(song.artist) + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openModal('+r.idx+');}" onclick="openModal('+r.idx+')">'
       + '<div class="card-header">'
       + '<div class="song-title">' + highlightText(song.title, query, matchedTerms) + '</div>'
       + '<div class="match-score">' + pct + '</div>'
