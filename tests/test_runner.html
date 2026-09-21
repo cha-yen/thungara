@@ -591,7 +591,7 @@ const TEST_CASES = [
     name: "ค้นหาศิลปินร่วม 'ดอกอ้อ ทุ่งทอง' ต้องพบเพลง 'หนุ่มบ้านเฮา สาวโรงงาน' (ร้องร่วมกับ ศร สินชัย) ด้วยคะแนน tier-1",
     run: async () => {
       const res = await workerSearch("ดอกอ้อ ทุ่งทอง");
-      const found = res.some(r => r.title === "หนุ่มบ้านเฮา สาวโรงงาน" && r.score >= 0.90);
+      const found = res.some(r => (DATA.songs[r.idx].title === "หนุ่มบ้านเฮา สาวโรงงาน" || r.title === "หนุ่มบ้านเฮา สาวโรงงาน") && r.score >= 0.90);
       return {
         pass: found,
         detail: found ? "พบเพลงคู่ 'หนุ่มบ้านเฮา สาวโรงงาน' ด้วยคะแนน >= 0.90 ถูกต้อง" : "ไม่พบเพลงคู่ตามเกณฑ์"
@@ -603,7 +603,7 @@ const TEST_CASES = [
     name: "ค้นหาศิลปินรับเชิญ 'ยุ่งยิ่ง กนกนันทน์' ต้องพบเพลง 'ฉันยังรักเธอ' (เต้ย อภิวัฒน์ feat.) ด้วยคะแนน tier-1",
     run: async () => {
       const res = await workerSearch("ยุ่งยิ่ง กนกนันทน์");
-      const found = res.some(r => r.title === "ฉันยังรักเธอ" && r.score >= 0.90);
+      const found = res.some(r => (DATA.songs[r.idx].title === "ฉันยังรักเธอ" || r.title === "ฉันยังรักเธอ") && r.score >= 0.90);
       return {
         pass: found,
         detail: found ? "พบเพลงศิลปินรับเชิญ 'ฉันยังรักเธอ' ด้วยคะแนน >= 0.90 ถูกต้อง" : "ไม่พบเพลงรับเชิญตามเกณฑ์"
@@ -615,7 +615,7 @@ const TEST_CASES = [
     name: "ค้นหาศิลปินร้องคู่ 'โจ๊ก SO COOL' ต้องพบเพลง 'อย่าไว้ใจทาง อย่าวางใจแฟน' (ร้องคู่กับ ศิริพร อำไพพงษ์) ด้วยคะแนน tier-1",
     run: async () => {
       const res = await workerSearch("โจ๊ก SO COOL");
-      const found = res.some(r => r.title === "อย่าไว้ใจทาง อย่าวางใจแฟน" && r.score >= 0.90);
+      const found = res.some(r => (DATA.songs[r.idx].title === "อย่าไว้ใจทาง อย่าวางใจแฟน" || r.title === "อย่าไว้ใจทาง อย่าวางใจแฟน") && r.score >= 0.90);
       return {
         pass: found,
         detail: found ? "พบเพลงร้องคู่ 'อย่าไว้ใจทาง อย่าวางใจแฟน' ด้วยคะแนน >= 0.90 ถูกต้อง" : "ไม่พบเพลงร้องคู่ตามเกณฑ์"
@@ -655,6 +655,47 @@ const TEST_CASES = [
       return {
         pass,
         detail: pass ? "ขยายคำค้นหารากย่อย 'รัก' สู่คำพ้องอีสาน 'ฮัก' ใน matchedTerms สำเร็จ" : "ไม่พบการขยายสู่ภาษาอีสาน 'ฮัก'"
+      };
+    }
+  },
+  {
+    category: "15. การค้นหาชื่อและศิลปินแบบมีเครื่องหมายวรรคตอนและตัวกรองสามชั้น (Punctuated Omnibox & Tri-Filter Precision)",
+    name: "ค้นหา Omnibox มีเครื่องหมายขีดคั่น 'ไผ่ พงศธร - คนบ้านเดียวกัน' ต้องขึ้นอันดับ 1 ด้วยคะแนน 1.0",
+    run: async () => {
+      const res = await workerSearch("ไผ่ พงศธร - คนบ้านเดียวกัน");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res[0].score === 1.0;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score=${res.length > 0 ? res[0].score : 0})`
+      };
+    }
+  },
+  {
+    category: "15. การค้นหาชื่อและศิลปินแบบมีเครื่องหมายวรรคตอนและตัวกรองสามชั้น (Punctuated Omnibox & Tri-Filter Precision)",
+    name: "ค้นหา Omnibox มีวงเล็บ 'ขอใจกันหนาว (ต่าย อรทัย)' ต้องขึ้นอันดับ 1 ด้วยคะแนน 1.0",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว (ต่าย อรทัย)");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score === 1.0;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score=${res.length > 0 ? res[0].score : 0})`
+      };
+    }
+  },
+  {
+    category: "15. การค้นหาชื่อและศิลปินแบบมีเครื่องหมายวรรคตอนและตัวกรองสามชั้น (Punctuated Omnibox & Tri-Filter Precision)",
+    name: "ตัวกรองความแม่นยำสามชั้น: ศิลปิน 'ต่าย อรทัย' + อารมณ์ 'กำลังใจ' + ปี '2545' ต้องตรงทุกเงื่อนไข 100%",
+    run: async () => {
+      const res = await workerSearch("", "ต่าย อรทัย", "กำลังใจ", "2545");
+      const pass = res.length > 0 && res.every(r => {
+        const s = DATA.songs[r.idx];
+        return s.artist.includes("ต่าย อรทัย") && s.emotion === "กำลังใจ" && String(s.year) === "2545";
+      });
+      return {
+        pass,
+        detail: pass ? `พบ ${res.length} เพลงที่ตรงเงื่อนไขทั้งศิลปิน อารมณ์ และปีเผยแพร่ 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขร่วมสามชั้น"
       };
     }
   }
