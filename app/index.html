@@ -3015,6 +3015,26 @@ document.addEventListener('keydown', function(e) {
   const modalOverlay = document.getElementById('modal-overlay');
   const isModalOpen = modalOverlay && modalOverlay.classList.contains('show');
 
+  if (isModalOpen && e.key === 'Tab') {
+    const focusables = modalOverlay.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    if (focusables.length > 0) {
+      const firstEl = focusables[0];
+      const lastEl = focusables[focusables.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === firstEl || !modalOverlay.contains(document.activeElement)) {
+          e.preventDefault();
+          lastEl.focus();
+        }
+      } else {
+        if (document.activeElement === lastEl || !modalOverlay.contains(document.activeElement)) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
+    }
+    return;
+  }
+
   if (e.key === 'Escape') {
     if (isModalOpen) {
       closeModalDirect();
