@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v13" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v14" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -219,6 +219,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 14 compound prefix test suite",
             "14. การแยกคำอุปสรรคและส่วนขยายภาษาถิ่น" in runner_text
+        )
+        self.check(
+            "Modal dialog keyboard focus trap and loop navigation implemented",
+            "isModalOpen && e.key === 'Tab'" in html_content and "focusables[0]" in html_content
+        )
+        self.check(
+            "YouTube accessible label and defensive web share origin guard implemented",
+            "เปิดดูมิวสิกวิดีโอ" in html_content and "origin !== 'null'" in html_content and "navigator.canShare" in html_content
+        )
+        self.check(
+            "Search Worker fuzzy bigram pre-check and direct character comparison implemented",
+            "qBg0" in worker_text and "qBg1" in worker_text and "!fuzzyTitleMatch" in worker_text and "queryNorm[k] !== targetNorm[baseStart + k]" in worker_text
+        )
+        self.check(
+            "Browser test runner synced with Category 15 punctuated omnibox test suite",
+            "15. การค้นหาชื่อและศิลปินแบบมีเครื่องหมายวรรคตอนและตัวกรองสามชั้น" in runner_text
         )
 
         # Final Summary

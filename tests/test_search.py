@@ -980,6 +980,34 @@ def run_all_tests():
         f"Found Isan dialect match 'ฮัก' via subtoken: {has_subtoken_dialect}"
     )
 
+    print("\nCategory 15: Punctuated Omnibox & Tri-Filter Precision")
+    # 1. Hyphenated Omnibox: Artist - Title
+    res_punc_omnibox1 = enhanced_search("ไผ่ พงศธร - คนบ้านเดียวกัน")
+    punc1_pass = len(res_punc_omnibox1) > 0 and res_punc_omnibox1[0]['title'] == "คนบ้านเดียวกัน" and res_punc_omnibox1[0]['score'] == 1.0
+    report.assert_test(
+        "Punctuated Omnibox: 'ไผ่ พงศธร - คนบ้านเดียวกัน' ranks 'คนบ้านเดียวกัน' at #1 with score 1.0",
+        punc1_pass,
+        f"Rank #1: {res_punc_omnibox1[0]['title'] if res_punc_omnibox1 else None}, score={res_punc_omnibox1[0]['score'] if res_punc_omnibox1 else 0}"
+    )
+
+    # 2. Parenthesized Omnibox: Title (Artist)
+    res_punc_omnibox2 = enhanced_search("ขอใจกันหนาว (ต่าย อรทัย)")
+    punc2_pass = len(res_punc_omnibox2) > 0 and res_punc_omnibox2[0]['title'] == "ขอใจกันหนาว" and res_punc_omnibox2[0]['score'] == 1.0
+    report.assert_test(
+        "Parenthesized Omnibox: 'ขอใจกันหนาว (ต่าย อรทัย)' ranks 'ขอใจกันหนาว' at #1 with score 1.0",
+        punc2_pass,
+        f"Rank #1: {res_punc_omnibox2[0]['title'] if res_punc_omnibox2 else None}, score={res_punc_omnibox2[0]['score'] if res_punc_omnibox2 else 0}"
+    )
+
+    # 3. Tri-Filter Precision (Artist + Emotion + Year)
+    res_trifilter = enhanced_search("", filter_artist="ต่าย อรทัย", filter_emotion="กำลังใจ", filter_year="2545")
+    tri_pass = len(res_trifilter) > 0 and all(r['artist'] == "ต่าย อรทัย" and r['emotion'] == "กำลังใจ" and str(r['year']) == "2545" for r in res_trifilter)
+    report.assert_test(
+        "Tri-Filter Precision: Artist 'ต่าย อรทัย' + Emotion 'กำลังใจ' + Year '2545' returns exact matches",
+        tri_pass,
+        f"Retrieved {len(res_trifilter)} songs matching all 3 criteria with 100% precision"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
