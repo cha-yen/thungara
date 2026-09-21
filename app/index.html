@@ -2541,7 +2541,7 @@ function renderVideoPreview(song, idx) {
   if (ytId) {
     const ytUrl = 'https://www.youtube.com/watch?v=' + ytId;
     container.style.display = 'block';
-    container.innerHTML = '<a href="' + ytUrl + '" target="_blank" rel="noopener noreferrer" class="video-preview-thumb" title="แตะเพื่อเปิดดูบน YouTube">'
+    container.innerHTML = '<a href="' + ytUrl + '" target="_blank" rel="noopener noreferrer" class="video-preview-thumb" title="แตะเพื่อเปิดดูบน YouTube" aria-label="เปิดดูมิวสิกวิดีโอ ' + esc(song.title) + ' บน YouTube">'
       + '<img src="https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg" alt="' + esc(song.title) + '" loading="lazy">'
       + '<div class="video-badge">'
       + '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="#FF0000"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>'
@@ -2580,10 +2580,10 @@ async function shareSong(idx) {
   const ytUrl = ytId ? 'https://youtu.be/' + ytId : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' ' + song.artist);
   
   const snippet = song.lyrics.split('\n').filter(l => l.trim()).slice(0, 3).join('\n');
-  const appUrl = (window.location.origin && window.location.pathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
+  const appUrl = (window.location.origin && window.location.origin !== 'null' && window.location.pathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
   const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\n' + (appUrl ? 'อ่านเนื้อเพลง: ' + appUrl + '\n' : '') + 'ฟังเพลง: ' + ytUrl;
 
-  if (navigator.share) {
+  if (navigator.share && (!navigator.canShare || navigator.canShare({ title: song.title }))) {
     try {
       await navigator.share({
         title: song.title + ' - ' + song.artist,
