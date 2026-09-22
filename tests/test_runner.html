@@ -698,6 +698,45 @@ const TEST_CASES = [
         detail: pass ? `พบ ${res.length} เพลงที่ตรงเงื่อนไขทั้งศิลปิน อารมณ์ และปีเผยแพร่ 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขร่วมสามชั้น"
       };
     }
+  },
+  {
+    category: "16. การค้นหาแบบผสมข้อความและตัวกรองเดี่ยว (Hybrid Query & Single Filter Interaction)",
+    name: "ค้นหาเนื้อร้อง 'เคียงข้างบนทางเปื้อนฝุ่น' พร้อมกรองศิลปิน 'ต่าย อรทัย' ต้องได้เพลง 'ขอใจกันหนาว' อันดับ 1 และตรงศิลปิน 100%",
+    run: async () => {
+      const res = await workerSearch("เคียงข้างบนทางเปื้อนฝุ่น", "ต่าย อรทัย");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res.every(r => DATA.songs[r.idx].artist.includes("ต่าย อรทัย"));
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' และผลลัพธ์ทั้งหมด (${res.length} เพลง) เป็นของ ต่าย อรทัย 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขการค้นหาผสมตัวกรองศิลปิน"
+      };
+    }
+  },
+  {
+    category: "16. การค้นหาแบบผสมข้อความและตัวกรองเดี่ยว (Hybrid Query & Single Filter Interaction)",
+    name: "ค้นหาชื่อเพลง 'คนบ้านเดียวกัน' พร้อมกรองปี '2551' ต้องได้เพลงตรงอันดับ 1 และตรงปี 100%",
+    run: async () => {
+      const res = await workerSearch("คนบ้านเดียวกัน", "", "", "2551");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res.every(r => String(DATA.songs[r.idx].year) === "2551");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' และผลลัพธ์ทั้งหมด (${res.length} เพลง) เผยแพร่ปี 2551 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขการค้นหาผสมตัวกรองปี"
+      };
+    }
+  },
+  {
+    category: "16. การค้นหาแบบผสมข้อความและตัวกรองเดี่ยว (Hybrid Query & Single Filter Interaction)",
+    name: "ค้นหาคำว่า 'ดอกหญ้า' พร้อมกรองอารมณ์ 'กำลังใจ' ต้องได้เพลง 'ดอกหญ้าในป่าปูน' อันดับ 1 และตรงอารมณ์ 100%",
+    run: async () => {
+      const res = await workerSearch("ดอกหญ้า", "", "กำลังใจ", "");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ดอกหญ้าในป่าปูน" && res.every(r => DATA.songs[r.idx].emotion === "กำลังใจ");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' และผลลัพธ์ทั้งหมด (${res.length} เพลง) มีอารมณ์กำลังใจ 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขการค้นหาผสมตัวกรองอารมณ์"
+      };
+    }
   }
 ];
 

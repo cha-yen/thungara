@@ -564,6 +564,11 @@ header p {
   background: rgba(245,158,11,0.08);
   transform: translateY(-1px);
 }
+.chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-color: var(--primary);
+}
 .chip-btn-del {
   border: none;
   background: none;
@@ -581,6 +586,10 @@ header p {
 }
 .chip-btn-del:hover {
   color: var(--red);
+}
+.chip-btn-del:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
 }
 
 .stats {
@@ -1534,7 +1543,10 @@ async function loadData() {
 
     VECTOR_MAGS = DATA.vectors.map(vec => {
       let sumSq = 0;
-      for (const v of Object.values(vec)) sumSq += v * v;
+      for (const k in vec) {
+        const v = vec[k];
+        sumSq += v * v;
+      }
       return Math.sqrt(sumSq);
     });
 
@@ -1697,12 +1709,14 @@ function queryToVector(tokens) {
 }
 
 function cosineSim(vecA, magA, songIdx) {
-  if (magA === 0) return 0;
+  if (magA === 0 || !vecA) return 0;
   const magB = VECTOR_MAGS[songIdx];
   if (!magB) return 0;
   const vecB = DATA.vectors[songIdx];
   let dot = 0;
-  for (const [k, v] of Object.entries(vecA)) {
+  const entries = Array.isArray(vecA) ? vecA : Object.entries(vecA);
+  for (let idx = 0; idx < entries.length; idx++) {
+    const [k, v] = entries[idx];
     if (vecB[k] !== undefined) dot += v * vecB[k];
   }
   if (dot === 0) return 0;
@@ -1946,6 +1960,7 @@ function search(query) {
 
   const { vec: qVec, mag: qMag } = queryToVector(tokens);
   const hasVector = qMag > 0;
+  const qVecEntries = hasVector ? Object.entries(qVec) : [];
 
   const preparedTokens = tokens.map(t => ({
     raw: t,
@@ -2165,7 +2180,7 @@ function search(query) {
       // 6. TF-IDF Cosine Similarity
       let cosSim = 0.0;
       if (hasVector && (!isExactArtist || artistScore > 0)) {
-        cosSim = cosineSim(qVec, qMag, i);
+        cosSim = cosineSim(qVecEntries, qMag, i);
       }
 
       // 7. Tiered Normalized Confidence Score in [0.0, 1.0]
@@ -2299,15 +2314,23 @@ function renderResults(results, query) {
       + '<li>ลองร้องผ่านไมค์แทนการพิมพ์</li>'
       + '<li>ลองเอาตัวกรองศิลปิน/อารมณ์/ปี ออก</li>'
       + '</ul></div>';
-    stats.textContent = '';
+    stats.textContent = 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา';
     return;
   }
 
   if (currentResults.length === 0) {
+    const hasFilter = document.getElementById('filter-artist').value || document.getElementById('filter-emotion').value || document.getElementById('filter-year').value;
     container.style.display = 'none';
     emptyState.style.display = 'block';
-    emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้ทันที</p>';
-    stats.textContent = DATA ? DATA.songs.length + ' เพลงพร้อมค้นหา' : '';
+    if (hasFilter) {
+      emptyState.innerHTML = '<div class="icon">&#x1F50D;</div>'
+        + '<p class="not-found-title">ไม่พบเพลงตามตัวกรองที่เลือก</p>'
+        + '<div class="search-tips"><p class="tips-title">ลองวิธีนี้ดู</p><ul><li>ลองเปลี่ยนตัวกรองศิลปิน อารมณ์ หรือปี</li><li>กดรีเซ็ตตัวกรองเป็นค่าเริ่มต้น</li></ul></div>';
+      stats.textContent = 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา';
+    } else {
+      emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้ทันที</p>';
+      stats.textContent = DATA ? DATA.songs.length + ' เพลงพร้อมค้นหา' : '';
+    }
     return;
   }
 
@@ -2958,7 +2981,7 @@ function renderRecentSearches() {
   searches.forEach(term => {
     const escaped = esc(term);
     const escapedParam = escaped.replace(/'/g, "\\'");
-    html += `<div class="chip" onclick="applyRecentSearch('${escapedParam}')">` +
+    html += `<div class="chip" role="button" tabindex="0" onclick="applyRecentSearch('${escapedParam}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();applyRecentSearch('${escapedParam}');}" title="ค้นหา '${escaped}' อีกครั้ง" aria-label="ค้นหา '${escaped}' อีกครั้ง">` +
       `<span>${escaped}</span>` +
       `<button class="chip-btn-del" onclick="removeRecentSearch('${escapedParam}', event)" title="ลบ" aria-label="ลบคำค้นหา ${escaped}">&times;</button>` +
       `</div>`;
@@ -3091,7 +3114,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v14') caches.delete(k);
+      if (k !== 'thungara-v15') caches.delete(k);
     });
   });
 }
