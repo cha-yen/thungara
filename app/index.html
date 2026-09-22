@@ -2308,15 +2308,23 @@ function renderResults(results, query) {
       + '<li>ลองร้องผ่านไมค์แทนการพิมพ์</li>'
       + '<li>ลองเอาตัวกรองศิลปิน/อารมณ์/ปี ออก</li>'
       + '</ul></div>';
-    stats.textContent = '';
+    stats.textContent = 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา';
     return;
   }
 
   if (currentResults.length === 0) {
+    const hasFilter = document.getElementById('filter-artist').value || document.getElementById('filter-emotion').value || document.getElementById('filter-year').value;
     container.style.display = 'none';
     emptyState.style.display = 'block';
-    emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้ทันที</p>';
-    stats.textContent = DATA ? DATA.songs.length + ' เพลงพร้อมค้นหา' : '';
+    if (hasFilter) {
+      emptyState.innerHTML = '<div class="icon">&#x1F50D;</div>'
+        + '<p class="not-found-title">ไม่พบเพลงตามตัวกรองที่เลือก</p>'
+        + '<div class="search-tips"><p class="tips-title">ลองวิธีนี้ดู</p><ul><li>ลองเปลี่ยนตัวกรองศิลปิน อารมณ์ หรือปี</li><li>กดรีเซ็ตตัวกรองเป็นค่าเริ่มต้น</li></ul></div>';
+      stats.textContent = 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา';
+    } else {
+      emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้ทันที</p>';
+      stats.textContent = DATA ? DATA.songs.length + ' เพลงพร้อมค้นหา' : '';
+    }
     return;
   }
 
