@@ -1008,6 +1008,34 @@ def run_all_tests():
         f"Retrieved {len(res_trifilter)} songs matching all 3 criteria with 100% precision"
     )
 
+    print("\nCategory 16: Hybrid Query & Single Filter Interaction")
+    # 1. Query + Artist Filter: Lyrics Query constrained to Specific Artist
+    res_q_artist = enhanced_search("เคียงข้างบนทางเปื้อนฝุ่น", filter_artist="ต่าย อรทัย")
+    pass_q_artist = len(res_q_artist) > 0 and res_q_artist[0]['title'] == "ขอใจกันหนาว" and all(r['artist'] == "ต่าย อรทัย" for r in res_q_artist)
+    report.assert_test(
+        "Hybrid Query + Artist: 'เคียงข้างบนทางเปื้อนฝุ่น' + Artist 'ต่าย อรทัย' ranks 'ขอใจกันหนาว' at #1 with 100% artist constraint",
+        pass_q_artist,
+        f"Rank #1: {res_q_artist[0]['title'] if res_q_artist else None}, artist={res_q_artist[0]['artist'] if res_q_artist else None}, total={len(res_q_artist)}"
+    )
+
+    # 2. Query + Year Filter: Song Title Query constrained to Release Year
+    res_q_year = enhanced_search("คนบ้านเดียวกัน", filter_year="2551")
+    pass_q_year = len(res_q_year) > 0 and res_q_year[0]['title'] == "คนบ้านเดียวกัน" and all(str(r['year']) == "2551" for r in res_q_year)
+    report.assert_test(
+        "Hybrid Query + Year: 'คนบ้านเดียวกัน' + Year '2551' ranks exact song at #1 with 100% year constraint",
+        pass_q_year,
+        f"Rank #1: {res_q_year[0]['title'] if res_q_year else None}, year={res_q_year[0]['year'] if res_q_year else None}, total={len(res_q_year)}"
+    )
+
+    # 3. Query + Emotion Filter: Partial Title Query constrained to Emotion Tag
+    res_q_emotion = enhanced_search("ดอกหญ้า", filter_emotion="กำลังใจ")
+    pass_q_emotion = len(res_q_emotion) > 0 and res_q_emotion[0]['title'] == "ดอกหญ้าในป่าปูน" and all(r['emotion'] == "กำลังใจ" for r in res_q_emotion)
+    report.assert_test(
+        "Hybrid Query + Emotion: 'ดอกหญ้า' + Emotion 'กำลังใจ' ranks 'ดอกหญ้าในป่าปูน' at #1 with 100% emotion constraint",
+        pass_q_emotion,
+        f"Rank #1: {res_q_emotion[0]['title'] if res_q_emotion else None}, emotion={res_q_emotion[0]['emotion'] if res_q_emotion else None}, total={len(res_q_emotion)}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
