@@ -120,7 +120,10 @@ self.onmessage = function(e) {
 
       VECTOR_MAGS = DATA.vectors.map(vec => {
         let sumSq = 0;
-        for (const v of Object.values(vec)) sumSq += v * v;
+        for (const k in vec) {
+          const v = vec[k];
+          sumSq += v * v;
+        }
         return Math.sqrt(sumSq);
       });
 
@@ -215,12 +218,14 @@ function queryToVector(tokens) {
 }
 
 function cosineSim(vecA, magA, songIdx) {
-  if (magA === 0) return 0;
+  if (magA === 0 || !vecA) return 0;
   const magB = VECTOR_MAGS[songIdx];
   if (!magB) return 0;
   const vecB = DATA.vectors[songIdx];
   let dot = 0;
-  for (const [k, v] of Object.entries(vecA)) {
+  const entries = Array.isArray(vecA) ? vecA : Object.entries(vecA);
+  for (let idx = 0; idx < entries.length; idx++) {
+    const [k, v] = entries[idx];
     if (vecB[k] !== undefined) dot += v * vecB[k];
   }
   if (dot === 0) return 0;
@@ -338,6 +343,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
 
   const { vec: qVec, mag: qMag } = queryToVector(tokens);
   const hasVector = qMag > 0;
+  const qVecEntries = hasVector ? Object.entries(qVec) : [];
 
   const preparedTokens = tokens.map(t => ({
     raw: t,
@@ -557,7 +563,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
       // 6. TF-IDF Cosine Similarity
       let cosSim = 0.0;
       if (hasVector && (!isExactArtist || artistScore > 0)) {
-        cosSim = cosineSim(qVec, qMag, i);
+        cosSim = cosineSim(qVecEntries, qMag, i);
       }
 
       // 7. Tiered Normalized Confidence Score in [0.0, 1.0]

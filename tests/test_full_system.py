@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v14" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v15" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -235,6 +235,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 15 punctuated omnibox test suite",
             "15. การค้นหาชื่อและศิลปินแบบมีเครื่องหมายวรรคตอนและตัวกรองสามชั้น" in runner_text
+        )
+        self.check(
+            "Recent search chip keyboard accessibility and focus-visible indicator implemented",
+            'role="button" tabindex="0"' in html_content and ".chip:focus-visible" in html_content
+        )
+        self.check(
+            "Zero-results status message announcement in aria-live region implemented",
+            "ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา" in html_content and 'id="stats" aria-live="polite"' in html_content
+        )
+        self.check(
+            "Search Worker and Main-Thread precomputed vector entries cosine similarity implemented",
+            "qVecEntries" in worker_text and "qVecEntries" in html_content and "Array.isArray(vecA)" in worker_text
+        )
+        self.check(
+            "Browser test runner synced with Category 16 hybrid query test suite",
+            "16. การค้นหาแบบผสมข้อความและตัวกรองเดี่ยว" in runner_text
         )
 
         # Final Summary
