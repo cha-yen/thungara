@@ -564,6 +564,11 @@ header p {
   background: rgba(245,158,11,0.08);
   transform: translateY(-1px);
 }
+.chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-color: var(--primary);
+}
 .chip-btn-del {
   border: none;
   background: none;
@@ -581,6 +586,10 @@ header p {
 }
 .chip-btn-del:hover {
   color: var(--red);
+}
+.chip-btn-del:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
 }
 
 .stats {
@@ -2958,7 +2967,7 @@ function renderRecentSearches() {
   searches.forEach(term => {
     const escaped = esc(term);
     const escapedParam = escaped.replace(/'/g, "\\'");
-    html += `<div class="chip" onclick="applyRecentSearch('${escapedParam}')">` +
+    html += `<div class="chip" role="button" tabindex="0" onclick="applyRecentSearch('${escapedParam}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();applyRecentSearch('${escapedParam}');}" title="ค้นหา '${escaped}' อีกครั้ง" aria-label="ค้นหา '${escaped}' อีกครั้ง">` +
       `<span>${escaped}</span>` +
       `<button class="chip-btn-del" onclick="removeRecentSearch('${escapedParam}', event)" title="ลบ" aria-label="ลบคำค้นหา ${escaped}">&times;</button>` +
       `</div>`;
