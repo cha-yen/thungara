@@ -1036,6 +1036,34 @@ def run_all_tests():
         f"Rank #1: {res_q_emotion[0]['title'] if res_q_emotion else None}, emotion={res_q_emotion[0]['emotion'] if res_q_emotion else None}, total={len(res_q_emotion)}"
     )
 
+    print("\nCategory 17: Hybrid Query & Dual Filter Precision")
+    # 1. Query + Artist + Year Filter
+    res_q_ay = enhanced_search("ขอใจกันหนาว", filter_artist="ต่าย อรทัย", filter_year="2547")
+    pass_q_ay = len(res_q_ay) > 0 and res_q_ay[0]['title'] == "ขอใจกันหนาว" and all(r['artist'] == "ต่าย อรทัย" and str(r.get('year')) == "2547" for r in res_q_ay)
+    report.assert_test(
+        "Hybrid Query + Artist + Year: 'ขอใจกันหนาว' + Artist 'ต่าย อรทัย' + Year '2547' ranks exact song at #1 with 100% dual constraints",
+        pass_q_ay,
+        f"Rank #1: {res_q_ay[0]['title'] if res_q_ay else None}, artist={res_q_ay[0]['artist'] if res_q_ay else None}, year={res_q_ay[0]['year'] if res_q_ay else None}, total={len(res_q_ay)}"
+    )
+
+    # 2. Query + Artist + Emotion Filter
+    res_q_ae = enhanced_search("ทางเปื้อนฝุ่น", filter_artist="ต่าย อรทัย", filter_emotion="กำลังใจ")
+    pass_q_ae = len(res_q_ae) > 0 and res_q_ae[0]['title'] == "ขอใจกันหนาว" and all(r['artist'] == "ต่าย อรทัย" and r.get('emotion') == "กำลังใจ" for r in res_q_ae)
+    report.assert_test(
+        "Hybrid Query + Artist + Emotion: 'ทางเปื้อนฝุ่น' + Artist 'ต่าย อรทัย' + Emotion 'กำลังใจ' ranks 'ขอใจกันหนาว' at #1 with 100% dual constraints",
+        pass_q_ae,
+        f"Rank #1: {res_q_ae[0]['title'] if res_q_ae else None}, artist={res_q_ae[0]['artist'] if res_q_ae else None}, emotion={res_q_ae[0]['emotion'] if res_q_ae else None}, total={len(res_q_ae)}"
+    )
+
+    # 3. Query + Emotion + Year Filter
+    res_q_ey = enhanced_search("คนบ้านเดียวกัน", filter_emotion="กำลังใจ", filter_year="2551")
+    pass_q_ey = len(res_q_ey) > 0 and res_q_ey[0]['title'] == "คนบ้านเดียวกัน" and all(r.get('emotion') == "กำลังใจ" and str(r.get('year')) == "2551" for r in res_q_ey)
+    report.assert_test(
+        "Hybrid Query + Emotion + Year: 'คนบ้านเดียวกัน' + Emotion 'กำลังใจ' + Year '2551' ranks exact song at #1 with 100% dual constraints",
+        pass_q_ey,
+        f"Rank #1: {res_q_ey[0]['title'] if res_q_ey else None}, emotion={res_q_ey[0]['emotion'] if res_q_ey else None}, year={res_q_ey[0]['year'] if res_q_ey else None}, total={len(res_q_ey)}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
