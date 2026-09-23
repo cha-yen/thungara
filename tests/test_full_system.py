@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v15" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v16" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -251,6 +251,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 16 hybrid query test suite",
             "16. การค้นหาแบบผสมข้อความและตัวกรองเดี่ยว" in runner_text
+        )
+        self.check(
+            "Voice recording overlay accessibility, live status, and escape dismiss implemented",
+            'id="rec-overlay" role="dialog" aria-modal="true"' in html_content and 'id="rec-status" role="status" aria-live="polite"' in html_content and "if (isRecOpen)" in html_content
+        )
+        self.check(
+            "Clear search button tooltip title attribute implemented",
+            'id="btn-clear" onclick="clearSearch()" title="ล้างข้อความค้นหา"' in html_content
+        )
+        self.check(
+            "Search Worker and Main-Thread optimized cosine dot product lookup and countOccurrences early exit implemented",
+            "valB !== undefined" in worker_text and "maxCount = 4" in worker_text and "valB !== undefined" in html_content and "maxCount = 4" in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 17 dual filter precision test suite",
+            "17. การค้นหาแบบผสมข้อความและตัวกรองสองชั้น" in runner_text
         )
 
         # Final Summary
