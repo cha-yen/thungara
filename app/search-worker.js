@@ -225,8 +225,9 @@ function cosineSim(vecA, magA, songIdx) {
   let dot = 0;
   const entries = Array.isArray(vecA) ? vecA : Object.entries(vecA);
   for (let idx = 0; idx < entries.length; idx++) {
-    const [k, v] = entries[idx];
-    if (vecB[k] !== undefined) dot += v * vecB[k];
+    const entry = entries[idx];
+    const valB = vecB[entry[0]];
+    if (valB !== undefined) dot += entry[1] * valB;
   }
   if (dot === 0) return 0;
   return dot / (magA * magB);
@@ -316,11 +317,12 @@ function editDistanceAtMost(textA, textB, maxDistance) {
   return distance + (textA.length - a) + (textB.length - b) <= maxDistance;
 }
 
-function countOccurrences(str, sub) {
+function countOccurrences(str, sub, maxCount = 4) {
   if (!sub || !str) return 0;
   let count = 0, pos = 0;
   while ((pos = str.indexOf(sub, pos)) !== -1) {
     count++;
+    if (count >= maxCount) break;
     pos += sub.length;
   }
   return count;
