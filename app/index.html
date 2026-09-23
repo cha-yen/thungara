@@ -416,6 +416,10 @@ header p {
 }
 .rec-mic-icon:hover { transform: scale(1.05); }
 .rec-mic-icon:active { transform: scale(0.95); }
+.rec-mic-icon:focus-visible {
+  outline: 3px solid #FFF;
+  outline-offset: 4px;
+}
 .rec-mic-icon svg { width: 40px; height: 40px; color: #FFF; }
 
 .rec-waves {
@@ -1382,9 +1386,9 @@ header p {
   </div>
 </div>
 
-<div class="rec-overlay" id="rec-overlay" onclick="handleRecordingOverlayClick()">
+<div class="rec-overlay" id="rec-overlay" role="dialog" aria-modal="true" aria-label="บันทึกเสียงร้องค้นหาเพลง" tabindex="-1" onclick="handleRecordingOverlayClick()">
   <div class="rec-ring">
-    <div class="rec-mic-icon">
+    <div class="rec-mic-icon" role="button" tabindex="0" title="แตะเพื่อหยุดหรือเริ่มต้นบันทึกเสียง" aria-label="แตะเพื่อหยุดหรือเริ่มต้นบันทึกเสียง" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();handleRecordingOverlayClick();}">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
     </div>
   </div>
@@ -1395,7 +1399,7 @@ header p {
     <div class="rec-wave-bar"></div><div class="rec-wave-bar"></div><div class="rec-wave-bar"></div>
     <div class="rec-wave-bar"></div><div class="rec-wave-bar"></div><div class="rec-wave-bar"></div>
   </div>
-  <div class="rec-status" id="rec-status">กำลังฟัง...</div>
+  <div class="rec-status" id="rec-status" role="status" aria-live="polite">กำลังฟัง...</div>
   <div class="rec-transcript" id="rec-transcript"></div>
   <div class="rec-hint" id="rec-hint">แตะเพื่อหยุด</div>
 </div>
@@ -2747,6 +2751,8 @@ function initSpeechRecognition() {
     recStatus.textContent = 'กำลังฟัง...';
     recTranscript.innerHTML = '<span class="interim">ร้องหรือพูดเนื้อเพลงได้เลย</span>';
     document.getElementById('rec-hint').textContent = 'แตะเพื่อหยุด';
+    const recMicIcon = recOverlay.querySelector('.rec-mic-icon');
+    if (recMicIcon) recMicIcon.focus();
   };
 
   recognition.onresult = function(event) {
@@ -2779,13 +2785,17 @@ function initSpeechRecognition() {
         el.style.height = Math.min(el.scrollHeight, 150) + 'px';
         currentQuery = finalTranscript.trim();
         doSearch();
+        if (micBtn) micBtn.focus();
       }, 500);
     } else {
       recStatus.textContent = 'ไม่ได้ยินเสียง';
       recTranscript.textContent = 'กลับสู่หน้าหลัก...';
       document.getElementById('rec-hint').textContent = 'กำลังปิด';
       manualStopRequested = false;
-      setTimeout(() => { recOverlay.classList.remove('show'); }, 800);
+      setTimeout(() => {
+        recOverlay.classList.remove('show');
+        if (micBtn) micBtn.focus();
+      }, 800);
     }
   };
 
@@ -2800,9 +2810,9 @@ function initSpeechRecognition() {
     if (event.error === 'no-speech') {
       recTranscript.textContent = 'กลับสู่หน้าหลัก...';
       document.getElementById('rec-hint').textContent = 'กำลังปิด';
-      setTimeout(() => { recOverlay.classList.remove('show'); }, 800);
+      setTimeout(() => { recOverlay.classList.remove('show'); if (micBtn) micBtn.focus(); }, 800);
     } else {
-      setTimeout(() => { recOverlay.classList.remove('show'); }, 2500);
+      setTimeout(() => { recOverlay.classList.remove('show'); if (micBtn) micBtn.focus(); }, 2500);
     }
   };
 }
@@ -3057,6 +3067,28 @@ document.getElementById('search-input').addEventListener('keydown', function(e) 
 document.addEventListener('keydown', function(e) {
   const modalOverlay = document.getElementById('modal-overlay');
   const isModalOpen = modalOverlay && modalOverlay.classList.contains('show');
+  const recOverlay = document.getElementById('rec-overlay');
+  const isRecOpen = recOverlay && recOverlay.classList.contains('show');
+
+  if (isRecOpen && e.key === 'Tab') {
+    const focusables = recOverlay.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    if (focusables.length > 0) {
+      const firstEl = focusables[0];
+      const lastEl = focusables[focusables.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === firstEl || !recOverlay.contains(document.activeElement)) {
+          e.preventDefault();
+          lastEl.focus();
+        }
+      } else {
+        if (document.activeElement === lastEl || !recOverlay.contains(document.activeElement)) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
+    }
+    return;
+  }
 
   if (isModalOpen && e.key === 'Tab') {
     const focusables = modalOverlay.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
@@ -3079,6 +3111,17 @@ document.addEventListener('keydown', function(e) {
   }
 
   if (e.key === 'Escape') {
+    if (isRecOpen) {
+      if (isRecording) {
+        toggleRecording();
+      } else {
+        recOverlay.classList.remove('show');
+      }
+      const micBtn = document.getElementById('mic-btn');
+      if (micBtn) micBtn.focus();
+      e.preventDefault();
+      return;
+    }
     if (isModalOpen) {
       closeModalDirect();
       e.preventDefault();
@@ -3093,7 +3136,7 @@ document.addEventListener('keydown', function(e) {
     return;
   }
 
-  if (e.key === '/' && !isModalOpen) {
+  if (e.key === '/' && !isModalOpen && !isRecOpen) {
     const activeEl = document.activeElement;
     const isEditing = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
     if (!isEditing) {
