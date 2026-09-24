@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v16" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v17" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -267,6 +267,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 17 dual filter precision test suite",
             "17. การค้นหาแบบผสมข้อความและตัวกรองสองชั้น" in runner_text
+        )
+        self.check(
+            "Button focus-visible styles and load-more accessibility attributes implemented",
+            ".btn-theme:focus-visible" in html_content and ".btn-top:focus-visible" in html_content and ".btn-load-more:focus-visible" in html_content and 'title="แสดงเพลงเพิ่มเติม"' in html_content and 'aria-label="แสดงเพลงเพิ่มเติม"' in html_content
+        )
+        self.check(
+            "Search progressbar ARIA semantics and aria-hidden management implemented",
+            'id="search-progress" role="progressbar" aria-label="กำลังค้นหาเพลง" aria-hidden="true"' in html_content and "function setSearchProgress(active)" in html_content
+        )
+        self.check(
+            "Search Worker and Main-Thread cleanMatchedTerms fast-path allocation and defensive year comparison implemented",
+            "matchedTerms.length > 0 ? Array.from(new Set(matchedTerms))" in worker_text and "String(song.year) !== String(filterYear)" in worker_text and "matchedTerms.length > 0 ? Array.from(new Set(matchedTerms))" in html_content and "String(song.year) !== String(filterYear)" in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 18 quad-constraint precision test suite",
+            "18. การค้นหาแบบผสมข้อความและตัวกรองสี่ชั้น" in runner_text
         )
 
         # Final Summary

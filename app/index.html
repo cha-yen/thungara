@@ -178,6 +178,10 @@ header p {
   z-index: 5;
 }
 .btn-theme:hover { background: rgba(255,255,255,0.3); }
+.btn-theme:focus-visible {
+  outline: 2px solid #FFF;
+  outline-offset: 3px;
+}
 
 .search-area {
   margin-top: -36px;
@@ -541,6 +545,10 @@ header p {
 .btn-text-action:hover {
   color: var(--red);
   background: rgba(229,62,62,0.08);
+}
+.btn-text-action:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .chips-list {
   display: flex;
@@ -1211,6 +1219,10 @@ header p {
 }
 .btn-top:hover { background: var(--primary-dark); }
 .btn-top:active { transform: scale(0.92); }
+.btn-top:focus-visible {
+  outline: 3px solid var(--primary-dark);
+  outline-offset: 3px;
+}
 
 .load-more-wrap {
   text-align: center;
@@ -1240,6 +1252,10 @@ header p {
 }
 .btn-load-more:active {
   transform: translateY(0);
+}
+.btn-load-more:focus-visible {
+  outline: 2px solid var(--primary-dark);
+  outline-offset: 3px;
 }
 
 @keyframes cardFadeIn {
@@ -1283,7 +1299,7 @@ header p {
         ร้องค้นหา
       </button>
     </div>
-    <div class="search-progress" id="search-progress"><div class="bar"></div></div>
+    <div class="search-progress" id="search-progress" role="progressbar" aria-label="กำลังค้นหาเพลง" aria-hidden="true"><div class="bar"></div></div>
     <div class="filters">
       <select class="filter-select" id="filter-artist" onchange="doSearch()" aria-label="กรองตามชื่อศิลปิน">
         <option value="">ศิลปินทั้งหมด</option>
@@ -1585,14 +1601,14 @@ async function loadData() {
         searchWorker.onmessage = function(e) {
           if (!e || !e.data) return;
           if (e.data.type === 'results') {
-            document.getElementById('search-progress').classList.remove('active');
+            setSearchProgress(false);
             renderResults(e.data.payload, e.data.query);
             if (e.data.query && e.data.query.trim().length >= 2 && e.data.payload && e.data.payload.length > 0) {
               saveRecentSearch(e.data.query.trim());
             }
           } else if (e.data.type === 'error') {
             console.warn('Search worker reported error, falling back to main thread:', e.data.error);
-            document.getElementById('search-progress').classList.remove('active');
+            setSearchProgress(false);
             const fallbackQuery = e.data.query || document.getElementById('search-input').value;
             const results = search(fallbackQuery || '  ');
             renderResults(results, fallbackQuery);
@@ -1601,7 +1617,7 @@ async function loadData() {
         searchWorker.onerror = function(err) {
           console.warn('Search worker error encountered, falling back to main thread:', err);
           searchWorker = null;
-          document.getElementById('search-progress').classList.remove('active');
+          setSearchProgress(false);
           doSearch();
         };
       } catch (workerInitErr) {
@@ -1995,7 +2011,7 @@ function search(query) {
 
     if (filterArtist && song.artist !== filterArtist) continue;
     if (filterEmotion && song.emotion !== filterEmotion) continue;
-    if (filterYear && song.year !== filterYear) continue;
+    if (filterYear && String(song.year) !== String(filterYear)) continue;
 
     const ns = NORM_SONGS[i] || {
       normTitle: normalizeText(song.title),
@@ -2216,9 +2232,9 @@ function search(query) {
     const minThreshold = normQ ? 0.20 : 0.01;
     const exactLyricPhrase = exactLyricsMatch && (normQ.length >= 6 || tokens.length >= 2);
     if (score >= minThreshold) {
-      const cleanMatchedTerms = Array.from(new Set(matchedTerms)).filter(term => {
+      const cleanMatchedTerms = matchedTerms.length > 0 ? Array.from(new Set(matchedTerms)).filter(term => {
         return term && term.length >= 2 && isValidThaiQuery(term) && !BOUND_PREFIXES.has(term);
-      });
+      }) : [];
 
       results.push({
         idx: i,
@@ -2342,7 +2358,7 @@ function renderResults(results, query) {
 
   emptyState.style.display = 'none';
   container.style.display = 'block';
-  container.innerHTML = '<div id="song-cards-wrap"></div><div class="load-more-wrap" id="load-more-wrap" style="display:none"><button class="btn-load-more" id="btn-load-more" onclick="loadMore()">แสดงเพลงเพิ่มเติม</button></div>';
+  container.innerHTML = '<div id="song-cards-wrap"></div><div class="load-more-wrap" id="load-more-wrap" style="display:none"><button class="btn-load-more" id="btn-load-more" onclick="loadMore()" title="แสดงเพลงเพิ่มเติม" aria-label="แสดงเพลงเพิ่มเติม">แสดงเพลงเพิ่มเติม</button></div>';
 
   appendNextBatch(query);
 }
@@ -2839,6 +2855,13 @@ function toggleRecording() {
   }
 }
 
+function setSearchProgress(active) {
+  const el = document.getElementById('search-progress');
+  if (!el) return;
+  el.classList.toggle('active', !!active);
+  el.setAttribute('aria-hidden', active ? 'false' : 'true');
+}
+
 function doSearch() {
   const query = document.getElementById('search-input').value.trim();
   currentQuery = query;
@@ -2847,7 +2870,7 @@ function doSearch() {
   if (!query && !document.getElementById('filter-artist').value
       && !document.getElementById('filter-emotion').value
       && !document.getElementById('filter-year').value) {
-    document.getElementById('search-progress').classList.remove('active');
+    setSearchProgress(false);
     renderResults([], '');
     return;
   }
@@ -2856,26 +2879,29 @@ function doSearch() {
   const fy = document.getElementById('filter-year').value;
 
   if (searchWorker) {
-    document.getElementById('search-progress').classList.add('active');
+    setSearchProgress(true);
     try {
       searchWorker.postMessage({ type: 'search', payload: { query: query || '  ', filterArtist: fa, filterEmotion: fe, filterYear: fy } });
     } catch (e) {
       console.warn('Worker postMessage failed, falling back to main thread:', e);
       searchWorker = null;
       const results = search(query || '  ');
-      document.getElementById('search-progress').classList.remove('active');
+      setSearchProgress(false);
       renderResults(results, query);
       if (query && query.trim().length >= 2 && results && results.length > 0) {
         saveRecentSearch(query.trim());
       }
     }
   } else {
-    const results = search(query || '  ');
-    document.getElementById('search-progress').classList.remove('active');
-    renderResults(results, query);
-    if (query && query.trim().length >= 2 && results && results.length > 0) {
-      saveRecentSearch(query.trim());
-    }
+    setSearchProgress(true);
+    setTimeout(() => {
+      const results = search(query || '  ');
+      setSearchProgress(false);
+      renderResults(results, query);
+      if (query && query.trim().length >= 2 && results && results.length > 0) {
+        saveRecentSearch(query.trim());
+      }
+    }, 0);
   }
 }
 
@@ -2886,6 +2912,7 @@ function clearSearch() {
   currentQuery = '';
   rawSearchResults = [];
   document.getElementById('btn-clear').classList.remove('show');
+  setSearchProgress(false);
   document.getElementById('filter-artist').value = '';
   document.getElementById('filter-emotion').value = '';
   document.getElementById('filter-year').value = '';
@@ -3052,7 +3079,7 @@ document.getElementById('search-input').addEventListener('input', function() {
   autoResize(this);
   clearTimeout(debounceTimer);
   if (this.value.trim()) {
-    document.getElementById('search-progress').classList.add('active');
+    setSearchProgress(true);
   } else {
     document.getElementById('filter-artist').value = '';
     document.getElementById('filter-emotion').value = '';
@@ -3159,7 +3186,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v16') caches.delete(k);
+      if (k !== 'thungara-v17') caches.delete(k);
     });
   });
 }

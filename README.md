@@ -21,7 +21,7 @@
 - **ไฮไลต์คำค้นและคำคล้าย (Evidence-Based Highlighting)** — ส่งค่า `evidence.matchedTerms` จาก Search Worker มาไฮไลต์คำที่ตรงจริง ทั้งคำตรง วลีต่อเนื่อง คำภาษาถิ่นอีสาน และคำคล้ายที่พบจริงในเนื้อเพลง
 - **ตัวกรองครอบคลุม (Metadata Filters)** — กรองตามศิลปิน, อารมณ์เพลง (สนุกสนาน, เศร้า/อกหัก, กำลังใจ, ฯลฯ), และปีที่ออก
 - **Dark Mode & Responsive UI** — รองรับโหมดมืด/สว่างอัตโนมัติตามระบบ พร้อมการแสดงผลที่ลื่นไหลบนทุกขนาดหน้าจอ
-- **PWA & Offline First** — ติดตั้งลงบนหน้าจอสมาร์ตโฟนได้เหมือนแอป Native ใช้งานแบบ Offline ได้ผ่าน Service Worker Resilient Caching (`Promise.allSettled`, `thungara-v16`) และ Navigation Fallback พร้อม Web App Manifest มาตรฐานสากล
+- **PWA & Offline First** — ติดตั้งลงบนหน้าจอสมาร์ตโฟนได้เหมือนแอป Native ใช้งานแบบ Offline ได้ผ่าน Service Worker Resilient Caching (`Promise.allSettled`, `thungara-v17`) และ Navigation Fallback พร้อม Web App Manifest มาตรฐานสากล
 - **High Performance Web Worker** — แยกการคำนวณการค้นหาทั้งหมดออกจาก Main Thread พร้อม Pre-computed Vector Entries Cosine Similarity, Early-exit String Scanning และ Pre-normalization เพิ่มความเร็วในการประมวลผลคำศัพท์และคำพ้อง ทำให้ UI ไม่กระตุก ด้วยความเร็วในการค้นหาเฉลี่ยต่ำกว่า 15ms
 
 ## Tech Stack
@@ -31,7 +31,7 @@
 - **Search Engine**: TF-IDF Sparse Vector Space Model + Cosine Similarity + Greedy Longest-Match Tokenizer
 - **Scoring Architecture**: Standardized Multi-Tiered Confidence Matrix ($[0.0, 1.0]$)
 - **Speech Recognition**: Web Speech API (`th-TH`)
-- **Offline & Cache**: Service Worker + Cache Storage API with Resilient Promise.allSettled Offline Caching (`thungara-v16`)
+- **Offline & Cache**: Service Worker + Cache Storage API with Resilient Promise.allSettled Offline Caching (`thungara-v17`)
 - **Concurrency & Resilience**: Dedicated Web Worker (`search-worker.js`) with Try-Catch Boundary & Seamless Main-Thread Fallback
 
 ## Project Structure
@@ -48,9 +48,9 @@ data/
 	data.json         — ฐานข้อมูลเพลง 1,500 เพลง พร้อม TF-IDF Vectors
 	youtube_ids.json  — YouTube Video IDs สำหรับฟังเพลงจริง
 tests/
-	test_search.py    — ชุดทดสอบ Core Search Engine (17 Categories, 55 Assertions)
-	test_full_system.py — ชุดตรวจสอบและตรวจสอบความปลอดภัยทั้งระบบ (Comprehensive Audit Suite: 57 Checks)
-	test_runner.html  — หน้าทดสอบบนเบราว์เซอร์พร้อม UI แสดงผลและจับเวลา Latency (17 Categories, 55 Tests)
+	test_search.py    — ชุดทดสอบ Core Search Engine (18 Categories, 58 Assertions)
+	test_full_system.py — ชุดตรวจสอบและตรวจสอบความปลอดภัยทั้งระบบ (Comprehensive Audit Suite: 61 Checks)
+	test_runner.html  — หน้าทดสอบบนเบราว์เซอร์พร้อม UI แสดงผลและจับเวลา Latency (18 Categories, 58 Tests)
 	run_test.bat      — สคริปต์รันการทดสอบอัตโนมัติบน Windows
 LICENSE
 ```

@@ -374,7 +374,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
 
     if (filterArtist && song.artist !== filterArtist) continue;
     if (filterEmotion && song.emotion !== filterEmotion) continue;
-    if (filterYear && song.year !== filterYear) continue;
+    if (filterYear && String(song.year) !== String(filterYear)) continue;
 
     const ns = NORM_SONGS[i] || {
       normTitle: normalizeText(song.title),
@@ -595,9 +595,9 @@ function search(query, filterArtist, filterEmotion, filterYear) {
     const minThreshold = normQ ? 0.20 : 0.01;
     const exactLyricPhrase = exactLyricsMatch && (normQ.length >= 6 || tokens.length >= 2);
     if (score >= minThreshold) {
-      const cleanMatchedTerms = Array.from(new Set(matchedTerms)).filter(term => {
+      const cleanMatchedTerms = matchedTerms.length > 0 ? Array.from(new Set(matchedTerms)).filter(term => {
         return term && term.length >= 2 && isValidThaiQuery(term) && !BOUND_PREFIXES.has(term);
-      });
+      }) : [];
 
       results.push({
         idx: i,
