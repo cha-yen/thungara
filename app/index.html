@@ -178,6 +178,10 @@ header p {
   z-index: 5;
 }
 .btn-theme:hover { background: rgba(255,255,255,0.3); }
+.btn-theme:focus-visible {
+  outline: 2px solid #FFF;
+  outline-offset: 3px;
+}
 
 .search-area {
   margin-top: -36px;
@@ -541,6 +545,10 @@ header p {
 .btn-text-action:hover {
   color: var(--red);
   background: rgba(229,62,62,0.08);
+}
+.btn-text-action:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .chips-list {
   display: flex;
@@ -1211,6 +1219,10 @@ header p {
 }
 .btn-top:hover { background: var(--primary-dark); }
 .btn-top:active { transform: scale(0.92); }
+.btn-top:focus-visible {
+  outline: 3px solid var(--primary-dark);
+  outline-offset: 3px;
+}
 
 .load-more-wrap {
   text-align: center;
@@ -1240,6 +1252,10 @@ header p {
 }
 .btn-load-more:active {
   transform: translateY(0);
+}
+.btn-load-more:focus-visible {
+  outline: 2px solid var(--primary-dark);
+  outline-offset: 3px;
 }
 
 @keyframes cardFadeIn {
@@ -2342,7 +2358,7 @@ function renderResults(results, query) {
 
   emptyState.style.display = 'none';
   container.style.display = 'block';
-  container.innerHTML = '<div id="song-cards-wrap"></div><div class="load-more-wrap" id="load-more-wrap" style="display:none"><button class="btn-load-more" id="btn-load-more" onclick="loadMore()">แสดงเพลงเพิ่มเติม</button></div>';
+  container.innerHTML = '<div id="song-cards-wrap"></div><div class="load-more-wrap" id="load-more-wrap" style="display:none"><button class="btn-load-more" id="btn-load-more" onclick="loadMore()" title="แสดงเพลงเพิ่มเติม" aria-label="แสดงเพลงเพิ่มเติม">แสดงเพลงเพิ่มเติม</button></div>';
 
   appendNextBatch(query);
 }
