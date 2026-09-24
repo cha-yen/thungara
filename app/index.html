@@ -1299,7 +1299,7 @@ header p {
         ร้องค้นหา
       </button>
     </div>
-    <div class="search-progress" id="search-progress"><div class="bar"></div></div>
+    <div class="search-progress" id="search-progress" role="progressbar" aria-label="กำลังค้นหาเพลง" aria-hidden="true"><div class="bar"></div></div>
     <div class="filters">
       <select class="filter-select" id="filter-artist" onchange="doSearch()" aria-label="กรองตามชื่อศิลปิน">
         <option value="">ศิลปินทั้งหมด</option>
@@ -1601,14 +1601,14 @@ async function loadData() {
         searchWorker.onmessage = function(e) {
           if (!e || !e.data) return;
           if (e.data.type === 'results') {
-            document.getElementById('search-progress').classList.remove('active');
+            setSearchProgress(false);
             renderResults(e.data.payload, e.data.query);
             if (e.data.query && e.data.query.trim().length >= 2 && e.data.payload && e.data.payload.length > 0) {
               saveRecentSearch(e.data.query.trim());
             }
           } else if (e.data.type === 'error') {
             console.warn('Search worker reported error, falling back to main thread:', e.data.error);
-            document.getElementById('search-progress').classList.remove('active');
+            setSearchProgress(false);
             const fallbackQuery = e.data.query || document.getElementById('search-input').value;
             const results = search(fallbackQuery || '  ');
             renderResults(results, fallbackQuery);
@@ -1617,7 +1617,7 @@ async function loadData() {
         searchWorker.onerror = function(err) {
           console.warn('Search worker error encountered, falling back to main thread:', err);
           searchWorker = null;
-          document.getElementById('search-progress').classList.remove('active');
+          setSearchProgress(false);
           doSearch();
         };
       } catch (workerInitErr) {
@@ -2855,6 +2855,13 @@ function toggleRecording() {
   }
 }
 
+function setSearchProgress(active) {
+  const el = document.getElementById('search-progress');
+  if (!el) return;
+  el.classList.toggle('active', !!active);
+  el.setAttribute('aria-hidden', active ? 'false' : 'true');
+}
+
 function doSearch() {
   const query = document.getElementById('search-input').value.trim();
   currentQuery = query;
@@ -2863,7 +2870,7 @@ function doSearch() {
   if (!query && !document.getElementById('filter-artist').value
       && !document.getElementById('filter-emotion').value
       && !document.getElementById('filter-year').value) {
-    document.getElementById('search-progress').classList.remove('active');
+    setSearchProgress(false);
     renderResults([], '');
     return;
   }
@@ -2872,26 +2879,29 @@ function doSearch() {
   const fy = document.getElementById('filter-year').value;
 
   if (searchWorker) {
-    document.getElementById('search-progress').classList.add('active');
+    setSearchProgress(true);
     try {
       searchWorker.postMessage({ type: 'search', payload: { query: query || '  ', filterArtist: fa, filterEmotion: fe, filterYear: fy } });
     } catch (e) {
       console.warn('Worker postMessage failed, falling back to main thread:', e);
       searchWorker = null;
       const results = search(query || '  ');
-      document.getElementById('search-progress').classList.remove('active');
+      setSearchProgress(false);
       renderResults(results, query);
       if (query && query.trim().length >= 2 && results && results.length > 0) {
         saveRecentSearch(query.trim());
       }
     }
   } else {
-    const results = search(query || '  ');
-    document.getElementById('search-progress').classList.remove('active');
-    renderResults(results, query);
-    if (query && query.trim().length >= 2 && results && results.length > 0) {
-      saveRecentSearch(query.trim());
-    }
+    setSearchProgress(true);
+    setTimeout(() => {
+      const results = search(query || '  ');
+      setSearchProgress(false);
+      renderResults(results, query);
+      if (query && query.trim().length >= 2 && results && results.length > 0) {
+        saveRecentSearch(query.trim());
+      }
+    }, 0);
   }
 }
 
@@ -2902,6 +2912,7 @@ function clearSearch() {
   currentQuery = '';
   rawSearchResults = [];
   document.getElementById('btn-clear').classList.remove('show');
+  setSearchProgress(false);
   document.getElementById('filter-artist').value = '';
   document.getElementById('filter-emotion').value = '';
   document.getElementById('filter-year').value = '';
@@ -3068,7 +3079,7 @@ document.getElementById('search-input').addEventListener('input', function() {
   autoResize(this);
   clearTimeout(debounceTimer);
   if (this.value.trim()) {
-    document.getElementById('search-progress').classList.add('active');
+    setSearchProgress(true);
   } else {
     document.getElementById('filter-artist').value = '';
     document.getElementById('filter-emotion').value = '';
