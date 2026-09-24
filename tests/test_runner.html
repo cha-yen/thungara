@@ -785,6 +785,54 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' และผลลัพธ์ทั้งหมด (${res.length} เพลง) ตรงตามอารมณ์และปี 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขข้อความผสมตัวกรองสองชั้น (อารมณ์ + ปี)"
       };
     }
+  },
+  {
+    category: "18. การค้นหาแบบผสมข้อความและตัวกรองสี่ชั้น (Quad-Constraint Precision)",
+    name: "ค้นหาเนื้อร้อง 'เปื้อนฝุ่น' พร้อมกรองศิลปิน 'ต่าย อรทัย' + อารมณ์ 'กำลังใจ' + ปี '2547' ต้องได้ 'ขอใจกันหนาว' อันดับ 1 และตรงทุกเงื่อนไข 100%",
+    run: async () => {
+      const res = await workerSearch("เปื้อนฝุ่น", "ต่าย อรทัย", "กำลังใจ", "2547");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res.every(r => {
+        const s = DATA.songs[r.idx];
+        return s.artist.includes("ต่าย อรทัย") && s.emotion === "กำลังใจ" && String(s.year) === "2547";
+      });
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' และผลลัพธ์ทั้งหมด (${res.length} เพลง) ตรงตามทั้ง 4 เงื่อนไข 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขข้อความผสมตัวกรองสี่ชั้น (เนื้อร้อง + ศิลปิน + อารมณ์ + ปี)"
+      };
+    }
+  },
+  {
+    category: "18. การค้นหาแบบผสมข้อความและตัวกรองสี่ชั้น (Quad-Constraint Precision)",
+    name: "ค้นหาชื่อเพลง 'คนบ้านเดียวกัน' พร้อมกรองศิลปิน 'ไผ่ พงศธร' + อารมณ์ 'กำลังใจ' + ปี '2551' ต้องได้เพลงตรงอันดับ 1 และตรงทุกเงื่อนไข 100%",
+    run: async () => {
+      const res = await workerSearch("คนบ้านเดียวกัน", "ไผ่ พงศธร", "กำลังใจ", "2551");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res.every(r => {
+        const s = DATA.songs[r.idx];
+        return s.artist.includes("ไผ่ พงศธร") && s.emotion === "กำลังใจ" && String(s.year) === "2551";
+      });
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' และผลลัพธ์ทั้งหมด (${res.length} เพลง) ตรงตามทั้ง 4 เงื่อนไข 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขข้อความผสมตัวกรองสี่ชั้น (ชื่อเพลง + ศิลปิน + อารมณ์ + ปี)"
+      };
+    }
+  },
+  {
+    category: "18. การค้นหาแบบผสมข้อความและตัวกรองสี่ชั้น (Quad-Constraint Precision)",
+    name: "ค้นหาคำว่า 'ดอกหญ้า' พร้อมกรองศิลปิน 'ต่าย อรทัย' + อารมณ์ 'กำลังใจ' + ปี '2546' ต้องได้เพลง 'ดอกหญ้าในป่าปูน' อันดับ 1 และตรงทุกเงื่อนไข 100%",
+    run: async () => {
+      const res = await workerSearch("ดอกหญ้า", "ต่าย อรทัย", "กำลังใจ", "2546");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ดอกหญ้าในป่าปูน" && res.every(r => {
+        const s = DATA.songs[r.idx];
+        return s.artist.includes("ต่าย อรทัย") && s.emotion === "กำลังใจ" && String(s.year) === "2546";
+      });
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' และผลลัพธ์ทั้งหมด (${res.length} เพลง) ตรงตามทั้ง 4 เงื่อนไข 100%` : "ผลลัพธ์ไม่ตรงตามเงื่อนไขข้อความผสมตัวกรองสี่ชั้น (คำในชื่อ + ศิลปิน + อารมณ์ + ปี)"
+      };
+    }
   }
 ];
 
