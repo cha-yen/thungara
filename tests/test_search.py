@@ -337,7 +337,7 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
             continue
         if filter_emotion and song['emotion'] != filter_emotion:
             continue
-        if filter_year and song['year'] != filter_year:
+        if filter_year and str(song['year']) != str(filter_year):
             continue
 
         ns = NORM_SONGS[i]
@@ -527,7 +527,7 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
             clean_matched_terms = [
                 t for t in dict.fromkeys(matched_terms)
                 if t and len(t) >= 2 and is_valid_thai_query(t) and t not in BOUND_PREFIXES
-            ]
+            ] if matched_terms else []
 
             results.append({
                 'idx': i,
@@ -1062,6 +1062,61 @@ def run_all_tests():
         "Hybrid Query + Emotion + Year: 'คนบ้านเดียวกัน' + Emotion 'กำลังใจ' + Year '2551' ranks exact song at #1 with 100% dual constraints",
         pass_q_ey,
         f"Rank #1: {res_q_ey[0]['title'] if res_q_ey else None}, emotion={res_q_ey[0]['emotion'] if res_q_ey else None}, year={res_q_ey[0]['year'] if res_q_ey else None}, total={len(res_q_ey)}"
+    )
+
+    print("\nCategory 18: Quad-Constraint Precision (Query + Artist + Emotion + Year)")
+    # 1. Lyric Query + Artist + Emotion + Year Filter
+    res_q_aey1 = enhanced_search("เปื้อนฝุ่น", filter_artist="ต่าย อรทัย", filter_emotion="กำลังใจ", filter_year="2547")
+    pass_q_aey1 = (
+        len(res_q_aey1) > 0 and
+        res_q_aey1[0]['title'] == "ขอใจกันหนาว" and
+        all(
+            r['artist'] == "ต่าย อรทัย" and
+            r.get('emotion') == "กำลังใจ" and
+            str(r.get('year')) == "2547"
+            for r in res_q_aey1
+        )
+    )
+    report.assert_test(
+        "Quad-Constraint Precision: 'เปื้อนฝุ่น' + Artist 'ต่าย อรทัย' + Emotion 'กำลังใจ' + Year '2547' ranks 'ขอใจกันหนาว' at #1 with 100% precision",
+        pass_q_aey1,
+        f"Rank #1: {res_q_aey1[0]['title'] if res_q_aey1 else None}, total={len(res_q_aey1)}"
+    )
+
+    # 2. Title Query + Artist + Emotion + Year Filter
+    res_q_aey2 = enhanced_search("คนบ้านเดียวกัน", filter_artist="ไผ่ พงศธร", filter_emotion="กำลังใจ", filter_year="2551")
+    pass_q_aey2 = (
+        len(res_q_aey2) > 0 and
+        res_q_aey2[0]['title'] == "คนบ้านเดียวกัน" and
+        all(
+            r['artist'] == "ไผ่ พงศธร" and
+            r.get('emotion') == "กำลังใจ" and
+            str(r.get('year')) == "2551"
+            for r in res_q_aey2
+        )
+    )
+    report.assert_test(
+        "Quad-Constraint Precision: 'คนบ้านเดียวกัน' + Artist 'ไผ่ พงศธร' + Emotion 'กำลังใจ' + Year '2551' ranks exact song at #1 with 100% precision",
+        pass_q_aey2,
+        f"Rank #1: {res_q_aey2[0]['title'] if res_q_aey2 else None}, total={len(res_q_aey2)}"
+    )
+
+    # 3. Partial Title Query + Artist + Emotion + Year Filter
+    res_q_aey3 = enhanced_search("ดอกหญ้า", filter_artist="ต่าย อรทัย", filter_emotion="กำลังใจ", filter_year="2546")
+    pass_q_aey3 = (
+        len(res_q_aey3) > 0 and
+        res_q_aey3[0]['title'] == "ดอกหญ้าในป่าปูน" and
+        all(
+            r['artist'] == "ต่าย อรทัย" and
+            r.get('emotion') == "กำลังใจ" and
+            str(r.get('year')) == "2546"
+            for r in res_q_aey3
+        )
+    )
+    report.assert_test(
+        "Quad-Constraint Precision: 'ดอกหญ้า' + Artist 'ต่าย อรทัย' + Emotion 'กำลังใจ' + Year '2546' ranks 'ดอกหญ้าในป่าปูน' at #1 with 100% precision",
+        pass_q_aey3,
+        f"Rank #1: {res_q_aey3[0]['title'] if res_q_aey3 else None}, total={len(res_q_aey3)}"
     )
 
     print("\n========================================================")
