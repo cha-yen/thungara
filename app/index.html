@@ -294,6 +294,10 @@ header p {
   z-index: 5;
 }
 .btn-clear:hover { background: rgba(229,62,62,0.2); transform: scale(1.1); }
+.btn-clear:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
 .btn-clear.show { display: flex; }
 .kbd-hint {
   position: absolute;
@@ -346,6 +350,11 @@ header p {
 }
 .btn-mic:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(72,187,120,0.3); }
 .btn-mic:active { transform: translateY(0); }
+.btn-mic:focus-visible {
+  outline: 2px solid var(--green-dark);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(72,187,120,0.3);
+}
 .btn-mic.recording {
   background: var(--mic-recording);
   color: #FFF;
@@ -509,6 +518,11 @@ header p {
 .filter-select:focus {
   outline: none;
   border-color: var(--primary);
+}
+.filter-select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
 }
 
 .search-chips-wrap {
@@ -772,6 +786,11 @@ header p {
   border-color: var(--red);
   transform: scale(1.08);
 }
+.btn-modal-close:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+}
 .modal-handle {
   width: 36px;
   height: 4px;
@@ -873,6 +892,11 @@ header p {
 }
 .btn-copy-lyrics:active {
   transform: scale(0.96);
+}
+.btn-copy-lyrics:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
 }
 .modal-lyrics {
   white-space: pre-wrap;
@@ -1018,6 +1042,11 @@ header p {
 }
 .btn-action-share:active {
   transform: translateY(0);
+}
+.btn-action-share:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
 }
 
 .toast-msg {
