@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thungara-v17';
+const CACHE_NAME = 'thungara-v18';
 const ASSETS = [
   './index.html',
   '../data/data.json',
