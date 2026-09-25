@@ -294,6 +294,10 @@ header p {
   z-index: 5;
 }
 .btn-clear:hover { background: rgba(229,62,62,0.2); transform: scale(1.1); }
+.btn-clear:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
 .btn-clear.show { display: flex; }
 .kbd-hint {
   position: absolute;
@@ -346,6 +350,11 @@ header p {
 }
 .btn-mic:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(72,187,120,0.3); }
 .btn-mic:active { transform: translateY(0); }
+.btn-mic:focus-visible {
+  outline: 2px solid var(--green-dark);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(72,187,120,0.3);
+}
 .btn-mic.recording {
   background: var(--mic-recording);
   color: #FFF;
@@ -509,6 +518,11 @@ header p {
 .filter-select:focus {
   outline: none;
   border-color: var(--primary);
+}
+.filter-select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
 }
 
 .search-chips-wrap {
@@ -772,6 +786,11 @@ header p {
   border-color: var(--red);
   transform: scale(1.08);
 }
+.btn-modal-close:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+}
 .modal-handle {
   width: 36px;
   height: 4px;
@@ -873,6 +892,11 @@ header p {
 }
 .btn-copy-lyrics:active {
   transform: scale(0.96);
+}
+.btn-copy-lyrics:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
 }
 .modal-lyrics {
   white-space: pre-wrap;
@@ -1018,6 +1042,11 @@ header p {
 }
 .btn-action-share:active {
   transform: translateY(0);
+}
+.btn-action-share:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
 }
 
 .toast-msg {
@@ -1301,13 +1330,13 @@ header p {
     </div>
     <div class="search-progress" id="search-progress" role="progressbar" aria-label="กำลังค้นหาเพลง" aria-hidden="true"><div class="bar"></div></div>
     <div class="filters">
-      <select class="filter-select" id="filter-artist" onchange="doSearch()" aria-label="กรองตามชื่อศิลปิน">
+      <select class="filter-select" id="filter-artist" onchange="doSearch()" title="กรองตามชื่อศิลปิน" aria-label="กรองตามชื่อศิลปิน">
         <option value="">ศิลปินทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-emotion" onchange="doSearch()" aria-label="กรองตามอารมณ์เพลง">
+      <select class="filter-select" id="filter-emotion" onchange="doSearch()" title="กรองตามอารมณ์เพลง" aria-label="กรองตามอารมณ์เพลง">
         <option value="">อารมณ์ทั้งหมด</option>
       </select>
-      <select class="filter-select" id="filter-year" onchange="doSearch()" aria-label="กรองตามปีที่เผยแพร่">
+      <select class="filter-select" id="filter-year" onchange="doSearch()" title="กรองตามปีที่เผยแพร่" aria-label="กรองตามปีที่เผยแพร่">
         <option value="">ปีทั้งหมด</option>
       </select>
       <select class="filter-select" id="filter-sort" onchange="applySortAndRender()" title="เรียงลำดับผลลัพธ์" aria-label="เรียงลำดับผลการค้นหา">
@@ -1644,6 +1673,9 @@ function handleUrlParams() {
     const songParam = params.get('song');
     const qParam = params.get('q');
     const artistParam = params.get('artist');
+    const emotionParam = params.get('emotion');
+    const yearParam = params.get('year');
+    const sortParam = params.get('sort');
 
     if (songParam !== null && DATA && DATA.songs) {
       const songIdx = parseInt(songParam, 10);
@@ -1653,16 +1685,49 @@ function handleUrlParams() {
       }
     }
 
-    if (qParam || artistParam) {
-      const initialQuery = (qParam || artistParam || '').trim();
+    if (sortParam && document.getElementById('filter-sort')) {
+      const validSorts = ['relevance', 'year_desc', 'year_asc', 'title_asc', 'artist_asc'];
+      if (validSorts.includes(sortParam)) {
+        document.getElementById('filter-sort').value = sortParam;
+      }
+    }
+
+    let hasFilter = false;
+    if (artistParam && document.getElementById('filter-artist')) {
+      const fArtist = document.getElementById('filter-artist');
+      if (Array.from(fArtist.options).some(o => o.value === artistParam)) {
+        fArtist.value = artistParam;
+        hasFilter = true;
+      }
+    }
+    if (emotionParam && document.getElementById('filter-emotion')) {
+      const fEmotion = document.getElementById('filter-emotion');
+      if (Array.from(fEmotion.options).some(o => o.value === emotionParam)) {
+        fEmotion.value = emotionParam;
+        hasFilter = true;
+      }
+    }
+    if (yearParam && document.getElementById('filter-year')) {
+      const fYear = document.getElementById('filter-year');
+      if (Array.from(fYear.options).some(o => o.value === yearParam)) {
+        fYear.value = yearParam;
+        hasFilter = true;
+      }
+    }
+
+    const initialQuery = (qParam || (!hasFilter ? artistParam : '') || '').trim();
+    if (initialQuery) {
       const input = document.getElementById('search-input');
-      if (input && initialQuery) {
+      if (input) {
         input.value = initialQuery;
         autoResize(input);
         currentQuery = initialQuery;
         document.getElementById('btn-clear').classList.add('show');
-        doSearch();
       }
+    }
+
+    if (currentQuery || hasFilter) {
+      doSearch();
     }
   } catch (e) {}
 }
@@ -3186,7 +3251,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v17') caches.delete(k);
+      if (k !== 'thungara-v18') caches.delete(k);
     });
   });
 }

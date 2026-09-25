@@ -1119,6 +1119,34 @@ def run_all_tests():
         f"Rank #1: {res_q_aey3[0]['title'] if res_q_aey3 else None}, total={len(res_q_aey3)}"
     )
 
+    print("\nCategory 19: Multi-Filter Mutual Exclusivity & Zero-Result Boundaries")
+    # 1. Mutually Exclusive Filter Intersection (Artist + Emotion with 0 matching songs)
+    res_excl1 = enhanced_search("", filter_artist="ต่าย อรทัย", filter_emotion="สนุก")
+    pass_excl1 = isinstance(res_excl1, list) and len(res_excl1) == 0
+    report.assert_test(
+        "Mutual Exclusivity: Artist 'ต่าย อรทัย' + Emotion 'สนุก' returns exactly 0 results cleanly",
+        pass_excl1,
+        f"Results count: {len(res_excl1)}"
+    )
+
+    # 2. Non-existent Metadata Filter Intersection (Artist + Release Year with 0 matching songs)
+    res_excl2 = enhanced_search("", filter_artist="ไผ่ พงศธร", filter_year="2545")
+    pass_excl2 = isinstance(res_excl2, list) and len(res_excl2) == 0
+    report.assert_test(
+        "Zero-Result Boundary: Artist 'ไผ่ พงศธร' + Year '2545' returns exactly 0 results cleanly",
+        pass_excl2,
+        f"Results count: {len(res_excl2)}"
+    )
+
+    # 3. Contradictory Query & Filter Intersection (Song Title belongs to different artist/year)
+    res_excl3 = enhanced_search("ขอใจกันหนาว", filter_artist="ไผ่ พงศธร", filter_year="2545")
+    pass_excl3 = isinstance(res_excl3, list) and len(res_excl3) == 0
+    report.assert_test(
+        "Contradictory Query & Filters: 'ขอใจกันหนาว' + Artist 'ไผ่ พงศธร' + Year '2545' strictly returns 0 results",
+        pass_excl3,
+        f"Results count: {len(res_excl3)}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
