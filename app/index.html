@@ -1673,6 +1673,9 @@ function handleUrlParams() {
     const songParam = params.get('song');
     const qParam = params.get('q');
     const artistParam = params.get('artist');
+    const emotionParam = params.get('emotion');
+    const yearParam = params.get('year');
+    const sortParam = params.get('sort');
 
     if (songParam !== null && DATA && DATA.songs) {
       const songIdx = parseInt(songParam, 10);
@@ -1682,16 +1685,49 @@ function handleUrlParams() {
       }
     }
 
-    if (qParam || artistParam) {
-      const initialQuery = (qParam || artistParam || '').trim();
+    if (sortParam && document.getElementById('filter-sort')) {
+      const validSorts = ['relevance', 'year_desc', 'year_asc', 'title_asc', 'artist_asc'];
+      if (validSorts.includes(sortParam)) {
+        document.getElementById('filter-sort').value = sortParam;
+      }
+    }
+
+    let hasFilter = false;
+    if (artistParam && document.getElementById('filter-artist')) {
+      const fArtist = document.getElementById('filter-artist');
+      if (Array.from(fArtist.options).some(o => o.value === artistParam)) {
+        fArtist.value = artistParam;
+        hasFilter = true;
+      }
+    }
+    if (emotionParam && document.getElementById('filter-emotion')) {
+      const fEmotion = document.getElementById('filter-emotion');
+      if (Array.from(fEmotion.options).some(o => o.value === emotionParam)) {
+        fEmotion.value = emotionParam;
+        hasFilter = true;
+      }
+    }
+    if (yearParam && document.getElementById('filter-year')) {
+      const fYear = document.getElementById('filter-year');
+      if (Array.from(fYear.options).some(o => o.value === yearParam)) {
+        fYear.value = yearParam;
+        hasFilter = true;
+      }
+    }
+
+    const initialQuery = (qParam || (!hasFilter ? artistParam : '') || '').trim();
+    if (initialQuery) {
       const input = document.getElementById('search-input');
-      if (input && initialQuery) {
+      if (input) {
         input.value = initialQuery;
         autoResize(input);
         currentQuery = initialQuery;
         document.getElementById('btn-clear').classList.add('show');
-        doSearch();
       }
+    }
+
+    if (currentQuery || hasFilter) {
+      doSearch();
     }
   } catch (e) {}
 }
