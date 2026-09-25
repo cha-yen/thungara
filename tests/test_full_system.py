@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v17" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v18" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -283,6 +283,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 18 quad-constraint precision test suite",
             "18. การค้นหาแบบผสมข้อความและตัวกรองสี่ชั้น" in runner_text
+        )
+        self.check(
+            "Control buttons and filter dropdowns focus-visible styles implemented",
+            ".btn-mic:focus-visible" in html_content and ".btn-clear:focus-visible" in html_content and ".filter-select:focus-visible" in html_content and ".btn-modal-close:focus-visible" in html_content and ".btn-copy-lyrics:focus-visible" in html_content and ".btn-action-share:focus-visible" in html_content
+        )
+        self.check(
+            "Filter dropdowns native title tooltips implemented",
+            'id="filter-artist" onchange="doSearch()" title="กรองตามชื่อศิลปิน"' in html_content and 'id="filter-emotion" onchange="doSearch()" title="กรองตามอารมณ์เพลง"' in html_content and 'id="filter-year" onchange="doSearch()" title="กรองตามปีที่เผยแพร่"' in html_content
+        )
+        self.check(
+            "URL parameters deep-linking restoration for emotion, year, and sort implemented",
+            "const emotionParam = params.get('emotion')" in html_content and "const yearParam = params.get('year')" in html_content and "const sortParam = params.get('sort')" in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 19 multi-filter mutual exclusivity test suite",
+            "19. การตรวจสอบความเข้ากันไม่ได้ของตัวกรองและขอบเขตผลลัพธ์ว่าง" in runner_text
         )
 
         # Final Summary
