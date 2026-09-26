@@ -869,6 +869,46 @@ const TEST_CASES = [
         detail: pass ? "คืนค่า 0 รายการอย่างถูกต้อง โดยเงื่อนไขตัวกรองมีความสำคัญเด็ดขาดเหนือคำค้นหา" : `พบผลลัพธ์ไม่พึงประสงค์ (${res.length} รายการ)`
       };
     }
+  },
+  {
+    category: "20. การค้นหาแบบ Omnibox ผสมชื่อศิลปินและท่อนเนื้อร้อง (Hybrid Omnibox Artist-Lyric & Collab Queries)",
+    name: "ค้นหา Omnibox ศิลปิน + ท่อนเนื้อร้อง 'ต่าย อรทัย ทางเปื้อนฝุ่น' ต้องได้เพลง 'ขอใจกันหนาว' อันดับ 1 และมีท่อนเนื้อร้องใน matchedTerms",
+    run: async () => {
+      const res = await workerSearch("ต่าย อรทัย ทางเปื้อนฝุ่น");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.90 && terms.includes("ต่าย อรทัย") && terms.includes("ทางเปื้อนฝุ่น");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อม matchedTerms ไฮไลท์ทั้งศิลปินและเนื้อร้อง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, terms: ${JSON.stringify(terms)})`
+      };
+    }
+  },
+  {
+    category: "20. การค้นหาแบบ Omnibox ผสมชื่อศิลปินและท่อนเนื้อร้อง (Hybrid Omnibox Artist-Lyric & Collab Queries)",
+    name: "ค้นหา Omnibox ศิลปิน + ชื่อเพลงที่มีการเว้นวรรคซ้ำ 'ไผ่  พงศธร   คนบ้านเดียวกัน' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน 1.0",
+    run: async () => {
+      const res = await workerSearch("ไผ่  พงศธร   คนบ้านเดียวกัน");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res[0].score === 1.0;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0 แม้มีการเว้นวรรคซ้ำ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score: ${res.length > 0 ? res[0].score : 0})`
+      };
+    }
+  },
+  {
+    category: "20. การค้นหาแบบ Omnibox ผสมชื่อศิลปินและท่อนเนื้อร้อง (Hybrid Omnibox Artist-Lyric & Collab Queries)",
+    name: "ค้นหา Omnibox ศิลปินร่วม + ชื่อเพลง 'ศร สินชัย หนุ่มบ้านเฮา สาวโรงงาน' ต้องได้เพลง 'หนุ่มบ้านเฮา สาวโรงงาน' อันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch("ศร สินชัย หนุ่มบ้านเฮา สาวโรงงาน");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "หนุ่มบ้านเฮา สาวโรงงาน" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) จากคำค้นชื่อศิลปินร่วมและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score: ${res.length > 0 ? res[0].score : 0})`
+      };
+    }
   }
 ];
 
