@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v18" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v19" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -299,6 +299,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 19 multi-filter mutual exclusivity test suite",
             "19. การตรวจสอบความเข้ากันไม่ได้ของตัวกรองและขอบเขตผลลัพธ์ว่าง" in runner_text
+        )
+        self.check(
+            "Search Worker and Main-Thread matchedTerms lyric phrase evidence inclusion for omnibox queries implemented",
+            "matchedTerms.push(remQ)" in worker_text and "matchedTerms.push(remQ)" in html_content
+        )
+        self.check(
+            "Recent searches keyboard accessibility with Delete and Backspace shortcuts implemented",
+            "event.key==='Delete'||event.key==='Backspace'" in html_content
+        )
+        self.check(
+            "Modal dialog accessibility with aria-describedby pointing to artist name implemented",
+            'aria-describedby="modal-artist"' in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 20 hybrid omnibox artist-lyric test suite",
+            "20. การค้นหาแบบ Omnibox ผสมชื่อศิลปินและท่อนเนื้อร้อง" in runner_text
         )
 
         # Final Summary

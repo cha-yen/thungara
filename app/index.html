@@ -1397,7 +1397,7 @@ header p {
 </div>
 
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-artist">
     <div class="modal-header-bar">
       <div class="modal-handle"></div>
       <button class="btn-modal-close" id="btn-modal-close" onclick="closeModalDirect()" title="ปิดหน้าต่าง" aria-label="ปิดหน้าต่างเนื้อเพลง">&times;</button>
@@ -2156,6 +2156,7 @@ function search(query) {
             exactLyricsMatch = true;
             artistScore = 0.90;
             matchedTerms.push(matchedArtistName);
+            matchedTerms.push(remQ);
           } else if (!artistScore) {
             artistScore = 0.85;
             matchedTerms.push(matchedArtistName);
@@ -3085,7 +3086,7 @@ function renderRecentSearches() {
   searches.forEach(term => {
     const escaped = esc(term);
     const escapedParam = escaped.replace(/'/g, "\\'");
-    html += `<div class="chip" role="button" tabindex="0" onclick="applyRecentSearch('${escapedParam}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();applyRecentSearch('${escapedParam}');}" title="ค้นหา '${escaped}' อีกครั้ง" aria-label="ค้นหา '${escaped}' อีกครั้ง">` +
+    html += `<div class="chip" role="button" tabindex="0" onclick="applyRecentSearch('${escapedParam}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();applyRecentSearch('${escapedParam}');}else if(event.key==='Delete'||event.key==='Backspace'){event.preventDefault();removeRecentSearch('${escapedParam}', event);}" title="ค้นหา '${escaped}' อีกครั้ง" aria-label="ค้นหา '${escaped}' อีกครั้ง">` +
       `<span>${escaped}</span>` +
       `<button class="chip-btn-del" onclick="removeRecentSearch('${escapedParam}', event)" title="ลบ" aria-label="ลบคำค้นหา ${escaped}">&times;</button>` +
       `</div>`;
@@ -3251,7 +3252,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v18') caches.delete(k);
+      if (k !== 'thungara-v19') caches.delete(k);
     });
   });
 }

@@ -454,6 +454,7 @@ function search(query, filterArtist, filterEmotion, filterYear) {
             exactLyricsMatch = true;
             artistScore = 0.90;
             matchedTerms.push(matchedArtistName);
+            matchedTerms.push(remQ);
           } else if (!artistScore) {
             artistScore = 0.85;
             matchedTerms.push(matchedArtistName);
