@@ -408,6 +408,7 @@ def enhanced_search(query, filter_artist='', filter_emotion='', filter_year=''):
                         exact_lyrics_match = True
                         artist_score = 0.90
                         matched_terms.append(matched_artist_name)
+                        matched_terms.append(rem_q)
                     elif not artist_score:
                         artist_score = 0.85
                         matched_terms.append(matched_artist_name)
@@ -1145,6 +1146,40 @@ def run_all_tests():
         "Contradictory Query & Filters: 'ขอใจกันหนาว' + Artist 'ไผ่ พงศธร' + Year '2545' strictly returns 0 results",
         pass_excl3,
         f"Results count: {len(res_excl3)}"
+    )
+
+    print("\nCategory 20: Omnibox Hybrid Artist-Lyric & Multi-Token Collab Queries")
+    # 1. Omnibox Artist + Lyric Phrase
+    res_oa1 = enhanced_search("ต่าย อรทัย ทางเปื้อนฝุ่น")
+    pass_oa1 = (
+        len(res_oa1) > 0 and
+        res_oa1[0]['title'] == "ขอใจกันหนาว" and
+        res_oa1[0]['score'] >= 0.90 and
+        "ต่าย อรทัย" in res_oa1[0]['evidence']['matchedTerms'] and
+        "ทางเปื้อนฝุ่น" in res_oa1[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Omnibox Artist + Lyric: 'ต่าย อรทัย ทางเปื้อนฝุ่น' ranks 'ขอใจกันหนาว' at #1 with lyric in matchedTerms",
+        pass_oa1,
+        f"Rank #1: {res_oa1[0]['title'] if res_oa1 else None}, score={res_oa1[0]['score'] if res_oa1 else None}"
+    )
+
+    # 2. Omnibox Artist + Title with Whitespace Variation
+    res_oa2 = enhanced_search("ไผ่  พงศธร   คนบ้านเดียวกัน")
+    pass_oa2 = len(res_oa2) > 0 and res_oa2[0]['title'] == "คนบ้านเดียวกัน" and res_oa2[0]['score'] == 1.0
+    report.assert_test(
+        "Omnibox Whitespace Tolerance: 'ไผ่  พงศธร   คนบ้านเดียวกัน' ranks exact song at #1 with score 1.0",
+        pass_oa2,
+        f"Rank #1: {res_oa2[0]['title'] if res_oa2 else None}, score={res_oa2[0]['score'] if res_oa2 else None}"
+    )
+
+    # 3. Omnibox Collaboration Artist + Title
+    res_oa3 = enhanced_search("ศร สินชัย หนุ่มบ้านเฮา สาวโรงงาน")
+    pass_oa3 = len(res_oa3) > 0 and res_oa3[0]['title'] == "หนุ่มบ้านเฮา สาวโรงงาน" and res_oa3[0]['score'] >= 0.95
+    report.assert_test(
+        "Omnibox Collab Query: 'ศร สินชัย หนุ่มบ้านเฮา สาวโรงงาน' ranks 'หนุ่มบ้านเฮา สาวโรงงาน' at #1 with score >= 0.95",
+        pass_oa3,
+        f"Rank #1: {res_oa3[0]['title'] if res_oa3 else None}, score={res_oa3[0]['score'] if res_oa3 else None}"
     )
 
     print("\n========================================================")
