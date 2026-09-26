@@ -3086,7 +3086,7 @@ function renderRecentSearches() {
   searches.forEach(term => {
     const escaped = esc(term);
     const escapedParam = escaped.replace(/'/g, "\\'");
-    html += `<div class="chip" role="button" tabindex="0" onclick="applyRecentSearch('${escapedParam}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();applyRecentSearch('${escapedParam}');}" title="ค้นหา '${escaped}' อีกครั้ง" aria-label="ค้นหา '${escaped}' อีกครั้ง">` +
+    html += `<div class="chip" role="button" tabindex="0" onclick="applyRecentSearch('${escapedParam}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();applyRecentSearch('${escapedParam}');}else if(event.key==='Delete'||event.key==='Backspace'){event.preventDefault();removeRecentSearch('${escapedParam}', event);}" title="ค้นหา '${escaped}' อีกครั้ง" aria-label="ค้นหา '${escaped}' อีกครั้ง">` +
       `<span>${escaped}</span>` +
       `<button class="chip-btn-del" onclick="removeRecentSearch('${escapedParam}', event)" title="ลบ" aria-label="ลบคำค้นหา ${escaped}">&times;</button>` +
       `</div>`;
