@@ -2320,7 +2320,7 @@ function search(query) {
     }
   }
 
-  results.sort((a, b) => b.score - a.score);
+  results.sort((a, b) => (b.score - a.score) || (a.idx - b.idx));
   return results;
 }
 
@@ -2329,7 +2329,7 @@ function sortResultsList(list) {
   const sortSelect = document.getElementById('filter-sort');
   const sortMode = sortSelect ? sortSelect.value : 'relevance';
   if (sortMode === 'relevance') {
-    return [...list].sort((a, b) => b.score - a.score);
+    return [...list].sort((a, b) => (b.score - a.score) || (a.idx - b.idx));
   }
   return [...list].sort((a, b) => {
     const sA = DATA.songs[a.idx];

@@ -618,6 +618,6 @@ function search(query, filterArtist, filterEmotion, filterYear) {
     }
   }
 
-  results.sort((a, b) => b.score - a.score);
+  results.sort((a, b) => (b.score - a.score) || (a.idx - b.idx));
   return results;
 }
