@@ -1237,12 +1237,14 @@ header p {
   justify-content: center;
   z-index: 50;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(20px);
   pointer-events: none;
-  transition: opacity 0.3s, transform 0.3s, background 0.2s;
+  transition: opacity 0.3s, visibility 0.3s, transform 0.3s, background 0.2s;
 }
 .btn-top.show {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
 }
@@ -2642,7 +2644,7 @@ function openModal(idx) {
 
   const artistCount = getArtistSongCount(song.artist);
   const countBadge = artistCount > 1
-    ? ' <button class="btn-artist-pill" id="btn-modal-artist-pill" onclick="filterByArtistFromModal(DATA.songs[' + idx + '].artist)" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
+    ? ' <button class="btn-artist-pill" id="btn-modal-artist-pill" onclick="filterByArtistFromModal(DATA.songs[' + idx + '].artist)" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '" aria-label="ดูผลงานทั้งหมดของ ' + esc(song.artist) + ' (' + artistCount + ' เพลง)">🎤 ' + artistCount + ' เพลง</button>'
     : '';
   document.getElementById('modal-title').innerHTML = highlightText(song.title, query, matchedTerms);
   document.getElementById('modal-artist').innerHTML = '<span>' + highlightText(song.artist, query, matchedTerms) + '</span>' + countBadge;
@@ -3122,7 +3124,12 @@ function isDarkActive() {
 }
 function updateThemeIcon() {
   const btn = document.getElementById('btn-theme');
-  if (btn) btn.textContent = isDarkActive() ? '☀️' : '🌙';
+  if (btn) {
+    const isDark = isDarkActive();
+    btn.textContent = isDark ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด');
+    btn.title = isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด';
+  }
 }
 applyTheme(getTheme());
 
