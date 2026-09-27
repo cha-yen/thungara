@@ -105,9 +105,9 @@ self.onmessage = function(e) {
 
       NORM_SONGS = DATA.songs.map(song => {
         const rawArtist = (song.artist || '').replace(/&amp;/gi, '&');
-        const hasDelim = /[,/;&:]|\bfeat\.?|\bft\.?/i.test(rawArtist);
+        const hasDelim = /[,/;&:]|\s+-\s+|\bfeat\.?|\bft\.?/i.test(rawArtist);
         const subArtists = hasDelim
-          ? rawArtist.split(/[,/;&:]|\bfeat\.?\s*|\bft\.?\s*/i).map(a => a.trim()).filter(Boolean)
+          ? rawArtist.split(/[,/;&:]|\s+-\s+|\bfeat\.?\s*|\bft\.?\s*/i).map(a => a.trim()).filter(Boolean)
           : (rawArtist ? [rawArtist] : []);
         return {
           normTitle: normalizeText(song.title),
@@ -618,6 +618,6 @@ function search(query, filterArtist, filterEmotion, filterYear) {
     }
   }
 
-  results.sort((a, b) => b.score - a.score);
+  results.sort((a, b) => (b.score - a.score) || (a.idx - b.idx));
   return results;
 }

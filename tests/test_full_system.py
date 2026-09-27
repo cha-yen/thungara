@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v19" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v20" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -315,6 +315,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 20 hybrid omnibox artist-lyric test suite",
             "20. การค้นหาแบบ Omnibox ผสมชื่อศิลปินและท่อนเนื้อร้อง" in runner_text
+        )
+        self.check(
+            "Search Worker and Main-Thread spaced hyphen duet collaboration artist parsing implemented",
+            "\\s+-\\s+" in worker_text and "\\s+-\\s+" in html_content
+        )
+        self.check(
+            "Search Worker and Main-Thread deterministic sort tie-breaker implemented",
+            "(a.idx - b.idx)" in worker_text and "(a.idx - b.idx)" in html_content
+        )
+        self.check(
+            "Back-to-top button hidden focus visibility guard and modal artist pill aria-label implemented",
+            "visibility: hidden" in html_content and 'id="btn-modal-artist-pill"' in html_content and 'aria-label="ดูผลงานทั้งหมดของ' in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 21 spaced hyphen collaboration test suite",
+            "21. การค้นหาผลงานเพลงคู่ที่มีเครื่องหมายขีดคั่นแบบเว้นวรรค" in runner_text
         )
 
         # Final Summary

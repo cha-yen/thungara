@@ -1237,12 +1237,14 @@ header p {
   justify-content: center;
   z-index: 50;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(20px);
   pointer-events: none;
-  transition: opacity 0.3s, transform 0.3s, background 0.2s;
+  transition: opacity 0.3s, visibility 0.3s, transform 0.3s, background 0.2s;
 }
 .btn-top.show {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
 }
@@ -1577,9 +1579,9 @@ async function loadData() {
 
     NORM_SONGS = DATA.songs.map(song => {
       const rawArtist = (song.artist || '').replace(/&amp;/gi, '&');
-      const hasDelim = /[,/;&:]|\bfeat\.?|\bft\.?/i.test(rawArtist);
+      const hasDelim = /[,/;&:]|\s+-\s+|\bfeat\.?|\bft\.?/i.test(rawArtist);
       const subArtists = hasDelim
-        ? rawArtist.split(/[,/;&:]|\bfeat\.?\s*|\bft\.?\s*/i).map(a => a.trim()).filter(Boolean)
+        ? rawArtist.split(/[,/;&:]|\s+-\s+|\bfeat\.?\s*|\bft\.?\s*/i).map(a => a.trim()).filter(Boolean)
         : (rawArtist ? [rawArtist] : []);
       return {
         normTitle: normalizeText(song.title),
@@ -2320,7 +2322,7 @@ function search(query) {
     }
   }
 
-  results.sort((a, b) => b.score - a.score);
+  results.sort((a, b) => (b.score - a.score) || (a.idx - b.idx));
   return results;
 }
 
@@ -2329,7 +2331,7 @@ function sortResultsList(list) {
   const sortSelect = document.getElementById('filter-sort');
   const sortMode = sortSelect ? sortSelect.value : 'relevance';
   if (sortMode === 'relevance') {
-    return [...list].sort((a, b) => b.score - a.score);
+    return [...list].sort((a, b) => (b.score - a.score) || (a.idx - b.idx));
   }
   return [...list].sort((a, b) => {
     const sA = DATA.songs[a.idx];
@@ -2642,7 +2644,7 @@ function openModal(idx) {
 
   const artistCount = getArtistSongCount(song.artist);
   const countBadge = artistCount > 1
-    ? ' <button class="btn-artist-pill" id="btn-modal-artist-pill" onclick="filterByArtistFromModal(DATA.songs[' + idx + '].artist)" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '">🎤 ' + artistCount + ' เพลง</button>'
+    ? ' <button class="btn-artist-pill" id="btn-modal-artist-pill" onclick="filterByArtistFromModal(DATA.songs[' + idx + '].artist)" title="ดูผลงานทั้งหมดของ ' + esc(song.artist) + '" aria-label="ดูผลงานทั้งหมดของ ' + esc(song.artist) + ' (' + artistCount + ' เพลง)">🎤 ' + artistCount + ' เพลง</button>'
     : '';
   document.getElementById('modal-title').innerHTML = highlightText(song.title, query, matchedTerms);
   document.getElementById('modal-artist').innerHTML = '<span>' + highlightText(song.artist, query, matchedTerms) + '</span>' + countBadge;
@@ -3122,7 +3124,12 @@ function isDarkActive() {
 }
 function updateThemeIcon() {
   const btn = document.getElementById('btn-theme');
-  if (btn) btn.textContent = isDarkActive() ? '☀️' : '🌙';
+  if (btn) {
+    const isDark = isDarkActive();
+    btn.textContent = isDark ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด');
+    btn.title = isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด';
+  }
 }
 applyTheme(getTheme());
 
@@ -3252,7 +3259,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v19') caches.delete(k);
+      if (k !== 'thungara-v20') caches.delete(k);
     });
   });
 }
