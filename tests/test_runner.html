@@ -909,6 +909,47 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) จากคำค้นชื่อศิลปินร่วมและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score: ${res.length > 0 ? res[0].score : 0})`
       };
     }
+  },
+  {
+    category: "21. การค้นหาผลงานเพลงคู่ที่มีเครื่องหมายขีดคั่นแบบเว้นวรรค (Spaced Hyphen Collab Duets & Multi-Artist)",
+    name: "ค้นหาศิลปินร่วม 'LABANOON' จาก 'เปาวลี พรพิมล - LABANOON' ต้องได้เพลง 'พลังงานจน' อันดับ 1 ด้วยคะแนน >= 0.94",
+    run: async () => {
+      const res = await workerSearch("LABANOON");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "พลังงานจน" && res[0].score >= 0.94 && terms.includes("LABANOON");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อม 'LABANOON' ใน matchedTerms` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score: ${res.length > 0 ? res[0].score : 0})`
+      };
+    }
+  },
+  {
+    category: "21. การค้นหาผลงานเพลงคู่ที่มีเครื่องหมายขีดคั่นแบบเว้นวรรค (Spaced Hyphen Collab Duets & Multi-Artist)",
+    name: "ค้นหาศิลปินคู่ 'ลูกแพร' จาก 'ลูกแพร - ไหมไทย' ต้องได้เพลงคู่อันดับ 1 ด้วยคะแนน >= 0.94",
+    run: async () => {
+      const res = await workerSearch("ลูกแพร");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.artist === "ลูกแพร - ไหมไทย" && res[0].score >= 0.94 && terms.includes("ลูกแพร");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (${topSong.artist}) ด้วยคะแนน ${res[0].score.toFixed(2)}` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "21. การค้นหาผลงานเพลงคู่ที่มีเครื่องหมายขีดคั่นแบบเว้นวรรค (Spaced Hyphen Collab Duets & Multi-Artist)",
+    name: "ค้นหา Omnibox ศิลปินร่วม + ชื่อเพลง 'LABANOON พลังงานจน' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน 1.0",
+    run: async () => {
+      const res = await workerSearch("LABANOON พลังงานจน");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "พลังงานจน" && res[0].score === 1.0;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0 จากคำค้นศิลปินคู่และชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score: ${res.length > 0 ? res[0].score : 0})`
+      };
+    }
   }
 ];
 

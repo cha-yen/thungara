@@ -80,8 +80,8 @@ def normalize_text(text):
 NORM_SONGS = []
 for s in SONGS:
     raw_artist = s.get('artist', '').replace('&amp;', '&')
-    if any(k in raw_artist for k in [',', ';', '/', '&', ':']) or re.search(r'\bfeat\.?|\bft\.?', raw_artist, re.I):
-        sub_artists = [a.strip() for a in re.split(r'[,/;&:]|\bfeat\.?\s*|\bft\.?\s*', raw_artist, flags=re.I) if a.strip()]
+    if any(k in raw_artist for k in [',', ';', '/', '&', ':']) or ' - ' in raw_artist or re.search(r'\bfeat\.?|\bft\.?', raw_artist, re.I):
+        sub_artists = [a.strip() for a in re.split(r'[,/;&:]|\s+-\s+|\bfeat\.?\s*|\bft\.?\s*', raw_artist, flags=re.I) if a.strip()]
     else:
         sub_artists = [raw_artist] if raw_artist else []
     NORM_SONGS.append({
@@ -1180,6 +1180,44 @@ def run_all_tests():
         "Omnibox Collab Query: 'ศร สินชัย หนุ่มบ้านเฮา สาวโรงงาน' ranks 'หนุ่มบ้านเฮา สาวโรงงาน' at #1 with score >= 0.95",
         pass_oa3,
         f"Rank #1: {res_oa3[0]['title'] if res_oa3 else None}, score={res_oa3[0]['score'] if res_oa3 else None}"
+    )
+
+    print("\nCategory 21: Spaced Hyphen Collaboration Duets & Multi-Artist Omnibox Queries")
+    # 1. Duet Collaboration Artist with Spaced Hyphen
+    res_sh1 = enhanced_search("LABANOON")
+    pass_sh1 = (
+        len(res_sh1) > 0 and
+        res_sh1[0]['title'] == "พลังงานจน" and
+        res_sh1[0]['score'] >= 0.94 and
+        "LABANOON" in res_sh1[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Spaced Hyphen Collab: 'LABANOON' in 'เปาวลี พรพิมล - LABANOON' ranks 'พลังงานจน' at #1 with score >= 0.94",
+        pass_sh1,
+        f"Rank #1: {res_sh1[0]['title'] if res_sh1 else None}, score={res_sh1[0]['score'] if res_sh1 else None}"
+    )
+
+    # 2. Classic Duet Artist with Spaced Hyphen
+    res_sh2 = enhanced_search("ลูกแพร")
+    pass_sh2 = (
+        len(res_sh2) > 0 and
+        res_sh2[0]['artist'] == "ลูกแพร - ไหมไทย" and
+        res_sh2[0]['score'] >= 0.94 and
+        "ลูกแพร" in res_sh2[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Spaced Hyphen Duet: 'ลูกแพร' in 'ลูกแพร - ไหมไทย' ranks duet song at #1 with score >= 0.94",
+        pass_sh2,
+        f"Rank #1: {res_sh2[0]['title'] if res_sh2 else None}, artist={res_sh2[0]['artist'] if res_sh2 else None}, score={res_sh2[0]['score'] if res_sh2 else None}"
+    )
+
+    # 3. Omnibox Collab Artist + Song Title
+    res_sh3 = enhanced_search("LABANOON พลังงานจน")
+    pass_sh3 = len(res_sh3) > 0 and res_sh3[0]['title'] == "พลังงานจน" and res_sh3[0]['score'] == 1.0
+    report.assert_test(
+        "Omnibox Hyphen Collab: 'LABANOON พลังงานจน' ranks exact song at #1 with score 1.0",
+        pass_sh3,
+        f"Rank #1: {res_sh3[0]['title'] if res_sh3 else None}, score={res_sh3[0]['score'] if res_sh3 else None}"
     )
 
     print("\n========================================================")
