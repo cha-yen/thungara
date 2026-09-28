@@ -2974,18 +2974,26 @@ function doSearch() {
 }
 
 function clearSearch() {
-  var el = document.getElementById('search-input');
-  el.value = '';
-  el.style.height = 'auto';
+  const el = document.getElementById('search-input');
+  if (el) {
+    el.value = '';
+    el.style.height = 'auto';
+  }
   currentQuery = '';
   rawSearchResults = [];
-  document.getElementById('btn-clear').classList.remove('show');
+  const btnClear = document.getElementById('btn-clear');
+  if (btnClear) btnClear.classList.remove('show');
   setSearchProgress(false);
-  document.getElementById('filter-artist').value = '';
-  document.getElementById('filter-emotion').value = '';
-  document.getElementById('filter-year').value = '';
+  const fArtist = document.getElementById('filter-artist');
+  if (fArtist) fArtist.value = '';
+  const fEmotion = document.getElementById('filter-emotion');
+  if (fEmotion) fEmotion.value = '';
+  const fYear = document.getElementById('filter-year');
+  if (fYear) fYear.value = '';
+  const fSort = document.getElementById('filter-sort');
+  if (fSort) fSort.value = 'relevance';
   renderResults([], '');
-  el.focus();
+  if (el) el.focus();
 }
 
 const SafeStorage = {
