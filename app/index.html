@@ -2813,7 +2813,13 @@ function closeModal(e) {
 function initSpeechRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    document.getElementById('mic-btn').classList.add('unavailable');
+    const micBtn = document.getElementById('mic-btn');
+    if (micBtn) {
+      micBtn.classList.add('unavailable');
+      micBtn.setAttribute('title', 'เบราว์เซอร์ไม่รองรับการค้นหาด้วยเสียง');
+      micBtn.setAttribute('aria-label', 'เบราว์เซอร์ไม่รองรับการค้นหาด้วยเสียง');
+      micBtn.disabled = true;
+    }
     return;
   }
 
