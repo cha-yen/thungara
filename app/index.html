@@ -2028,14 +2028,14 @@ function countOccurrences(str, sub, maxCount = 4) {
   return count;
 }
 
-function search(query) {
+function search(query, filterArtist, filterEmotion, filterYear) {
   if (!DATA) return [];
   const rawQ = (query || '').trim();
-  const filterArtist = document.getElementById('filter-artist').value;
-  const filterEmotion = document.getElementById('filter-emotion').value;
-  const filterYear = document.getElementById('filter-year').value;
+  const fArtist = filterArtist !== undefined ? filterArtist : (document.getElementById('filter-artist') ? document.getElementById('filter-artist').value : '');
+  const fEmotion = filterEmotion !== undefined ? filterEmotion : (document.getElementById('filter-emotion') ? document.getElementById('filter-emotion').value : '');
+  const fYear = filterYear !== undefined ? filterYear : (document.getElementById('filter-year') ? document.getElementById('filter-year').value : '');
 
-  if (!rawQ && !filterArtist && !filterEmotion && !filterYear) return [];
+  if (!rawQ && !fArtist && !fEmotion && !fYear) return [];
   if (rawQ && !isValidThaiQuery(rawQ)) return [];
 
   const normQ = normalizeText(rawQ);
@@ -2076,9 +2076,9 @@ function search(query) {
   for (let i = 0; i < nSongs; i++) {
     const song = DATA.songs[i];
 
-    if (filterArtist && song.artist !== filterArtist) continue;
-    if (filterEmotion && song.emotion !== filterEmotion) continue;
-    if (filterYear && String(song.year) !== String(filterYear)) continue;
+    if (fArtist && song.artist !== fArtist) continue;
+    if (fEmotion && song.emotion !== fEmotion) continue;
+    if (fYear && String(song.year) !== String(fYear)) continue;
 
     const ns = NORM_SONGS[i] || {
       normTitle: normalizeText(song.title),
@@ -2953,7 +2953,7 @@ function doSearch() {
     } catch (e) {
       console.warn('Worker postMessage failed, falling back to main thread:', e);
       searchWorker = null;
-      const results = search(query || '  ');
+      const results = search(query || '  ', fa, fe, fy);
       setSearchProgress(false);
       renderResults(results, query);
       if (query && query.trim().length >= 2 && results && results.length > 0) {
@@ -2963,7 +2963,7 @@ function doSearch() {
   } else {
     setSearchProgress(true);
     setTimeout(() => {
-      const results = search(query || '  ');
+      const results = search(query || '  ', fa, fe, fy);
       setSearchProgress(false);
       renderResults(results, query);
       if (query && query.trim().length >= 2 && results && results.length > 0) {
