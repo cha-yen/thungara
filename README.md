@@ -23,7 +23,7 @@
 
 ### ⚡ สถาปัตยกรรมและความเร็ว (Architecture & Performance)
 - **Dedicated Web Worker** — แยกการคำนวณการค้นหาทั้งหมดออกจาก Main Thread ด้วยความเร็วเฉลี่ยต่ำกว่า 15ms พร้อมระบบ Fallback สู่ Main Thread อัตโนมัติหาก Worker ขัดข้อง
-- **PWA & Offline First** — ติดตั้งลงบนสมาร์ตโฟนได้เหมือนแอป Native ใช้งานแบบ Offline ได้ 100% ผ่าน Service Worker Resilient Caching (`Promise.allSettled`, `thungara-v20`)
+- **PWA & Offline First** — ติดตั้งลงบนสมาร์ตโฟนได้เหมือนแอป Native ใช้งานแบบ Offline ได้ 100% ผ่าน Service Worker Resilient Caching (`Promise.allSettled`, `thungara-v21`)
 - **SafeStorage Fault-Tolerance** — ระบบจัดเก็บข้อมูลที่ปลอดภัย ป้องกันข้อผิดพลาดใน Safari/iOS Private Browsing Mode
 
 ---
@@ -36,7 +36,7 @@
 | **Web Standards & A11y** | WAI-ARIA 1.2, WCAG 2.1 (Focus-Visible, Focus Trap, Screen-Reader Live Regions) |
 | **Search Engine** | TF-IDF Sparse Vector Space Model + Cosine Similarity + Greedy Tokenizer |
 | **Voice Recognition** | Web Speech API (`th-TH`) |
-| **Offline & Cache** | Service Worker + Cache Storage API with Resilient Caching (`thungara-v20`) |
+| **Offline & Cache** | Service Worker + Cache Storage API with Resilient Caching (`thungara-v21`) |
 | **Concurrency** | Dedicated Web Worker (`search-worker.js`) with Fault-Tolerant Fallback |
 
 ---
@@ -48,7 +48,7 @@ thungara/
 ├── app/
 │   ├── index.html        — Single-file web application (UI + Controller)
 │   ├── search-worker.js  — Dedicated Web Worker สำหรับการค้นหาใน background
-│   ├── sw.js             — Service Worker สำหรับ Caching & Offline
+│   └── sw.js             — Service Worker สำหรับ Caching & Offline
 │   └── manifest.json     — PWA Web App Manifest
 ├── assets/
 │   └── favicon.svg       — ไอคอนประจำเว็บและ PWA Application
@@ -56,9 +56,9 @@ thungara/
 │   ├── data.json         — ฐานข้อมูลเพลง 1,500 เพลง พร้อม TF-IDF Vectors
 │   └── youtube_ids.json  — YouTube Video IDs สำหรับฟังเพลงจริง
 ├── tests/
-│   ├── test_full_system.py — ชุดตรวจสอบและตรวจสอบความปลอดภัยทั้งระบบ (73 Checks)
-│   ├── test_search.py      — ชุดทดสอบ Core Search Engine (21 Categories, 67 Assertions)
-│   ├── test_runner.html    — หน้าทดสอบบนเบราว์เซอร์พร้อม UI จับเวลา Latency (67 Tests)
+│   ├── test_full_system.py — ชุดตรวจสอบและตรวจสอบความปลอดภัยทั้งระบบ (77 Checks)
+│   ├── test_search.py      — ชุดทดสอบ Core Search Engine (22 Categories, 70 Assertions)
+│   ├── test_runner.html    — หน้าทดสอบบนเบราว์เซอร์พร้อม UI จับเวลา Latency (70 Tests)
 │   └── run_test.bat        — สคริปต์รันการทดสอบอัตโนมัติบน Windows
 └── LICENSE
 ```
@@ -91,7 +91,7 @@ python tests/test_full_system.py
 
 ### 2. ทดสอบ Core Search Engine ผ่าน Command Line
 
-ทดสอบความแม่นยำของการค้นหา 21 หมวดหมู่:
+ทดสอบความแม่นยำของการค้นหา 22 หมวดหมู่:
 
 ```bash
 python tests/test_search.py

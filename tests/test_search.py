@@ -1220,6 +1220,45 @@ def run_all_tests():
         f"Rank #1: {res_sh3[0]['title'] if res_sh3 else None}, score={res_sh3[0]['score'] if res_sh3 else None}"
     )
 
+    print("\nCategory 22: ASCII & Mixed-Language Artist Omnibox Queries")
+    # 1. Pure ASCII Artist Query
+    res_eng1 = enhanced_search("The City Chorus")
+    pass_eng1 = (
+        len(res_eng1) > 0 and
+        res_eng1[0]['title'] == "ดอกไม้" and
+        res_eng1[0]['score'] >= 0.94 and
+        "The City Chorus" in res_eng1[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "ASCII Artist: 'The City Chorus' ranks 'ดอกไม้' at #1 with score >= 0.94",
+        pass_eng1,
+        f"Rank #1: {res_eng1[0]['title'] if res_eng1 else None}, score={res_eng1[0]['score'] if res_eng1 else None}"
+    )
+
+    # 2. Lowercase ASCII Artist Query Case-Insensitivity
+    res_eng2 = enhanced_search("the city chorus")
+    pass_eng2 = len(res_eng2) > 0 and res_eng2[0]['title'] == "ดอกไม้" and res_eng2[0]['score'] >= 0.94
+    report.assert_test(
+        "ASCII Case-Insensitivity: 'the city chorus' ranks 'ดอกไม้' at #1 with score >= 0.94",
+        pass_eng2,
+        f"Rank #1: {res_eng2[0]['title'] if res_eng2 else None}, score={res_eng2[0]['score'] if res_eng2 else None}"
+    )
+
+    # 3. Mixed-Language Omnibox Query (ASCII Artist + Thai Title)
+    res_eng3 = enhanced_search("The City Chorus ดอกไม้")
+    pass_eng3 = (
+        len(res_eng3) > 0 and
+        res_eng3[0]['title'] == "ดอกไม้" and
+        res_eng3[0]['score'] == 1.0 and
+        "The City Chorus" in res_eng3[0]['evidence']['matchedTerms'] and
+        "ดอกไม้" in res_eng3[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Mixed-Language Omnibox: 'The City Chorus ดอกไม้' ranks 'ดอกไม้' at #1 with score 1.0 and both terms matched",
+        pass_eng3,
+        f"Rank #1: {res_eng3[0]['title'] if res_eng3 else None}, score={res_eng3[0]['score'] if res_eng3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
