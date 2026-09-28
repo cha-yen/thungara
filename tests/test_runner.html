@@ -950,6 +950,47 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0 จากคำค้นศิลปินคู่และชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'}, score: ${res.length > 0 ? res[0].score : 0})`
       };
     }
+  },
+  {
+    category: "22. การค้นหาชื่อศิลปินภาษาอังกฤษและการค้นหาแบบหลายภาษา (ASCII & Mixed-Language Artist Omnibox Queries)",
+    name: "ค้นหาชื่อศิลปินภาษาอังกฤษ 'The City Chorus' ต้องได้เพลง 'ดอกไม้' อันดับ 1 ด้วยคะแนน >= 0.94",
+    run: async () => {
+      const res = await workerSearch("The City Chorus");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "ดอกไม้" && res[0].score >= 0.94 && terms.includes("The City Chorus");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อม 'The City Chorus' ใน matchedTerms` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "22. การค้นหาชื่อศิลปินภาษาอังกฤษและการค้นหาแบบหลายภาษา (ASCII & Mixed-Language Artist Omnibox Queries)",
+    name: "ค้นหาชื่อศิลปินภาษาอังกฤษตัวพิมพ์เล็ก 'the city chorus' ต้องได้เพลง 'ดอกไม้' อันดับ 1 ด้วยคะแนน >= 0.94",
+    run: async () => {
+      const res = await workerSearch("the city chorus");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ดอกไม้" && res[0].score >= 0.94;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) รองรับ Case-Insensitive` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "22. การค้นหาชื่อศิลปินภาษาอังกฤษและการค้นหาแบบหลายภาษา (ASCII & Mixed-Language Artist Omnibox Queries)",
+    name: "ค้นหา Omnibox ภาษาอังกฤษผสมชื่อเพลงภาษาไทย 'The City Chorus ดอกไม้' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน 1.0",
+    run: async () => {
+      const res = await workerSearch("The City Chorus ดอกไม้");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "ดอกไม้" && res[0].score === 1.0 && terms.includes("The City Chorus") && terms.includes("ดอกไม้");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0 พร้อมไฮไลท์ทั้งศิลปินและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 

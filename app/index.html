@@ -2028,12 +2028,12 @@ function countOccurrences(str, sub, maxCount = 4) {
   return count;
 }
 
-function search(query) {
+function search(query, filterArtist, filterEmotion, filterYear) {
   if (!DATA) return [];
   const rawQ = (query || '').trim();
-  const filterArtist = document.getElementById('filter-artist').value;
-  const filterEmotion = document.getElementById('filter-emotion').value;
-  const filterYear = document.getElementById('filter-year').value;
+  if (filterArtist === undefined) filterArtist = document.getElementById('filter-artist') ? document.getElementById('filter-artist').value : '';
+  if (filterEmotion === undefined) filterEmotion = document.getElementById('filter-emotion') ? document.getElementById('filter-emotion').value : '';
+  if (filterYear === undefined) filterYear = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
 
   if (!rawQ && !filterArtist && !filterEmotion && !filterYear) return [];
   if (rawQ && !isValidThaiQuery(rawQ)) return [];
@@ -2813,7 +2813,13 @@ function closeModal(e) {
 function initSpeechRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    document.getElementById('mic-btn').classList.add('unavailable');
+    const micBtn = document.getElementById('mic-btn');
+    if (micBtn) {
+      micBtn.classList.add('unavailable');
+      micBtn.setAttribute('title', 'เบราว์เซอร์ไม่รองรับการค้นหาด้วยเสียง');
+      micBtn.setAttribute('aria-label', 'เบราว์เซอร์ไม่รองรับการค้นหาด้วยเสียง');
+      micBtn.disabled = true;
+    }
     return;
   }
 
@@ -2953,7 +2959,7 @@ function doSearch() {
     } catch (e) {
       console.warn('Worker postMessage failed, falling back to main thread:', e);
       searchWorker = null;
-      const results = search(query || '  ');
+      const results = search(query || '  ', fa, fe, fy);
       setSearchProgress(false);
       renderResults(results, query);
       if (query && query.trim().length >= 2 && results && results.length > 0) {
@@ -2963,7 +2969,7 @@ function doSearch() {
   } else {
     setSearchProgress(true);
     setTimeout(() => {
-      const results = search(query || '  ');
+      const results = search(query || '  ', fa, fe, fy);
       setSearchProgress(false);
       renderResults(results, query);
       if (query && query.trim().length >= 2 && results && results.length > 0) {
@@ -2974,18 +2980,26 @@ function doSearch() {
 }
 
 function clearSearch() {
-  var el = document.getElementById('search-input');
-  el.value = '';
-  el.style.height = 'auto';
+  const el = document.getElementById('search-input');
+  if (el) {
+    el.value = '';
+    el.style.height = 'auto';
+  }
   currentQuery = '';
   rawSearchResults = [];
-  document.getElementById('btn-clear').classList.remove('show');
+  const btnClear = document.getElementById('btn-clear');
+  if (btnClear) btnClear.classList.remove('show');
   setSearchProgress(false);
-  document.getElementById('filter-artist').value = '';
-  document.getElementById('filter-emotion').value = '';
-  document.getElementById('filter-year').value = '';
+  const fArtist = document.getElementById('filter-artist');
+  if (fArtist) fArtist.value = '';
+  const fEmotion = document.getElementById('filter-emotion');
+  if (fEmotion) fEmotion.value = '';
+  const fYear = document.getElementById('filter-year');
+  if (fYear) fYear.value = '';
+  const fSort = document.getElementById('filter-sort');
+  if (fSort) fSort.value = 'relevance';
   renderResults([], '');
-  el.focus();
+  if (el) el.focus();
 }
 
 const SafeStorage = {
@@ -3259,7 +3273,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v20') caches.delete(k);
+      if (k !== 'thungara-v21') caches.delete(k);
     });
   });
 }
