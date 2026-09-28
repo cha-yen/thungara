@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v20" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v21" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -331,6 +331,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 21 spaced hyphen collaboration test suite",
             "21. การค้นหาผลงานเพลงคู่ที่มีเครื่องหมายขีดคั่นแบบเว้นวรรค" in runner_text
+        )
+        self.check(
+            "Main-Thread search function parameter decoupling and fallback pass-through implemented",
+            "function search(query, filterArtist, filterEmotion, filterYear)" in html_content and "search(query || '  ', fa, fe, fy)" in html_content
+        )
+        self.check(
+            "Clear search filter-sort reset to relevance and defensive element handling implemented",
+            "fSort.value = 'relevance'" in html_content and "const el = document.getElementById('search-input')" in html_content
+        )
+        self.check(
+            "Speech recognition unavailable state disabled attribute and accessible tooltip implemented",
+            "micBtn.disabled = true" in html_content and "micBtn.setAttribute('aria-label', 'เบราว์เซอร์ไม่รองรับการค้นหาด้วยเสียง')" in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 22 ASCII and mixed-language test suite",
+            "22. การค้นหาชื่อศิลปินภาษาอังกฤษและการค้นหาแบบหลายภาษา" in runner_text
         )
 
         # Final Summary
