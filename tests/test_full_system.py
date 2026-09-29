@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v21" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v22" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -347,6 +347,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 22 ASCII and mixed-language test suite",
             "22. การค้นหาชื่อศิลปินภาษาอังกฤษและการค้นหาแบบหลายภาษา" in runner_text
+        )
+        self.check(
+            "Search Worker and Main-Thread monotonic searchId sequence guard and in-flight invalidation implemented",
+            "currentSearchId" in html_content and "e.data.searchId !== currentSearchId" in html_content and "searchId: searchId" in worker_text and "currentSearchId++" in html_content
+        )
+        self.check(
+            "Defensive filter DOM resolution in renderResults and dynamic load-more aria-label implemented",
+            "(fA && fA.value) || (fE && fE.value) || (fY && fY.value)" in html_content and "btnLoadMore.setAttribute('aria-label', 'แสดงเพลงที่เกี่ยวข้องเพิ่มเติม อีก '" in html_content
+        )
+        self.check(
+            "Modal and Voice recording dialog overlay aria-hidden lifecycle and OS theme media listener implemented",
+            'id="modal-overlay" aria-hidden="true"' in html_content and 'id="rec-overlay"' in html_content and 'aria-hidden="true"' in html_content and "mqlTheme.addEventListener('change'" in html_content
+        )
+        self.check(
+            "Browser test runner synced with Category 23 alphanumeric omnibox test suite",
+            "23. การค้นหาชื่อเพลงที่มีตัวเลข คำย่อ และคำทับศัพท์" in runner_text
         )
 
         # Final Summary
