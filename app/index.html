@@ -1469,6 +1469,7 @@ let manualStopRequested = false;
 let currentQuery = '';
 let debounceTimer = null;
 let searchWorker = null;
+let currentSearchId = 0;
 let rawSearchResults = [];
 let currentResults = [];
 let displayedCount = 0;
@@ -1631,6 +1632,7 @@ async function loadData() {
         searchWorker.postMessage({ type: 'init', payload: DATA });
         searchWorker.onmessage = function(e) {
           if (!e || !e.data) return;
+          if (e.data.searchId !== undefined && e.data.searchId !== currentSearchId) return;
           if (e.data.type === 'results') {
             setSearchProgress(false);
             renderResults(e.data.payload, e.data.query);
@@ -1641,7 +1643,10 @@ async function loadData() {
             console.warn('Search worker reported error, falling back to main thread:', e.data.error);
             setSearchProgress(false);
             const fallbackQuery = e.data.query || document.getElementById('search-input').value;
-            const results = search(fallbackQuery || '  ');
+            const fa = e.data.filterArtist || (document.getElementById('filter-artist') ? document.getElementById('filter-artist').value : '');
+            const fe = e.data.filterEmotion || (document.getElementById('filter-emotion') ? document.getElementById('filter-emotion').value : '');
+            const fy = e.data.filterYear || (document.getElementById('filter-year') ? document.getElementById('filter-year').value : '');
+            const results = search(fallbackQuery || '  ', fa, fe, fy);
             renderResults(results, fallbackQuery);
           }
         };
@@ -2951,11 +2956,12 @@ function doSearch() {
   const fa = document.getElementById('filter-artist').value;
   const fe = document.getElementById('filter-emotion').value;
   const fy = document.getElementById('filter-year').value;
+  const searchId = ++currentSearchId;
 
   if (searchWorker) {
     setSearchProgress(true);
     try {
-      searchWorker.postMessage({ type: 'search', payload: { query: query || '  ', filterArtist: fa, filterEmotion: fe, filterYear: fy } });
+      searchWorker.postMessage({ type: 'search', payload: { query: query || '  ', filterArtist: fa, filterEmotion: fe, filterYear: fy, searchId: searchId } });
     } catch (e) {
       console.warn('Worker postMessage failed, falling back to main thread:', e);
       searchWorker = null;
@@ -2980,6 +2986,7 @@ function doSearch() {
 }
 
 function clearSearch() {
+  currentSearchId++;
   const el = document.getElementById('search-input');
   if (el) {
     el.value = '';

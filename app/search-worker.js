@@ -151,8 +151,9 @@ self.onmessage = function(e) {
     }
 
     if (type === 'search') {
+      const searchId = payload && payload.searchId;
       if (!DATA) {
-        self.postMessage({ type: 'results', payload: [], query: (payload && payload.query) || '' });
+        self.postMessage({ type: 'results', payload: [], query: (payload && payload.query) || '', searchId: searchId });
         return;
       }
       const q = (payload && payload.query) || '';
@@ -160,13 +161,18 @@ self.onmessage = function(e) {
       const fe = (payload && payload.filterEmotion) || '';
       const fy = (payload && payload.filterYear) || '';
       const results = search(q, fa, fe, fy);
-      self.postMessage({ type: 'results', payload: results, query: q });
+      self.postMessage({ type: 'results', payload: results, query: q, searchId: searchId });
     }
   } catch (err) {
+    const payload = e && e.data && e.data.payload;
     self.postMessage({
       type: 'error',
       error: (err && err.message) || String(err),
-      query: (e && e.data && e.data.payload && e.data.payload.query) || ''
+      query: (payload && payload.query) || '',
+      filterArtist: (payload && payload.filterArtist) || '',
+      filterEmotion: (payload && payload.filterEmotion) || '',
+      filterYear: (payload && payload.filterYear) || '',
+      searchId: payload && payload.searchId
     });
   }
 };
