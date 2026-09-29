@@ -991,6 +991,46 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0 พร้อมไฮไลท์ทั้งศิลปินและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "23. การค้นหาชื่อเพลงที่มีตัวเลข คำย่อ และคำทับศัพท์ (Alphanumeric & Abbreviation Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงที่มีตัวเลขและจุดย่อ 'นักสู้ ม.3' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.98",
+    run: async () => {
+      const res = await workerSearch("นักสู้ ม.3");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "นักสู้ ม.3" && res[0].score >= 0.98;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) จัดการจุดย่อและตัวเลขแม่นยำ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "23. การค้นหาชื่อเพลงที่มีตัวเลข คำย่อ และคำทับศัพท์ (Alphanumeric & Abbreviation Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงผสมคำทับศัพท์ภาษาอังกฤษ 'น้ำตาหยดยังกด Like' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.98",
+    run: async () => {
+      const res = await workerSearch("น้ำตาหยดยังกด Like");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "น้ำตาหยดยังกด Like" && res[0].score >= 0.98;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) คำค้นผสมไทย-อังกฤษถูกต้อง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "23. การค้นหาชื่อเพลงที่มีตัวเลข คำย่อ และคำทับศัพท์ (Alphanumeric & Abbreviation Omnibox Queries)",
+    name: "ค้นหา Omnibox ศิลปินและชื่อเพลงตัวเลขย่อ 'ไมค์ ภิรมย์พร นักสู้ ม.3' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน 1.0",
+    run: async () => {
+      const res = await workerSearch("ไมค์ ภิรมย์พร นักสู้ ม.3");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "นักสู้ ม.3" && res[0].score === 1.0 && terms.includes("ไมค์ ภิรมย์พร") && terms.includes("นักสู้ ม.3");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0 พร้อมไฮไลท์ครบทั้งศิลปินและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
