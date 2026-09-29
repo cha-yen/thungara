@@ -1259,6 +1259,48 @@ def run_all_tests():
         f"Rank #1: {res_eng3[0]['title'] if res_eng3 else None}, score={res_eng3[0]['score'] if res_eng3 else None}"
     )
 
+    print("\nCategory 23: Alphanumeric & Abbreviation Omnibox Queries")
+    # 1. Alphanumeric Abbreviation Title Query
+    res_num1 = enhanced_search("นักสู้ ม.3")
+    pass_num1 = (
+        len(res_num1) > 0 and
+        res_num1[0]['title'] == "นักสู้ ม.3" and
+        res_num1[0]['score'] >= 0.98
+    )
+    report.assert_test(
+        "Alphanumeric Abbreviation: 'นักสู้ ม.3' ranks exact song at #1 with score >= 0.98",
+        pass_num1,
+        f"Rank #1: {res_num1[0]['title'] if res_num1 else None}, score={res_num1[0]['score'] if res_num1 else None}"
+    )
+
+    # 2. Mixed Thai-English Title Query
+    res_num2 = enhanced_search("น้ำตาหยดยังกด Like")
+    pass_num2 = (
+        len(res_num2) > 0 and
+        res_num2[0]['title'] == "น้ำตาหยดยังกด Like" and
+        res_num2[0]['score'] >= 0.98
+    )
+    report.assert_test(
+        "Mixed Thai-English Title: 'น้ำตาหยดยังกด Like' ranks exact song at #1 with score >= 0.98",
+        pass_num2,
+        f"Rank #1: {res_num2[0]['title'] if res_num2 else None}, score={res_num2[0]['score'] if res_num2 else None}"
+    )
+
+    # 3. Omnibox Artist + Alphanumeric Abbreviation Title Query
+    res_num3 = enhanced_search("ไมค์ ภิรมย์พร นักสู้ ม.3")
+    pass_num3 = (
+        len(res_num3) > 0 and
+        res_num3[0]['title'] == "นักสู้ ม.3" and
+        res_num3[0]['score'] == 1.0 and
+        "ไมค์ ภิรมย์พร" in res_num3[0]['evidence']['matchedTerms'] and
+        "นักสู้ ม.3" in res_num3[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Omnibox Alphanumeric Title: 'ไมค์ ภิรมย์พร นักสู้ ม.3' ranks exact song at #1 with score 1.0 and both terms matched",
+        pass_num3,
+        f"Rank #1: {res_num3[0]['title'] if res_num3 else None}, score={res_num3[0]['score'] if res_num3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
