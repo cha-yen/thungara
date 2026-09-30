@@ -1031,6 +1031,46 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' ด้วยคะแนนสมบูรณ์ 1.0 พร้อมไฮไลท์ครบทั้งศิลปินและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "24. การค้นหาชื่อเพลงภาษาอังกฤษในวงเล็บ (Parenthetical English Subtitle & Sub-Title Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงภาษาอังกฤษในวงเล็บ 'Flick' ต้องได้เพลง 'สะบัด (Flick)' อันดับ 1 ด้วยคะแนน >= 0.88",
+    run: async () => {
+      const res = await workerSearch("Flick");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "สะบัด (Flick)" && res[0].score >= 0.88;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ค้นพบจากคำในวงเล็บ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "24. การค้นหาชื่อเพลงภาษาอังกฤษในวงเล็บ (Parenthetical English Subtitle & Sub-Title Omnibox Queries)",
+    name: "ค้นหาคำในวงเล็บตัวพิมพ์เล็ก 'flick' ต้องได้เพลง 'สะบัด (Flick)' อันดับ 1 ด้วยคะแนน >= 0.88",
+    run: async () => {
+      const res = await workerSearch("flick");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "สะบัด (Flick)" && res[0].score >= 0.88;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) รองรับ Case-Insensitive` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "24. การค้นหาชื่อเพลงภาษาอังกฤษในวงเล็บ (Parenthetical English Subtitle & Sub-Title Omnibox Queries)",
+    name: "ค้นหา Omnibox ศิลปินและคำในวงเล็บ 'กระแต อาร์ สยาม Flick' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch("กระแต อาร์ สยาม Flick");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "สะบัด (Flick)" && res[0].score >= 0.95 && terms.includes("กระแต อาร์ สยาม") && terms.includes("สะบัด (Flick)");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อมไฮไลท์ทั้งศิลปินและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
