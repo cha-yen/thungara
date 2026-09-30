@@ -1729,7 +1729,8 @@ function handleUrlParams() {
         input.value = initialQuery;
         autoResize(input);
         currentQuery = initialQuery;
-        document.getElementById('btn-clear').classList.add('show');
+        const btnClear = document.getElementById('btn-clear');
+        if (btnClear) btnClear.classList.add('show');
       }
     }
 
@@ -2626,8 +2627,7 @@ function filterByArtistFromModal(artistName) {
   const input = document.getElementById('search-input');
   if (input) {
     input.value = artistName;
-    input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+    autoResize(input);
     doSearch();
     const resultsArea = document.getElementById('results');
     if (resultsArea) {
@@ -2894,8 +2894,7 @@ function initSpeechRecognition() {
         hideRecOverlay();
         document.getElementById('search-input').value = finalTranscript.trim();
         var el = document.getElementById('search-input');
-        el.style.height = 'auto';
-        el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+        autoResize(el);
         currentQuery = finalTranscript.trim();
         doSearch();
         if (micBtn) micBtn.focus();
@@ -3195,6 +3194,7 @@ function escRegex(s) {
 }
 
 function autoResize(el) {
+  if (!el) return;
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 160) + 'px';
 }
@@ -3305,7 +3305,8 @@ document.addEventListener('keydown', function(e) {
 });
 
 window.addEventListener('scroll', function() {
-  document.getElementById('btn-top').classList.toggle('show', window.scrollY > 400);
+  const btnTop = document.getElementById('btn-top');
+  if (btnTop) btnTop.classList.toggle('show', window.scrollY > 400);
 }, { passive: true });
 
 if ('caches' in window) {
