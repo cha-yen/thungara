@@ -152,7 +152,7 @@ self.onmessage = function(e) {
 
     if (type === 'search') {
       const searchId = payload && payload.searchId;
-      if (!DATA) {
+      if (!DATA || !DATA.songs) {
         self.postMessage({ type: 'results', payload: [], query: (payload && payload.query) || '', searchId: searchId });
         return;
       }
@@ -335,7 +335,7 @@ function countOccurrences(str, sub, maxCount = 4) {
 }
 
 function search(query, filterArtist, filterEmotion, filterYear) {
-  if (!DATA) return [];
+  if (!DATA || !DATA.songs) return [];
   const rawQ = (query || '').trim();
   if (!rawQ && !filterArtist && !filterEmotion && !filterYear) return [];
   if (rawQ && !isValidThaiQuery(rawQ)) return [];

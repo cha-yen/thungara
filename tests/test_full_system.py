@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v22" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v23" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -363,6 +363,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 23 alphanumeric omnibox test suite",
             "23. การค้นหาชื่อเพลงที่มีตัวเลข คำย่อ และคำทับศัพท์" in runner_text
+        )
+        self.check(
+            "Auto-resize defensive null-guard and centralized invocation implemented",
+            "if (!el) return;" in html_content and "autoResize(input)" in html_content and "autoResize(el)" in html_content
+        )
+        self.check(
+            "Scroll listener defensive button-top resolution and clear button guard implemented",
+            "const btnTop = document.getElementById('btn-top')" in html_content and "if (btnTop) btnTop.classList.toggle('show'" in html_content and "const btnClear = document.getElementById('btn-clear')" in html_content
+        )
+        self.check(
+            "Fallback copy execCommand return validation and finally block DOM cleanup implemented",
+            "const successful = document.execCommand('copy')" in html_content and "if (ta.parentNode) ta.parentNode.removeChild(ta)" in html_content and "!DATA || !DATA.songs" in worker_text
+        )
+        self.check(
+            "Browser test runner synced with Category 24 parenthetical English subtitle test suite",
+            "24. การค้นหาชื่อเพลงภาษาอังกฤษในวงเล็บ" in runner_text
         )
 
         # Final Summary
