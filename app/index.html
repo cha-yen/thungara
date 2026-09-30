@@ -2035,7 +2035,7 @@ function countOccurrences(str, sub, maxCount = 4) {
 }
 
 function search(query, filterArtist, filterEmotion, filterYear) {
-  if (!DATA) return [];
+  if (!DATA || !DATA.songs) return [];
   const rawQ = (query || '').trim();
   if (filterArtist === undefined) filterArtist = document.getElementById('filter-artist') ? document.getElementById('filter-artist').value : '';
   if (filterEmotion === undefined) filterEmotion = document.getElementById('filter-emotion') ? document.getElementById('filter-emotion').value : '';
