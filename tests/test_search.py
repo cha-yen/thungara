@@ -1301,6 +1301,48 @@ def run_all_tests():
         f"Rank #1: {res_num3[0]['title'] if res_num3 else None}, score={res_num3[0]['score'] if res_num3 else None}"
     )
 
+    print("\nCategory 24: Parenthetical English Subtitle & Sub-Title Omnibox Queries")
+    # 1. Parenthetical English Subtitle Query
+    res_sub1 = enhanced_search("Flick")
+    pass_sub1 = (
+        len(res_sub1) > 0 and
+        res_sub1[0]['title'] == "สะบัด (Flick)" and
+        res_sub1[0]['score'] >= 0.88
+    )
+    report.assert_test(
+        "Parenthetical Subtitle: 'Flick' ranks 'สะบัด (Flick)' at #1 with score >= 0.88",
+        pass_sub1,
+        f"Rank #1: {res_sub1[0]['title'] if res_sub1 else None}, score={res_sub1[0]['score'] if res_sub1 else None}"
+    )
+
+    # 2. Lowercase Subtitle Query Case-Insensitivity
+    res_sub2 = enhanced_search("flick")
+    pass_sub2 = (
+        len(res_sub2) > 0 and
+        res_sub2[0]['title'] == "สะบัด (Flick)" and
+        res_sub2[0]['score'] >= 0.88
+    )
+    report.assert_test(
+        "Subtitle Case-Insensitivity: 'flick' ranks 'สะบัด (Flick)' at #1 with score >= 0.88",
+        pass_sub2,
+        f"Rank #1: {res_sub2[0]['title'] if res_sub2 else None}, score={res_sub2[0]['score'] if res_sub2 else None}"
+    )
+
+    # 3. Omnibox Artist + Parenthetical Subtitle Query
+    res_sub3 = enhanced_search("กระแต อาร์ สยาม Flick")
+    pass_sub3 = (
+        len(res_sub3) > 0 and
+        res_sub3[0]['title'] == "สะบัด (Flick)" and
+        res_sub3[0]['score'] >= 0.95 and
+        "กระแต อาร์ สยาม" in res_sub3[0]['evidence']['matchedTerms'] and
+        "สะบัด (Flick)" in res_sub3[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Omnibox Parenthetical Subtitle: 'กระแต อาร์ สยาม Flick' ranks 'สะบัด (Flick)' at #1 with score >= 0.95 and both terms matched",
+        pass_sub3,
+        f"Rank #1: {res_sub3[0]['title'] if res_sub3 else None}, score={res_sub3[0]['score'] if res_sub3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
