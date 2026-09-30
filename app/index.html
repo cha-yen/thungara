@@ -2774,12 +2774,17 @@ function fallbackCopy(text, successMsg) {
   document.body.appendChild(ta);
   ta.select();
   try {
-    document.execCommand('copy');
-    showToast(successMsg);
+    const successful = document.execCommand('copy');
+    if (successful) {
+      showToast(successMsg);
+    } else {
+      showToast('ไม่สามารถคัดลอกได้');
+    }
   } catch (e) {
     showToast('ไม่สามารถคัดลอกได้');
+  } finally {
+    if (ta.parentNode) ta.parentNode.removeChild(ta);
   }
-  document.body.removeChild(ta);
 }
 
 let toastTimer = null;
