@@ -1642,7 +1642,7 @@ async function loadData() {
           } else if (e.data.type === 'error') {
             console.warn('Search worker reported error, falling back to main thread:', e.data.error);
             setSearchProgress(false);
-            const fallbackQuery = e.data.query || document.getElementById('search-input').value;
+            const fallbackQuery = e.data.query || (document.getElementById('search-input') ? document.getElementById('search-input').value : '');
             const fa = e.data.filterArtist || (document.getElementById('filter-artist') ? document.getElementById('filter-artist').value : '');
             const fe = e.data.filterEmotion || (document.getElementById('filter-emotion') ? document.getElementById('filter-emotion').value : '');
             const fy = e.data.filterYear || (document.getElementById('filter-year') ? document.getElementById('filter-year').value : '');
@@ -1744,15 +1744,21 @@ function populateFilters() {
   const fArtist = document.getElementById('filter-artist');
   const fEmotion = document.getElementById('filter-emotion');
   const fYear = document.getElementById('filter-year');
-  DATA.artists.forEach(a => {
-    fArtist.insertAdjacentHTML('beforeend', '<option value="'+esc(a)+'">'+esc(a)+'</option>');
-  });
-  DATA.emotions.forEach(e => {
-    fEmotion.insertAdjacentHTML('beforeend', '<option value="'+esc(e)+'">'+esc(e)+'</option>');
-  });
-  DATA.years.forEach(y => {
-    fYear.insertAdjacentHTML('beforeend', '<option value="'+esc(y)+'">'+esc(y)+'</option>');
-  });
+  if (fArtist && Array.isArray(DATA && DATA.artists)) {
+    DATA.artists.forEach(a => {
+      fArtist.insertAdjacentHTML('beforeend', '<option value="'+esc(a)+'">'+esc(a)+'</option>');
+    });
+  }
+  if (fEmotion && Array.isArray(DATA && DATA.emotions)) {
+    DATA.emotions.forEach(e => {
+      fEmotion.insertAdjacentHTML('beforeend', '<option value="'+esc(e)+'">'+esc(e)+'</option>');
+    });
+  }
+  if (fYear && Array.isArray(DATA && DATA.years)) {
+    DATA.years.forEach(y => {
+      fYear.insertAdjacentHTML('beforeend', '<option value="'+esc(y)+'">'+esc(y)+'</option>');
+    });
+  }
 }
 
 function tokenizeQuery(text) {
