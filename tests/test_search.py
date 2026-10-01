@@ -1343,6 +1343,48 @@ def run_all_tests():
         f"Rank #1: {res_sub3[0]['title'] if res_sub3 else None}, score={res_sub3[0]['score'] if res_sub3 else None}"
     )
 
+    print("\nCategory 25: Repeated Whitespace & Spaced Delimiter Omnibox Resilience")
+    # 1. Leading and Trailing Whitespace Padding Query
+    res_sp1 = enhanced_search("   ขอใจกันหนาว   ")
+    pass_sp1 = (
+        len(res_sp1) > 0 and
+        res_sp1[0]['title'] == "ขอใจกันหนาว" and
+        res_sp1[0]['score'] >= 0.98
+    )
+    report.assert_test(
+        "Whitespace Resilience: '   ขอใจกันหนาว   ' ranks 'ขอใจกันหนาว' at #1 with score >= 0.98",
+        pass_sp1,
+        f"Rank #1: {res_sp1[0]['title'] if res_sp1 else None}, score={res_sp1[0]['score'] if res_sp1 else None}"
+    )
+
+    # 2. Artist + Title with Irregular Whitespace
+    res_sp2 = enhanced_search("ไผ่ พงศธร    คนบ้านเดียวกัน")
+    pass_sp2 = (
+        len(res_sp2) > 0 and
+        res_sp2[0]['title'] == "คนบ้านเดียวกัน" and
+        res_sp2[0]['score'] >= 0.98
+    )
+    report.assert_test(
+        "Irregular Spacing Omnibox: 'ไผ่ พงศธร    คนบ้านเดียวกัน' ranks 'คนบ้านเดียวกัน' at #1 with score >= 0.98",
+        pass_sp2,
+        f"Rank #1: {res_sp2[0]['title'] if res_sp2 else None}, score={res_sp2[0]['score'] if res_sp2 else None}"
+    )
+
+    # 3. Spaced Delimiter Hyphen Omnibox Query
+    res_sp3 = enhanced_search("ไผ่ พงศธร   -   คนบ้านเดียวกัน")
+    pass_sp3 = (
+        len(res_sp3) > 0 and
+        res_sp3[0]['title'] == "คนบ้านเดียวกัน" and
+        res_sp3[0]['score'] >= 0.95 and
+        "ไผ่ พงศธร" in res_sp3[0]['evidence']['matchedTerms'] and
+        "คนบ้านเดียวกัน" in res_sp3[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Spaced Delimiter Omnibox: 'ไผ่ พงศธร   -   คนบ้านเดียวกัน' ranks 'คนบ้านเดียวกัน' at #1 with score >= 0.95 and matched terms",
+        pass_sp3,
+        f"Rank #1: {res_sp3[0]['title'] if res_sp3 else None}, score={res_sp3[0]['score'] if res_sp3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
