@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v23" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v24" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -379,6 +379,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 24 parenthetical English subtitle test suite",
             "24. การค้นหาชื่อเพลงภาษาอังกฤษในวงเล็บ" in runner_text
+        )
+        self.check(
+            "Worker and Main-Thread cosine similarity defensive vector resolution implemented",
+            "const vecB = (DATA && DATA.vectors && DATA.vectors[songIdx]) || null" in html_content and "const vecB = (DATA && DATA.vectors && DATA.vectors[songIdx]) || null" in worker_text
+        )
+        self.check(
+            "Populate filters defensive element and array resolution implemented",
+            "if (fArtist && Array.isArray(DATA && DATA.artists))" in html_content and "if (fEmotion && Array.isArray(DATA && DATA.emotions))" in html_content
+        )
+        self.check(
+            "Category 25 repeated whitespace and spaced delimiter omnibox test suite verified",
+            "Category 25: Repeated Whitespace & Spaced Delimiter Omnibox Resilience" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 25 repeated whitespace omnibox test suite",
+            "25. การค้นหาทนทานต่อช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอน" in runner_text
         )
 
         # Final Summary
