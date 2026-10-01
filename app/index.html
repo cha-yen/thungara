@@ -1593,14 +1593,14 @@ async function loadData() {
       };
     });
 
-    VECTOR_MAGS = DATA.vectors.map(vec => {
+    VECTOR_MAGS = (DATA && Array.isArray(DATA.vectors)) ? DATA.vectors.map(vec => {
       let sumSq = 0;
       for (const k in vec) {
         const v = vec[k];
         sumSq += v * v;
       }
       return Math.sqrt(sumSq);
-    });
+    }) : [];
 
     ARTIST_SET = new Set();
     if (DATA.artists) {
@@ -1642,7 +1642,7 @@ async function loadData() {
           } else if (e.data.type === 'error') {
             console.warn('Search worker reported error, falling back to main thread:', e.data.error);
             setSearchProgress(false);
-            const fallbackQuery = e.data.query || document.getElementById('search-input').value;
+            const fallbackQuery = e.data.query || (document.getElementById('search-input') ? document.getElementById('search-input').value : '');
             const fa = e.data.filterArtist || (document.getElementById('filter-artist') ? document.getElementById('filter-artist').value : '');
             const fe = e.data.filterEmotion || (document.getElementById('filter-emotion') ? document.getElementById('filter-emotion').value : '');
             const fy = e.data.filterYear || (document.getElementById('filter-year') ? document.getElementById('filter-year').value : '');
@@ -1744,15 +1744,21 @@ function populateFilters() {
   const fArtist = document.getElementById('filter-artist');
   const fEmotion = document.getElementById('filter-emotion');
   const fYear = document.getElementById('filter-year');
-  DATA.artists.forEach(a => {
-    fArtist.insertAdjacentHTML('beforeend', '<option value="'+esc(a)+'">'+esc(a)+'</option>');
-  });
-  DATA.emotions.forEach(e => {
-    fEmotion.insertAdjacentHTML('beforeend', '<option value="'+esc(e)+'">'+esc(e)+'</option>');
-  });
-  DATA.years.forEach(y => {
-    fYear.insertAdjacentHTML('beforeend', '<option value="'+esc(y)+'">'+esc(y)+'</option>');
-  });
+  if (fArtist && Array.isArray(DATA && DATA.artists)) {
+    DATA.artists.forEach(a => {
+      fArtist.insertAdjacentHTML('beforeend', '<option value="'+esc(a)+'">'+esc(a)+'</option>');
+    });
+  }
+  if (fEmotion && Array.isArray(DATA && DATA.emotions)) {
+    DATA.emotions.forEach(e => {
+      fEmotion.insertAdjacentHTML('beforeend', '<option value="'+esc(e)+'">'+esc(e)+'</option>');
+    });
+  }
+  if (fYear && Array.isArray(DATA && DATA.years)) {
+    DATA.years.forEach(y => {
+      fYear.insertAdjacentHTML('beforeend', '<option value="'+esc(y)+'">'+esc(y)+'</option>');
+    });
+  }
 }
 
 function tokenizeQuery(text) {
@@ -1791,8 +1797,8 @@ function queryToVector(tokens) {
   const vec = {};
   let magSq = 0;
   for (const [word, count] of Object.entries(tf)) {
-    const idx = wordToIndex ? wordToIndex.get(word) : DATA.vocab.indexOf(word);
-    if (idx !== undefined && idx >= 0) {
+    const idx = wordToIndex ? wordToIndex.get(word) : (DATA && DATA.vocab ? DATA.vocab.indexOf(word) : -1);
+    if (idx !== undefined && idx >= 0 && DATA && DATA.idf && DATA.idf[idx] !== undefined) {
       const val = (count / maxTf) * DATA.idf[idx];
       vec[String(idx)] = val;
       magSq += val * val;
@@ -1805,7 +1811,8 @@ function cosineSim(vecA, magA, songIdx) {
   if (magA === 0 || !vecA) return 0;
   const magB = VECTOR_MAGS[songIdx];
   if (!magB) return 0;
-  const vecB = DATA.vectors[songIdx];
+  const vecB = (DATA && DATA.vectors && DATA.vectors[songIdx]) || null;
+  if (!vecB) return 0;
   let dot = 0;
   const entries = Array.isArray(vecA) ? vecA : Object.entries(vecA);
   for (let idx = 0; idx < entries.length; idx++) {
@@ -3317,7 +3324,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v23') caches.delete(k);
+      if (k !== 'thungara-v24') caches.delete(k);
     });
   });
 }

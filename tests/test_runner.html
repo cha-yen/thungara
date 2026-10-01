@@ -1071,6 +1071,46 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อมไฮไลท์ทั้งศิลปินและชื่อเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "25. การค้นหาทนทานต่อช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอน (Repeated Whitespace & Spaced Delimiter Omnibox Resilience)",
+    name: "ค้นหาชื่อเพลงที่มีช่องว่างหัวท้าย '   ขอใจกันหนาว   ' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.98",
+    run: async () => {
+      const res = await workerSearch("   ขอใจกันหนาว   ");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.98;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ทนทานต่อช่องว่างหัวท้าย` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "25. การค้นหาทนทานต่อช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอน (Repeated Whitespace & Spaced Delimiter Omnibox Resilience)",
+    name: "ค้นหา Omnibox ศิลปินและเพลงที่มีช่องว่างซ้ำซ้อน 'ไผ่ พงศธร    คนบ้านเดียวกัน' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.98",
+    run: async () => {
+      const res = await workerSearch("ไผ่ พงศธร    คนบ้านเดียวกัน");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res[0].score >= 0.98;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ตัดช่องว่างซ้ำซ้อนได้อย่างถูกต้อง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "25. การค้นหาทนทานต่อช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอน (Repeated Whitespace & Spaced Delimiter Omnibox Resilience)",
+    name: "ค้นหา Omnibox ศิลปินและเพลงคั่นด้วยยัติภังค์ 'ไผ่ พงศธร   -   คนบ้านเดียวกัน' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch("ไผ่ พงศธร   -   คนบ้านเดียวกัน");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res[0].score >= 0.95 && terms.includes("ไผ่ พงศธร") && terms.includes("คนบ้านเดียวกัน");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อมจับคู่ทั้งศิลปินและเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 

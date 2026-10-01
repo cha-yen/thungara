@@ -118,14 +118,14 @@ self.onmessage = function(e) {
         };
       });
 
-      VECTOR_MAGS = DATA.vectors.map(vec => {
+      VECTOR_MAGS = (DATA && Array.isArray(DATA.vectors)) ? DATA.vectors.map(vec => {
         let sumSq = 0;
         for (const k in vec) {
           const v = vec[k];
           sumSq += v * v;
         }
         return Math.sqrt(sumSq);
-      });
+      }) : [];
 
       ARTIST_SET = new Set();
       if (DATA.artists) {
@@ -213,8 +213,8 @@ function queryToVector(tokens) {
   const vec = {};
   let magSq = 0;
   for (const [word, count] of Object.entries(tf)) {
-    const idx = wordToIndex ? wordToIndex.get(word) : DATA.vocab.indexOf(word);
-    if (idx !== undefined && idx >= 0) {
+    const idx = wordToIndex ? wordToIndex.get(word) : (DATA && DATA.vocab ? DATA.vocab.indexOf(word) : -1);
+    if (idx !== undefined && idx >= 0 && DATA && DATA.idf && DATA.idf[idx] !== undefined) {
       const val = (count / maxTf) * DATA.idf[idx];
       vec[String(idx)] = val;
       magSq += val * val;
@@ -227,7 +227,8 @@ function cosineSim(vecA, magA, songIdx) {
   if (magA === 0 || !vecA) return 0;
   const magB = VECTOR_MAGS[songIdx];
   if (!magB) return 0;
-  const vecB = DATA.vectors[songIdx];
+  const vecB = (DATA && DATA.vectors && DATA.vectors[songIdx]) || null;
+  if (!vecB) return 0;
   let dot = 0;
   const entries = Array.isArray(vecA) ? vecA : Object.entries(vecA);
   for (let idx = 0; idx < entries.length; idx++) {
