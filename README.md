@@ -1,75 +1,63 @@
 # Thungara (ทุ่งคารา) 🎵
 
-ระบบค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง — พิมพ์ชื่อเพลง ท่อนเนื้อร้อง ชื่อศิลปิน หรือร้องผ่านไมโครโฟนก็ค้นพบได้ทันที ประมวลผลรวดเร็วแบบ Real-time บนเบราว์เซอร์ 100% ปราศจาก External Frameworks
+[![PWA](https://img.shields.io/badge/PWA-Ready-f59e0b?style=flat-square&logo=pwa)](app/manifest.json)
+[![JavaScript](https://img.shields.io/badge/Vanilla_JS-Zero_Dependencies-yellow?style=flat-square&logo=javascript)](app/index.html)
+[![Service Worker](https://img.shields.io/badge/Cache-thungara--v25-green?style=flat-square)](app/sw.js)
+[![Tests](https://img.shields.io/badge/Tests-93_Passed-success?style=flat-square)](tests/test_full_system.py)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+
+> ระบบค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง ค้นหาด้วยชื่อเพลง ท่อนเนื้อร้อง ศิลปิน หรือร้องผ่านไมโครโฟนได้ทันที ประมวลผลรวดเร็วบนเบราว์เซอร์แบบ Real-time 100% (Pure Vanilla JS — Zero Dependencies)
 
 ---
 
-## ✨ จุดเด่นสำคัญ (Key Highlights)
+## ✨ ฟีเจอร์เด่น (Key Highlights)
 
-### 🔍 ค้นหาอัจฉริยะ & ภาษาไทย (Smart Search & Thai NLP)
-- **Hybrid Search Engine** — ผสาน TF-IDF Sparse Vector Space Model, Exact Phrase และ Levenshtein Fuzzy Matching คำนวณความเชื่อมั่นแบบ Tiered Normalized Confidence Score ($[0.0, 1.0]$) แบบ Real-time
-- **Omnibox ค้นหาในช่องเดียว** — พิมพ์ชื่อศิลปินเดี่ยว เพลงคู่ (`&`) หรือศิลปินรับเชิญ (`feat.`) ผสมชื่อเพลงได้ทันทีโดยไม่ต้องเลือกฟิลเตอร์
-- **แยกรากคำประสม (Compound Decompounding)** — สกัดคำรากศัพท์หลักออกจากคำประสม (เช่น *"ความรัก"* จับคู่ *"รัก"*) พร้อมระบบ **Affix Isolation** ป้องกันคำนำหน้านามรบกวนไฮไลต์
-- **ร้องค้นหา (Voice Search)** — แปลงเสียงร้องหรือเสียงพูดเป็นข้อความภาษาไทยด้วย Web Speech API แล้วค้นหาให้อัตโนมัติ
-- **คำพ้องภาษาถิ่นอีสาน** — ขยายคำค้นหาสู่ภาษาถิ่นโดยอัตโนมัติ (เช่น *"คิดถึง"* ค้นพบ *"คิดฮอด"*, *"ไม่รัก"* ค้นพบ *"บ่ฮัก"*)
-- **ตรวจสอบสระลอย** — กรองเศษคำและสระลอยที่ไม่สมบูรณ์ (เช่น *"าว"*, *"ิน"*) ทันที ป้องกันผลลัพธ์แปลกปลอม (False Positives)
-
-### 🎨 ประสบการณ์และการเข้าถึง (UX & Accessibility)
-- **WCAG 2.1 SC 2.4.7 & A11y 100%** — รองรับ Focus-Visible (`:focus-visible`) ครบทุกปุ่มและตัวกรอง, มี Modal Focus Trap ป้องกันโฟกัสหลุด, ประกาศสถานะสดผ่าน Screen-Reader (`aria-live="polite"`), และรองรับ Keyboard Navigation เต็มรูปแบบ
-- **ตัวกรองและการจัดเรียง (Metadata Filters & Smart Sort)** — กรองตามศิลปิน, อารมณ์เพลง (สนุกสนาน, เศร้า/อกหัก, กำลังใจ), และปี พ.ศ. พร้อมเรียงลำดับผลลัพธ์ตามความเกี่ยวข้อง ปี หรือตัวอักษร
-- **Dark Mode & Responsive UI** — สลับโหมดมืด/สว่างอัตโนมัติตามระบบ พร้อมการแสดงผลที่ลื่นไหลบนทุกขนาดหน้าจอ
-- **URL Deep-Linking & Web Share** — แชร์และเปิดเพลงตรงผ่าน URL parameters (`?song=`, `?q=`, `?artist=`, `?emotion=`, `?year=`, `?sort=`) ฟื้นฟูสถานะหน้าเว็บได้สมบูรณ์
-- **ประวัติการค้นหาและคีย์ลัด** — บันทึกคำค้นหาล่าสุด 5 รายการ พร้อมคีย์ลัด `/` โฟกัสช่องค้นหา และ `Esc` ปิดหน้าต่าง
-
-### ⚡ สถาปัตยกรรมและความเร็ว (Architecture & Performance)
-- **Dedicated Web Worker** — แยกการคำนวณการค้นหาทั้งหมดออกจาก Main Thread ด้วยความเร็วเฉลี่ยต่ำกว่า 15ms พร้อมระบบ Fallback สู่ Main Thread อัตโนมัติหาก Worker ขัดข้อง
-- **PWA & Offline First** — ติดตั้งลงบนสมาร์ตโฟนได้เหมือนแอป Native ใช้งานแบบ Offline ได้ 100% ผ่าน Service Worker Resilient Caching (`Promise.allSettled`, `thungara-v24`)
-- **SafeStorage Fault-Tolerance** — ระบบจัดเก็บข้อมูลที่ปลอดภัย ป้องกันข้อผิดพลาดใน Safari/iOS Private Browsing Mode
+- ⚡ **Real-time Hybrid Search** — ผสาน TF-IDF และ Levenshtein Fuzzy Matching ค้นหาเนื้อร้อง ชื่อเพลง ศิลปินได้ในช่องเดียว (Omnibox) ด้วยความเร็วเฉลี่ย < 15ms
+- 🎙️ **Voice Search & Dialect Support** — แปลงเสียงร้อง/พูดเป็นข้อความภาษาไทยด้วย Web Speech API พร้อมขยายคำพ้องภาษาถิ่นอีสานอัตโนมัติ
+- 📱 **PWA & Offline-First** — ติดตั้งบนสมาร์ตโฟนได้เหมือน Native App ใช้งานแบบออฟไลน์ได้ 100% ผ่าน Service Worker (`thungara-v25`)
+- ♿ **WCAG 2.1 & Dark Mode** — รองรับ Keyboard Navigation, Screen Reader (A11y 100%), และสลับโหมดมืด/สว่างตามระบบอัตโนมัติ
+- 🔗 **Deep-Linking & History** — แชร์และเปิดเพลงตรงผ่าน URL parameters พร้อมบันทึกประวัติการค้นหาล่าสุด 5 รายการ
 
 ---
 
 ## 🛠️ Tech Stack
 
-| ด้าน | เทคโนโลยีที่เลือกใช้ |
+| ด้าน | เครื่องมือ / เทคโนโลยี |
 |:---|:---|
 | **Frontend** | HTML5, CSS3, Modern JavaScript (Pure Vanilla — Zero Dependencies) |
-| **Web Standards & A11y** | WAI-ARIA 1.2, WCAG 2.1 (Focus-Visible, Focus Trap, Screen-Reader Live Regions) |
-| **Search Engine** | TF-IDF Sparse Vector Space Model + Cosine Similarity + Greedy Tokenizer |
+| **Search Engine** | TF-IDF Vector Space Model + Cosine Similarity + Greedy Tokenizer |
 | **Voice Recognition** | Web Speech API (`th-TH`) |
-| **Offline & Cache** | Service Worker + Cache Storage API with Resilient Caching (`thungara-v24`) |
-| **Concurrency** | Dedicated Web Worker (`search-worker.js`) with Fault-Tolerant Fallback |
+| **Offline & Cache** | Service Worker + Cache Storage API (`thungara-v25`) |
+| **Concurrency** | Dedicated Web Worker (`search-worker.js`) |
+| **Accessibility** | WAI-ARIA 1.2, WCAG 2.1 (Focus-Visible, Focus Trap, Screen-Reader Live Regions) |
 
 ---
 
 ## 📁 โครงสร้างโปรเจกต์ (Project Structure)
 
-```
+```text
 thungara/
 ├── app/
-│   ├── index.html        — Single-file web application (UI + Controller)
+│   ├── index.html        — หน้าเว็บแอปพลิเคชันหลัก (UI + Controller)
 │   ├── search-worker.js  — Dedicated Web Worker สำหรับการค้นหาใน background
-│   └── sw.js             — Service Worker สำหรับ Caching & Offline
+│   ├── sw.js             — Service Worker สำหรับ Caching & Offline
 │   └── manifest.json     — PWA Web App Manifest
 ├── assets/
 │   └── favicon.svg       — ไอคอนประจำเว็บและ PWA Application
 ├── data/
 │   ├── data.json         — ฐานข้อมูลเพลง 1,500 เพลง พร้อม TF-IDF Vectors
 │   └── youtube_ids.json  — YouTube Video IDs สำหรับฟังเพลงจริง
-├── tests/
-│   ├── test_full_system.py — ชุดตรวจสอบและตรวจสอบความปลอดภัยทั้งระบบ (89 Checks)
-│   ├── test_search.py      — ชุดทดสอบ Core Search Engine (25 Categories, 79 Assertions)
-│   ├── test_runner.html    — หน้าทดสอบบนเบราว์เซอร์พร้อม UI จับเวลา Latency (79 Tests)
-│   └── run_test.bat        — สคริปต์รันการทดสอบอัตโนมัติบน Windows
-└── LICENSE
+└── tests/
+    ├── test_full_system.py — ชุดตรวจสอบความสมบูรณ์ทั้งระบบ (93 Checks)
+    ├── test_search.py      — ชุดทดสอบ Core Search Engine (26 Categories, 82 Assertions)
+    └── test_runner.html    — หน้าทดสอบบนเบราว์เซอร์พร้อม UI วัด Latency (82 Tests)
 ```
 
 ---
 
 ## 🚀 เริ่มต้นใช้งาน (Getting Started)
 
-### รันบนเครื่องสำหรับพัฒนา (Local Development)
-
-ใช้คำสั่ง Python เพื่อจำลอง Local Web Server:
+รัน Local Web Server ด้วย Python:
 
 ```bash
 python -m http.server 8765
@@ -81,41 +69,23 @@ python -m http.server 8765
 
 ## 🧪 การทดสอบระบบ (Testing & Verification)
 
-### 1. ตรวจสอบความสมบูรณ์ทั้งระบบ (Comprehensive System Audit)
-
-รันการตรวจสอบ Data Schema, Git Hygiene, Accessibility, และ Search Resilience:
-
 ```bash
+# 1. ตรวจสอบความสมบูรณ์และความปลอดภัยทั้งระบบ (93 Checks)
 python tests/test_full_system.py
-```
 
-### 2. ทดสอบ Core Search Engine ผ่าน Command Line
-
-ทดสอบความแม่นยำของการค้นหา 25 หมวดหมู่:
-
-```bash
+# 2. ทดสอบความแม่นยำของ Core Search Engine (26 หมวดหมู่)
 python tests/test_search.py
 ```
 
-### 3. ทดสอบ Search Worker ผ่านเบราว์เซอร์
-
-เปิดหน้าทดสอบในเบราว์เซอร์เพื่อทดสอบการทำงานร่วมกับ Web Worker จริง:
-
-```text
-http://localhost:8765/tests/test_runner.html
-```
+หรือเปิดหน้าทดสอบผ่านเบราว์เซอร์ที่: `http://localhost:8765/tests/test_runner.html`
 
 ---
 
 ## 🌐 การนำขึ้นใช้งาน (Deployment)
 
-สามารถ Deploy ขึ้นผู้ให้บริการ Static Hosting ใดก็ได้ทันที:
+สามารถ Deploy บน Static Hosting ใดก็ได้ทันที (Vercel, Netlify, หรือ GitHub Pages)
 
-- **Vercel**: นำเข้า GitHub Repository → Framework: Other → Deploy
-- **Netlify**: เชื่อมต่อ Repository หรือลากวางโฟลเดอร์โครงการ
-- **GitHub Pages**: ไปที่ Repository Settings → Pages → เลือก Branch และบันทึก
-
-> **หมายเหตุ**: ฟีเจอร์ Voice Search จำเป็นต้องใช้งานผ่าน HTTPS (หรือ `localhost`) บนเบราว์เซอร์ที่รองรับ Web Speech API และได้รับอนุญาตการเข้าถึงไมโครโฟน
+> **หมายเหตุ**: ระบบ Voice Search จำเป็นต้องใช้งานผ่าน HTTPS หรือ `localhost`
 
 ---
 
