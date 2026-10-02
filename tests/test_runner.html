@@ -1111,6 +1111,46 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อมจับคู่ทั้งศิลปินและเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "26. การค้นหาคำที่มีเครื่องหมายคำพูดและวรรคตอน (Punctuation & Quoted Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงในเครื่องหมายคำพูด '\"ขอใจกันหนาว\"' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.98",
+    run: async () => {
+      const res = await workerSearch('"ขอใจกันหนาว"');
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.98;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) รองรับเครื่องหมายคำพูด` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "26. การค้นหาคำที่มีเครื่องหมายคำพูดและวรรคตอน (Punctuation & Quoted Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงที่มีเครื่องหมายวรรคตอนต่อท้าย 'คนบ้านเดียวกัน?' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.98",
+    run: async () => {
+      const res = await workerSearch("คนบ้านเดียวกัน?");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res[0].score >= 0.98;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) กรองเครื่องหมายวรรคตอนได้อย่างแม่นยำ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "26. การค้นหาคำที่มีเครื่องหมายคำพูดและวรรคตอน (Punctuation & Quoted Omnibox Queries)",
+    name: "ค้นหา Omnibox ศิลปินและเพลงในเครื่องหมายคำพูด '\"ไผ่ พงศธร\" \"คนบ้านเดียวกัน\"' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch('"ไผ่ พงศธร" "คนบ้านเดียวกัน"');
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res[0].score >= 0.95 && terms.includes("ไผ่ พงศธร") && terms.includes("คนบ้านเดียวกัน");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อมจับคู่ทั้งศิลปินและเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
