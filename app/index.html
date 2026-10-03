@@ -3090,13 +3090,15 @@ const SafeStorage = {
 
 const RECENT_KEY = 'thungara_recent_searches';
 function getRecentSearches() {
-  return SafeStorage.getJSON(RECENT_KEY, []);
+  const val = SafeStorage.getJSON(RECENT_KEY, []);
+  return Array.isArray(val) ? val : [];
 }
 
 function saveRecentSearch(q) {
   if (!q || q.length < 2) return;
   let list = getRecentSearches();
-  list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
+  if (!Array.isArray(list)) list = [];
+  list = list.filter(item => item && item.toLowerCase() !== q.toLowerCase());
   list.unshift(q);
   if (list.length > 5) list = list.slice(0, 5);
   SafeStorage.setJSON(RECENT_KEY, list);
@@ -3106,6 +3108,7 @@ function saveRecentSearch(q) {
 function removeRecentSearch(q, e) {
   if (e) e.stopPropagation();
   let list = getRecentSearches();
+  if (!Array.isArray(list)) list = [];
   list = list.filter(item => item !== q);
   SafeStorage.setJSON(RECENT_KEY, list);
   renderRecentSearches();
