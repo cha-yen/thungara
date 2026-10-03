@@ -2676,8 +2676,10 @@ function openModal(idx) {
   renderVideoPreview(song, idx);
 
   const overlay = document.getElementById('modal-overlay');
-  overlay.classList.add('show');
-  overlay.setAttribute('aria-hidden', 'false');
+  if (overlay) {
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
   document.body.style.overflow = 'hidden';
   const closeBtn = document.getElementById('btn-modal-close');
   if (closeBtn) closeBtn.focus();
@@ -2729,7 +2731,8 @@ async function shareSong(idx) {
   const ytId = song.yt || YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)];
   const ytUrl = ytId ? 'https://youtu.be/' + ytId : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' ' + song.artist);
   
-  const snippet = song.lyrics.split('\n').filter(l => l.trim()).slice(0, 3).join('\n');
+  const rawLyrics = song.lyrics || '';
+  const snippet = rawLyrics ? rawLyrics.split('\n').filter(l => l.trim()).slice(0, 3).join('\n') : '';
   const appUrl = (window.location.origin && window.location.origin !== 'null' && window.location.pathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
   const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\n' + (appUrl ? 'อ่านเนื้อเพลง: ' + appUrl + '\n' : '') + 'ฟังเพลง: ' + ytUrl;
 
@@ -2754,7 +2757,7 @@ async function shareSong(idx) {
 function copyLyrics(idx) {
   if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
   const song = DATA.songs[idx];
-  const fullText = 'เพลง: ' + song.title + '\nศิลปิน: ' + song.artist + '\n\n' + song.lyrics;
+  const fullText = 'เพลง: ' + song.title + '\nศิลปิน: ' + song.artist + '\n\n' + (song.lyrics || '');
   copyToClipboard(fullText, 'คัดลอกเนื้อเพลงทั้งหมดเรียบร้อย!');
 }
 
