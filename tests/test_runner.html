@@ -1151,6 +1151,46 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) พร้อมจับคู่ทั้งศิลปินและเพลง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "27. การค้นหาคำพ้องภาษาถิ่นอีสานและค้นหาแบบผสม (Multi-Token Dialect & Combined Omnibox Queries)",
+    name: "ค้นหาคำพ้องภาษาถิ่นอีสาน 'คิดฮอด' ต้องพบเพลงที่ตรงเงื่อนไขด้วยคะแนน >= 0.70 และมี matchedSynonymCount >= 1",
+    run: async () => {
+      const res = await workerSearch("คิดฮอด");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && res[0].score >= 0.70 && res[0].evidence && res[0].evidence.matchedSynonymCount >= 1;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ขยายคำพ้องภาษาถิ่นสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "27. การค้นหาคำพ้องภาษาถิ่นอีสานและค้นหาแบบผสม (Multi-Token Dialect & Combined Omnibox Queries)",
+    name: "ค้นหาศิลปินและคำพ้องภาษาถิ่น 'ไผ่ พงศธร คิดฮอด' ต้องได้เพลงของ ไผ่ พงศธร ด้วยคะแนน >= 0.90",
+    run: async () => {
+      const res = await workerSearch("ไผ่ พงศธร คิดฮอด");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.artist === "ไผ่ พงศธร" && res[0].score >= 0.90 && res[0].evidence && (res[0].evidence.matchedTerms || []).includes("ไผ่ พงศธร");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) จับคู่ศิลปินและคำพ้องสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "27. การค้นหาคำพ้องภาษาถิ่นอีสานและค้นหาแบบผสม (Multi-Token Dialect & Combined Omnibox Queries)",
+    name: "ค้นหา Omnibox ชื่อเพลงและศิลปิน 'ดอกหญ้าในป่าปูน ต่าย อรทัย' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.98",
+    run: async () => {
+      const res = await workerSearch("ดอกหญ้าในป่าปูน ต่าย อรทัย");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const terms = res.length > 0 && res[0].evidence ? (res[0].evidence.matchedTerms || []) : [];
+      const pass = topSong && topSong.title === "ดอกหญ้าในป่าปูน" && res[0].score >= 0.98 && terms.includes("ดอกหญ้าในป่าปูน") && terms.includes("ต่าย อรทัย");
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ไฮไลท์ทั้งชื่อเพลงและศิลปิน` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
