@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v25" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v26" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -409,8 +409,24 @@ class FullSystemTester:
             "26. การค้นหาคำที่มีเครื่องหมายคำพูดและวรรคตอน" in runner_text
         )
         self.check(
-            "Service Worker v25 offline caching manifest integrity verified",
-            "const CACHE_NAME = 'thungara-v25';" in sw_text and "Promise.allSettled" in sw_text
+            "Service Worker v26 offline caching manifest integrity verified",
+            "const CACHE_NAME = 'thungara-v26';" in sw_text and "Promise.allSettled" in sw_text
+        )
+        self.check(
+            "Clipboard copy lyrics and share song defensive fallback string resolution implemented",
+            "const rawLyrics = song.lyrics || '';" in html_content and "+ (song.lyrics || '');" in html_content
+        )
+        self.check(
+            "Recent search history defensive Array.isArray validation implemented",
+            "if (!Array.isArray(list)) list = [];" in html_content and "return Array.isArray(val) ? val : [];" in html_content
+        )
+        self.check(
+            "Category 27 multi-token dialect and combined omnibox test suite verified",
+            "Category 27: Multi-Token Dialect & Combined Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 27 multi-token dialect test suite",
+            "27. การค้นหาคำพ้องภาษาถิ่นอีสานและค้นหาแบบผสม" in runner_text
         )
 
         # Final Summary

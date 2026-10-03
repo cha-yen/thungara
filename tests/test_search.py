@@ -1427,6 +1427,49 @@ def run_all_tests():
         f"Rank #1: {res_punct3[0]['title'] if res_punct3 else None}, score={res_punct3[0]['score'] if res_punct3 else None}"
     )
 
+    print("\nCategory 27: Multi-Token Dialect & Combined Omnibox Queries")
+    # 1. Multi-Token Dialect Query
+    res_dia1 = enhanced_search("คิดฮอด")
+    pass_dia1 = (
+        len(res_dia1) > 0 and
+        res_dia1[0]['score'] >= 0.70 and
+        res_dia1[0]['evidence']['matchedSynonymCount'] >= 1
+    )
+    report.assert_test(
+        "Dialect Synonym Matching: 'คิดฮอด' retrieves dialect-matched songs with synonym count >= 1",
+        pass_dia1,
+        f"Rank #1: {res_dia1[0]['title'] if res_dia1 else None}, score={res_dia1[0]['score'] if res_dia1 else None}"
+    )
+
+    # 2. Artist + Dialect Synonym Omnibox Query
+    res_dia2 = enhanced_search("ไผ่ พงศธร คิดฮอด")
+    pass_dia2 = (
+        len(res_dia2) > 0 and
+        res_dia2[0]['artist'] == "ไผ่ พงศธร" and
+        res_dia2[0]['score'] >= 0.90 and
+        "ไผ่ พงศธร" in res_dia2[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Artist + Dialect Omnibox: 'ไผ่ พงศธร คิดฮอด' ranks Phai Phongsathon song at #1 with score >= 0.90",
+        pass_dia2,
+        f"Rank #1: {res_dia2[0]['title'] if res_dia2 else None}, score={res_dia2[0]['score'] if res_dia2 else None}"
+    )
+
+    # 3. Title + Artist Omnibox Query
+    res_dia3 = enhanced_search("ดอกหญ้าในป่าปูน ต่าย อรทัย")
+    pass_dia3 = (
+        len(res_dia3) > 0 and
+        res_dia3[0]['title'] == "ดอกหญ้าในป่าปูน" and
+        res_dia3[0]['score'] >= 0.98 and
+        "ดอกหญ้าในป่าปูน" in res_dia3[0]['evidence']['matchedTerms'] and
+        "ต่าย อรทัย" in res_dia3[0]['evidence']['matchedTerms']
+    )
+    report.assert_test(
+        "Title + Artist Omnibox: 'ดอกหญ้าในป่าปูน ต่าย อรทัย' ranks 'ดอกหญ้าในป่าปูน' at #1 with score >= 0.98",
+        pass_dia3,
+        f"Rank #1: {res_dia3[0]['title'] if res_dia3 else None}, score={res_dia3[0]['score'] if res_dia3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
