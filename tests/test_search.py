@@ -1470,6 +1470,46 @@ def run_all_tests():
         f"Rank #1: {res_dia3[0]['title'] if res_dia3 else None}, score={res_dia3[0]['score'] if res_dia3 else None}"
     )
 
+    print("\nCategory 28: Numeric Song Year & Combined Omnibox Queries")
+    # 1. Title + Release Year Omnibox Query
+    res_yr1 = enhanced_search("ขอใจกันหนาว 2547")
+    pass_yr1 = (
+        len(res_yr1) > 0 and
+        res_yr1[0]['title'] == "ขอใจกันหนาว" and
+        res_yr1[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Title + Year Omnibox: 'ขอใจกันหนาว 2547' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_yr1,
+        f"Rank #1: {res_yr1[0]['title'] if res_yr1 else None}, score={res_yr1[0]['score'] if res_yr1 else None}"
+    )
+
+    # 2. Title + Release Year Omnibox Query
+    res_yr2 = enhanced_search("คนบ้านเดียวกัน 2551")
+    pass_yr2 = (
+        len(res_yr2) > 0 and
+        res_yr2[0]['title'] == "คนบ้านเดียวกัน" and
+        res_yr2[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Title + Year Omnibox: 'คนบ้านเดียวกัน 2551' ranks 'คนบ้านเดียวกัน' at #1 with score >= 0.95",
+        pass_yr2,
+        f"Rank #1: {res_yr2[0]['title'] if res_yr2 else None}, score={res_yr2[0]['score'] if res_yr2 else None}"
+    )
+
+    # 3. Quoted Title + Release Year Omnibox Query
+    res_yr3 = enhanced_search('"ดอกหญ้าในป่าปูน" 2546')
+    pass_yr3 = (
+        len(res_yr3) > 0 and
+        res_yr3[0]['title'] == "ดอกหญ้าในป่าปูน" and
+        res_yr3[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Quoted Title + Year: '\"ดอกหญ้าในป่าปูน\" 2546' ranks 'ดอกหญ้าในป่าปูน' at #1 with score >= 0.95",
+        pass_yr3,
+        f"Rank #1: {res_yr3[0]['title'] if res_yr3 else None}, score={res_yr3[0]['score'] if res_yr3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
