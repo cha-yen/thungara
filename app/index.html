@@ -2606,9 +2606,14 @@ function highlightText(text, query, matchedTerms) {
   if (uniqueWords.length === 0) return esc(text);
 
   let escaped = esc(text);
-  const pattern = uniqueWords.map(w => escRegex(esc(w))).join('|');
-  const regex = new RegExp('(' + pattern + ')', 'gi');
-  return escaped.replace(regex, '<mark>$1</mark>');
+  const pattern = uniqueWords.map(w => escRegex(esc(w))).filter(Boolean).join('|');
+  if (!pattern) return escaped;
+  try {
+    const regex = new RegExp('(' + pattern + ')', 'gi');
+    return escaped.replace(regex, '<mark>$1</mark>');
+  } catch (err) {
+    return escaped;
+  }
 }
 
 let currentModalSongIdx = null;
