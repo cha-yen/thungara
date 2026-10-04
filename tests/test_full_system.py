@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v26" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v27" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -427,6 +427,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 27 multi-token dialect test suite",
             "27. การค้นหาคำพ้องภาษาถิ่นอีสานและค้นหาแบบผสม" in runner_text
+        )
+        self.check(
+            "HighlightText defensive RegExp compilation and try-catch guard implemented",
+            "const pattern = uniqueWords.map(w => escRegex(esc(w))).filter(Boolean).join('|');" in html_content and "catch (err) {" in html_content
+        )
+        self.check(
+            "Compound sub-tokens extraction defensive SYNONYMS resolution implemented",
+            "typeof SYNONYMS !== 'undefined' && SYNONYMS && SYNONYMS[root]" in html_content and "typeof SYNONYMS !== 'undefined' && SYNONYMS && SYNONYMS[root]" in worker_text
+        )
+        self.check(
+            "Category 28 numeric song year omnibox test suite verified",
+            "Category 28: Numeric Song Year & Combined Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 28 numeric song year test suite",
+            "28. การค้นหาชื่อเพลงพร้อมปี พ.ศ." in runner_text
         )
 
         # Final Summary
