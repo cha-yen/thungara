@@ -78,7 +78,7 @@ function extractSubTokens(tokens) {
           subTokens.push({
             root,
             parent: t,
-            synonyms: SYNONYMS[root] || []
+            synonyms: (typeof SYNONYMS !== 'undefined' && SYNONYMS && SYNONYMS[root]) ? SYNONYMS[root] : []
           });
         }
       }

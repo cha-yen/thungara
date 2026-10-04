@@ -1191,6 +1191,45 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ไฮไลท์ทั้งชื่อเพลงและศิลปิน` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "28. การค้นหาชื่อเพลงพร้อมปี พ.ศ. (Numeric Song Year & Combined Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงพร้อมปี 'ขอใจกันหนาว 2547' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว 2547");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) สกัดปี พ.ศ. สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "28. การค้นหาชื่อเพลงพร้อมปี พ.ศ. (Numeric Song Year & Combined Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงพร้อมปี 'คนบ้านเดียวกัน 2551' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch("คนบ้านเดียวกัน 2551");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "คนบ้านเดียวกัน" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) สกัดปี พ.ศ. สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "28. การค้นหาชื่อเพลงพร้อมปี พ.ศ. (Numeric Song Year & Combined Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงในเครื่องหมายคำพูดพร้อมปี '\"ดอกหญ้าในป่าปูน\" 2546' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch('"ดอกหญ้าในป่าปูน" 2546');
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ดอกหญ้าในป่าปูน" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ค้นหาชื่อเพลงและปีร่วมกันสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
