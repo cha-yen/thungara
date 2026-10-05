@@ -2741,13 +2741,24 @@ async function shareSong(idx) {
   const appUrl = (window.location.origin && window.location.origin !== 'null' && window.location.pathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
   const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\n' + (appUrl ? 'อ่านเนื้อเพลง: ' + appUrl + '\n' : '') + 'ฟังเพลง: ' + ytUrl;
 
-  if (navigator.share && (!navigator.canShare || navigator.canShare({ title: song.title }))) {
+  const shareData = {
+    title: song.title + ' - ' + song.artist,
+    text: shareText,
+    url: ytUrl,
+  };
+
+  let canUseNativeShare = false;
+  try {
+    if (navigator.share) {
+      canUseNativeShare = !navigator.canShare || navigator.canShare(shareData);
+    }
+  } catch (e) {
+    canUseNativeShare = false;
+  }
+
+  if (canUseNativeShare) {
     try {
-      await navigator.share({
-        title: song.title + ' - ' + song.artist,
-        text: shareText,
-        url: ytUrl,
-      });
+      await navigator.share(shareData);
       return;
     } catch (err) {
       if (err.name !== 'AbortError') {
