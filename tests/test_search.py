@@ -1510,6 +1510,46 @@ def run_all_tests():
         f"Rank #1: {res_yr3[0]['title'] if res_yr3 else None}, score={res_yr3[0]['score'] if res_yr3 else None}"
     )
 
+    print("\nCategory 29: Duet & Collaboration Artist Omnibox Queries")
+    # 1. Duet/Collaboration Artist Sub-token Query
+    res_collab1 = enhanced_search("LABANOON")
+    pass_collab1 = (
+        len(res_collab1) > 0 and
+        res_collab1[0]['title'] == "พลังงานจน" and
+        res_collab1[0]['score'] >= 0.90
+    )
+    report.assert_test(
+        "Collaboration Artist: 'LABANOON' ranks duet song 'พลังงานจน' at #1 with score >= 0.90",
+        pass_collab1,
+        f"Rank #1: {res_collab1[0]['title'] if res_collab1 else None}, score={res_collab1[0]['score'] if res_collab1 else None}"
+    )
+
+    # 2. Song Title + Duet Artist Omnibox Query
+    res_collab2 = enhanced_search("พลังงานจน LABANOON")
+    pass_collab2 = (
+        len(res_collab2) > 0 and
+        res_collab2[0]['title'] == "พลังงานจน" and
+        res_collab2[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Title + Collaboration Artist: 'พลังงานจน LABANOON' ranks 'พลังงานจน' at #1 with score >= 0.95",
+        pass_collab2,
+        f"Rank #1: {res_collab2[0]['title'] if res_collab2 else None}, score={res_collab2[0]['score'] if res_collab2 else None}"
+    )
+
+    # 3. Primary Artist + Duet Title Omnibox Query
+    res_collab3 = enhanced_search("เปาวลี พรพิมล พลังงานจน")
+    pass_collab3 = (
+        len(res_collab3) > 0 and
+        res_collab3[0]['title'] == "พลังงานจน" and
+        res_collab3[0]['score'] == 1.0
+    )
+    report.assert_test(
+        "Primary Artist + Title: 'เปาวลี พรพิมล พลังงานจน' ranks 'พลังงานจน' at #1 with score 1.0",
+        pass_collab3,
+        f"Rank #1: {res_collab3[0]['title'] if res_collab3 else None}, score={res_collab3[0]['score'] if res_collab3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
