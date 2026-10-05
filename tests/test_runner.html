@@ -1230,6 +1230,45 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' (score: ${res[0].score.toFixed(2)}) ค้นหาชื่อเพลงและปีร่วมกันสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "29. การค้นหาเพลงร้องคู่และศิลปินร่วม (Duet & Collaboration Artist Omnibox Queries)",
+    name: "ค้นหาชื่อศิลปินร่วม 'LABANOON' ต้องได้เพลงร้องคู่ 'พลังงานจน' ตรงอันดับ 1 ด้วยคะแนน >= 0.90",
+    run: async () => {
+      const res = await workerSearch("LABANOON");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "พลังงานจน" && res[0].score >= 0.90;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' (${topSong.artist}) score: ${res[0].score.toFixed(2)} ตรวจพบศิลปินร่วมสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "29. การค้นหาเพลงร้องคู่และศิลปินร่วม (Duet & Collaboration Artist Omnibox Queries)",
+    name: "ค้นหาชื่อเพลงพร้อมศิลปินร่วม 'พลังงานจน LABANOON' ต้องได้เพลงตรงอันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch("พลังงานจน LABANOON");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "พลังงานจน" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} ค้นหาชื่อเพลงและศิลปินร่วมสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "29. การค้นหาเพลงร้องคู่และศิลปินร่วม (Duet & Collaboration Artist Omnibox Queries)",
+    name: "ค้นหาชื่อศิลปินหลักพร้อมชื่อเพลง 'เปาวลี พรพิมล พลังงานจน' ต้องได้เพลงตรงอันดับ 1 คะแนนเต็ม 1.0",
+    run: async () => {
+      const res = await workerSearch("เปาวลี พรพิมล พลังงานจน");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "พลังงานจน" && res[0].score === 1.0;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: 1.00 แม่นยำ 100%` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
