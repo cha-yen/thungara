@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v27" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v28" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -443,6 +443,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 28 numeric song year test suite",
             "28. การค้นหาชื่อเพลงพร้อมปี พ.ศ." in runner_text
+        )
+        self.check(
+            "Defensive search clear debounce timer cancellation implemented",
+            "clearTimeout(debounceTimer);" in html_content and "function clearSearch()" in html_content
+        )
+        self.check(
+            "Web Share API defensive canShare and shareData payload validation implemented",
+            "const shareData = {" in html_content and "canUseNativeShare" in html_content and "navigator.canShare(shareData)" in html_content
+        )
+        self.check(
+            "Category 29 duet and collaboration artist omnibox test suite verified",
+            "Category 29: Duet & Collaboration Artist Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 29 duet and collaboration test suite",
+            "29. การค้นหาเพลงร้องคู่และศิลปินร่วม" in runner_text
         )
 
         # Final Summary
