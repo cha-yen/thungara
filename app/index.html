@@ -2640,6 +2640,12 @@ function filterByArtistFromModal(artistName) {
   if (input) {
     input.value = artistName;
     autoResize(input);
+    const fArtist = document.getElementById('filter-artist');
+    if (fArtist) fArtist.value = '';
+    const fEmotion = document.getElementById('filter-emotion');
+    if (fEmotion) fEmotion.value = '';
+    const fYear = document.getElementById('filter-year');
+    if (fYear) fYear.value = '';
     doSearch();
     const resultsArea = document.getElementById('results');
     if (resultsArea) {
