@@ -194,7 +194,7 @@ class FullSystemTester:
         )
         self.check(
             "Service Worker resilient caching with Promise.allSettled and relative assets implemented",
-            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v28" in sw_text
+            "Promise.allSettled" in sw_text and "./index.html" in sw_text and "thungara-v29" in sw_text
         )
         self.check(
             "Web Worker collaboration artist parsing with &amp and feat delimiters implemented",
@@ -459,6 +459,22 @@ class FullSystemTester:
         self.check(
             "Browser test runner synced with Category 29 duet and collaboration test suite",
             "29. การค้นหาเพลงร้องคู่และศิลปินร่วม" in runner_text
+        )
+        self.check(
+            "Modal artist pill filter reset resilience implemented",
+            "const fEmotion = document.getElementById('filter-emotion');" in html_content and "if (fEmotion) fEmotion.value = '';" in html_content
+        )
+        self.check(
+            "Modal video preview YouTube thumbnail onerror fallback implemented",
+            "onerror=\"this.onerror=null;this.src=" in html_content and "mqdefault.jpg" in html_content
+        )
+        self.check(
+            "Category 30 delimited duet and collaboration omnibox test suite verified",
+            "Category 30: Delimited Duet & Collaboration Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 30 delimited duet test suite",
+            "30. การค้นหาศิลปินคู่แบบคั่นเครื่องหมาย" in runner_text
         )
 
         # Final Summary
