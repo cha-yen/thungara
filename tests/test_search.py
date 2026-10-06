@@ -1550,6 +1550,46 @@ def run_all_tests():
         f"Rank #1: {res_collab3[0]['title'] if res_collab3 else None}, score={res_collab3[0]['score'] if res_collab3 else None}"
     )
 
+    print("\nCategory 30: Delimited Duet & Collaboration Omnibox Queries")
+    # 1. Delimited Song Title + Duet Artist Query
+    res_delim1 = enhanced_search("พลังงานจน - LABANOON")
+    pass_delim1 = (
+        len(res_delim1) > 0 and
+        res_delim1[0]['title'] == "พลังงานจน" and
+        res_delim1[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Delimited Title + Duet: 'พลังงานจน - LABANOON' ranks 'พลังงานจน' at #1 with score >= 0.95",
+        pass_delim1,
+        f"Rank #1: {res_delim1[0]['title'] if res_delim1 else None}, score={res_delim1[0]['score'] if res_delim1 else None}"
+    )
+
+    # 2. Reverse Duet Artist + Song Title Omnibox Query
+    res_delim2 = enhanced_search("LABANOON พลังงานจน")
+    pass_delim2 = (
+        len(res_delim2) > 0 and
+        res_delim2[0]['title'] == "พลังงานจน" and
+        res_delim2[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Reverse Duet Artist + Title: 'LABANOON พลังงานจน' ranks 'พลังงานจน' at #1 with score >= 0.95",
+        pass_delim2,
+        f"Rank #1: {res_delim2[0]['title'] if res_delim2 else None}, score={res_delim2[0]['score'] if res_delim2 else None}"
+    )
+
+    # 3. Full Delimited Artist Query
+    res_delim3 = enhanced_search("เปาวลี พรพิมล - LABANOON")
+    pass_delim3 = (
+        len(res_delim3) > 0 and
+        res_delim3[0]['title'] == "พลังงานจน" and
+        res_delim3[0]['score'] >= 0.90
+    )
+    report.assert_test(
+        "Full Delimited Artist: 'เปาวลี พรพิมล - LABANOON' ranks 'พลังงานจน' at #1 with score >= 0.90",
+        pass_delim3,
+        f"Rank #1: {res_delim3[0]['title'] if res_delim3 else None}, score={res_delim3[0]['score'] if res_delim3 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
