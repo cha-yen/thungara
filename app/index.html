@@ -2990,11 +2990,14 @@ function toggleRecording() {
   if (!recognition) return;
   if (isRecording) {
     manualStopRequested = true;
-    recognition.stop();
+    try { recognition.stop(); } catch (e) { console.warn('recognition stop error:', e); }
   } else {
     manualStopRequested = false;
     try { recognition.start(); }
-    catch(e) { recognition.stop(); setTimeout(() => recognition.start(), 200); }
+    catch(e) {
+      try { recognition.stop(); } catch (stopErr) {}
+      setTimeout(() => { try { recognition.start(); } catch (e2) {} }, 200);
+    }
   }
 }
 
