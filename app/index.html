@@ -1676,6 +1676,14 @@ async function loadData() {
 
 function handleUrlParams() {
   try {
+    let hashQuery = null;
+    try {
+      if (window.location.hash && window.location.hash.startsWith('#q=')) {
+        hashQuery = decodeURIComponent(window.location.hash.substring(3));
+      }
+    } catch (e) {
+      console.warn('Malformed URI in hash:', e);
+    }
     const params = new URLSearchParams(window.location.search);
     const songParam = params.get('song');
     const qParam = params.get('q');
@@ -1722,7 +1730,7 @@ function handleUrlParams() {
       }
     }
 
-    const initialQuery = (qParam || (!hasFilter ? artistParam : '') || '').trim();
+    const initialQuery = (hashQuery || qParam || (!hasFilter ? artistParam : '') || '').trim();
     if (initialQuery) {
       const input = document.getElementById('search-input');
       if (input) {
