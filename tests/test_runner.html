@@ -1308,6 +1308,32 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' (${topSong.artist}) score: ${res[0].score.toFixed(2)} แม่นยำสมบูรณ์` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "31. การจัดการช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอนท้ายคำ (Excessive Spaces & Trailing Punctuation)",
+    name: "ค้นหา 'ขอใจกันหนาว     ...' ต้องได้ 'ขอใจกันหนาว' อันดับ 1 ด้วยคะแนน >= 0.95",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว     ...");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} จัดการช่องว่างได้ถูกต้อง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "31. การจัดการช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอนท้ายคำ (Excessive Spaces & Trailing Punctuation)",
+    name: "ค้นหาเนื้อเพลง 'เมื่อเลิกงานเดินเหงา     มีเงาเป็นเพื่อนเข้าซอย,,,' ต้องได้ 'ขอใจกันหนาว' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("เมื่อเลิกงานเดินเหงา     มีเงาเป็นเพื่อนเข้าซอย,,,");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.90;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} จัดการเครื่องหมายซ้ำซ้อนได้ถูกต้อง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
