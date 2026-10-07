@@ -1590,6 +1590,31 @@ def run_all_tests():
         f"Rank #1: {res_delim3[0]['title'] if res_delim3 else None}, score={res_delim3[0]['score'] if res_delim3 else None}"
     )
 
+    print("\nCategory 31: Excessive Spaces and Trailing Punctuation Handling")
+    res_space_punct = enhanced_search("ขอใจกันหนาว     ...")
+    pass_space_punct = (
+        len(res_space_punct) > 0 and
+        res_space_punct[0]['title'] == "ขอใจกันหนาว" and
+        res_space_punct[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Excessive spaces & punctuation: 'ขอใจกันหนาว     ...' ranks 'ขอใจกันหนาว' at #1",
+        pass_space_punct,
+        f"Rank #1: {res_space_punct[0]['title'] if res_space_punct else None}"
+    )
+
+    res_space_punct2 = enhanced_search("เมื่อเลิกงานเดินเหงา     มีเงาเป็นเพื่อนเข้าซอย,,,")
+    pass_space_punct2 = (
+        len(res_space_punct2) > 0 and
+        res_space_punct2[0]['title'] == "ขอใจกันหนาว" and
+        res_space_punct2[0]['score'] >= 0.90
+    )
+    report.assert_test(
+        "Excessive spaces & punctuation: 'เมื่อเลิกงานเดินเหงา     มีเงาเป็นเพื่อนเข้าซอย,,,' ranks 'ขอใจกันหนาว' at #1",
+        pass_space_punct2,
+        f"Rank #1: {res_space_punct2[0]['title'] if res_space_punct2 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
