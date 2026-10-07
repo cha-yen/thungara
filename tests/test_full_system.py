@@ -476,6 +476,23 @@ class FullSystemTester:
             "Browser test runner synced with Category 30 delimited duet test suite",
             "30. การค้นหาศิลปินคู่แบบคั่นเครื่องหมาย" in runner_text
         )
+        self.check(
+            "URL hash sanitization and decodeURIComponent try-catch guard implemented",
+            "window.location.hash" in html_content and "decodeURIComponent(window.location.hash.substring(3))" in html_content and "console.warn('Malformed URI in hash:'" in html_content
+        )
+        self.check(
+            "Speech recognition stop try-catch guard implemented",
+            "try { recognition.stop(); } catch (e)" in html_content and "catch (stopErr) {}" in html_content
+        )
+        self.check(
+            "Category 31 excessive spaces and trailing punctuation test suite verified",
+            "Category 31: Excessive Spaces and Trailing Punctuation Handling" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 31 excessive spaces test suite",
+            "31. การจัดการช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอนท้ายคำ" in runner_text
+        )
+
 
         # Final Summary
         print("\n" + "=" * 65)

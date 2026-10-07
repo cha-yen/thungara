@@ -1676,6 +1676,14 @@ async function loadData() {
 
 function handleUrlParams() {
   try {
+    let hashQuery = null;
+    try {
+      if (window.location.hash && window.location.hash.startsWith('#q=')) {
+        hashQuery = decodeURIComponent(window.location.hash.substring(3));
+      }
+    } catch (e) {
+      console.warn('Malformed URI in hash:', e);
+    }
     const params = new URLSearchParams(window.location.search);
     const songParam = params.get('song');
     const qParam = params.get('q');
@@ -1722,7 +1730,7 @@ function handleUrlParams() {
       }
     }
 
-    const initialQuery = (qParam || (!hasFilter ? artistParam : '') || '').trim();
+    const initialQuery = (hashQuery || qParam || (!hasFilter ? artistParam : '') || '').trim();
     if (initialQuery) {
       const input = document.getElementById('search-input');
       if (input) {
@@ -2982,11 +2990,14 @@ function toggleRecording() {
   if (!recognition) return;
   if (isRecording) {
     manualStopRequested = true;
-    recognition.stop();
+    try { recognition.stop(); } catch (e) { console.warn('recognition stop error:', e); }
   } else {
     manualStopRequested = false;
     try { recognition.start(); }
-    catch(e) { recognition.stop(); setTimeout(() => recognition.start(), 200); }
+    catch(e) {
+      try { recognition.stop(); } catch (stopErr) {}
+      setTimeout(() => { try { recognition.start(); } catch (e2) {} }, 200);
+    }
   }
 }
 
@@ -3352,7 +3363,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v29') caches.delete(k);
+      if (k !== 'thungara-v30') caches.delete(k);
     });
   });
 }
