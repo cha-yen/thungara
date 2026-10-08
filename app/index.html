@@ -3101,6 +3101,7 @@ const SafeStorage = {
       window.localStorage.setItem(key, String(value));
       return true;
     } catch (e) {
+      console.warn('SafeStorage set error:', e);
       return false;
     }
   },
@@ -3108,6 +3109,7 @@ const SafeStorage = {
     try {
       return this.set(key, JSON.stringify(value));
     } catch (e) {
+      console.warn('SafeStorage setJSON error:', e);
       return false;
     }
   },
