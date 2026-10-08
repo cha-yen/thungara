@@ -1894,6 +1894,7 @@ function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1, allowLengthChange 
 }
 
 function editDistanceAtMost(textA, textB, maxDistance) {
+  if (textA === textB) return true;
   if (Math.abs(textA.length - textB.length) > maxDistance) return false;
   let a = 0;
   let b = 0;
