@@ -1334,6 +1334,30 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} จัดการเครื่องหมายซ้ำซ้อนได้ถูกต้อง` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "32. การจัดการตัวอักษรซ้ำซ้อน (Repetitive Characters Handling)",
+    name: "ค้นหา 'รักเธอออออออออ' ระบบต้องไม่พังและคืนค่าได้",
+    run: async () => {
+      const res = await workerSearch("รักเธอออออออออ");
+      const pass = res.length > 0 && res[0].score >= 0.0;
+      return {
+        pass,
+        detail: pass ? `ประมวลผลสำเร็จ คืนค่า ${res.length} รายการ` : `เกิดข้อผิดพลาดในการประมวลผล`
+      };
+    }
+  },
+  {
+    category: "32. การจัดการตัวอักษรซ้ำซ้อน (Repetitive Characters Handling)",
+    name: "ค้นหา 'หนาวววววววว' ระบบต้องไม่พังและคืนค่าได้",
+    run: async () => {
+      const res = await workerSearch("หนาวววววววว");
+      const pass = res.length > 0 && res[0].score >= 0.0;
+      return {
+        pass,
+        detail: pass ? `ประมวลผลสำเร็จ คืนค่า ${res.length} รายการ` : `เกิดข้อผิดพลาดในการประมวลผล`
+      };
+    }
   }
 ];
 

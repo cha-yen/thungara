@@ -1615,6 +1615,29 @@ def run_all_tests():
         f"Rank #1: {res_space_punct2[0]['title'] if res_space_punct2 else None}"
     )
 
+    print("\nCategory 32: Repetitive Characters Handling")
+    res_repetitive1 = enhanced_search("รักเธอออออออออ")
+    pass_repetitive1 = (
+        len(res_repetitive1) > 0 and
+        res_repetitive1[0]['score'] >= 0.0
+    )
+    report.assert_test(
+        "Repetitive chars: 'รักเธอออออออออ' processes without crashing and returns results",
+        pass_repetitive1,
+        f"Found {len(res_repetitive1)} results"
+    )
+
+    res_repetitive2 = enhanced_search("หนาวววววววว")
+    pass_repetitive2 = (
+        len(res_repetitive2) > 0 and
+        res_repetitive2[0]['score'] >= 0.0
+    )
+    report.assert_test(
+        "Repetitive chars: 'หนาวววววววว' processes without crashing and returns results",
+        pass_repetitive2,
+        f"Found {len(res_repetitive2)} results"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
