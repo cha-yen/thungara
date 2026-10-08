@@ -492,8 +492,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 31 excessive spaces test suite",
             "31. การจัดการช่องว่างซ้ำซ้อนและเครื่องหมายวรรคตอนท้ายคำ" in runner_text
         )
-
-
+        self.check(
+            "SafeStorage quota exceeded exception logging added",
+            "console.warn('SafeStorage set error:', e);" in html_content and "console.warn('SafeStorage setJSON error:', e);" in html_content
+        )
+        self.check(
+            "Edit distance early return optimization implemented",
+            "if (textA === textB) return true;" in html_content and "if (textA === textB) return true;" in worker_text
+        )
+        self.check(
+            "Category 32 repetitive characters test suite verified",
+            "Category 32: Repetitive Characters Handling" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 32 repetitive characters suite",
+            "32. การจัดการตัวอักษรซ้ำซ้อน" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

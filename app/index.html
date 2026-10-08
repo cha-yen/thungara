@@ -1894,6 +1894,7 @@ function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1, allowLengthChange 
 }
 
 function editDistanceAtMost(textA, textB, maxDistance) {
+  if (textA === textB) return true;
   if (Math.abs(textA.length - textB.length) > maxDistance) return false;
   let a = 0;
   let b = 0;
@@ -3101,6 +3102,7 @@ const SafeStorage = {
       window.localStorage.setItem(key, String(value));
       return true;
     } catch (e) {
+      console.warn('SafeStorage set error:', e);
       return false;
     }
   },
@@ -3108,6 +3110,7 @@ const SafeStorage = {
     try {
       return this.set(key, JSON.stringify(value));
     } catch (e) {
+      console.warn('SafeStorage setJSON error:', e);
       return false;
     }
   },
@@ -3363,7 +3366,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v30') caches.delete(k);
+      if (k !== 'thungara-v31') caches.delete(k);
     });
   });
 }
