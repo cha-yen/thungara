@@ -1560,19 +1560,24 @@ function extractSubTokens(tokens) {
 async function fetchWithFallback(urlPrimary, urlFallback) {
   try {
     const res = await fetch(urlPrimary);
-    if (res.ok) return res;
-  } catch (e) {}
+    if (res && res.ok) return res;
+  } catch (e) {
+    console.warn(`Primary fetch failed for ${urlPrimary}, falling back to ${urlFallback}:`, e);
+  }
   return fetch(urlFallback);
 }
 
 async function loadData() {
   try {
     const res = await fetchWithFallback('/data/data.json', '../data/data.json');
+    if (!res.ok) throw new Error('HTTP error ' + res.status + ' loading data.json');
     DATA = await res.json();
     try {
       const ytRes = await fetchWithFallback('/data/youtube_ids.json?v=' + Date.now(), '../data/youtube_ids.json?v=' + Date.now());
-      if (ytRes.ok) YOUTUBE_MAP = await ytRes.json();
-    } catch (e) {}
+      if (ytRes && ytRes.ok) YOUTUBE_MAP = await ytRes.json();
+    } catch (e) {
+      console.warn('Failed to load youtube_ids.json:', e);
+    }
     vocabSet = new Set(DATA.vocab);
     wordToIndex = new Map();
     DATA.vocab.forEach((w, i) => wordToIndex.set(w, i));
@@ -2796,7 +2801,8 @@ function copyToClipboard(text, successMsg) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
       showToast(successMsg);
-    }).catch(() => {
+    }).catch(err => {
+      console.warn('navigator.clipboard.writeText failed, using fallback:', err);
       fallbackCopy(text, successMsg);
     });
   } else {
@@ -3366,7 +3372,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v31') caches.delete(k);
+      if (k !== 'thungara-v32') caches.delete(k);
     });
   });
 }
