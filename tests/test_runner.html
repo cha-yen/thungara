@@ -1358,6 +1358,32 @@ const TEST_CASES = [
         detail: pass ? `ประมวลผลสำเร็จ คืนค่า ${res.length} รายการ` : `เกิดข้อผิดพลาดในการประมวลผล`
       };
     }
+  },
+  {
+    category: "33. การจัดการอักขระ Zero-Width และช่องว่าง Non-Breaking Space (Zero-Width & NBSP Handling)",
+    name: "ค้นหา 'ขอใจ\\u200bกันหนาว' (มี zero-width space) ต้องได้ 'ขอใจกันหนาว' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("ขอใจ\u200bกันหนาว");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} ตัด zero-width space สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "33. การจัดการอักขระ Zero-Width และช่องว่าง Non-Breaking Space (Zero-Width & NBSP Handling)",
+    name: "ค้นหาเนื้อเพลง 'เมื่อเลิกงานเดินเหงา\\u00a0มีเงาเป็นเพื่อนเข้าซอย' (มี NBSP) ต้องได้ 'ขอใจกันหนาว' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("เมื่อเลิกงานเดินเหงา\u00a0มีเงาเป็นเพื่อนเข้าซอย");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.85;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} จัดการ NBSP สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
