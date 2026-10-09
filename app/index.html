@@ -2801,7 +2801,8 @@ function copyToClipboard(text, successMsg) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
       showToast(successMsg);
-    }).catch(() => {
+    }).catch(err => {
+      console.warn('navigator.clipboard.writeText failed, using fallback:', err);
       fallbackCopy(text, successMsg);
     });
   } else {
