@@ -508,6 +508,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 32 repetitive characters suite",
             "32. การจัดการตัวอักษรซ้ำซ้อน" in runner_text
         )
+        self.check(
+            "Data loader response ok validation and fallback fetch warning logging implemented",
+            "Primary fetch failed for" in html_content and "if (!res.ok) throw new Error('HTTP error ' + res.status + ' loading data.json');" in html_content
+        )
+        self.check(
+            "Clipboard API defensive failure warning logging implemented",
+            "console.warn('navigator.clipboard.writeText failed, using fallback:', err);" in html_content
+        )
+        self.check(
+            "Category 33 zero-width characters and non-breaking spaces test suite verified",
+            "Category 33: Zero-Width Characters and Non-Breaking Spaces Handling" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 33 zero-width test suite",
+            "33. การจัดการอักขระ Zero-Width และช่องว่าง Non-Breaking Space" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

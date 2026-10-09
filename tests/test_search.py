@@ -1638,6 +1638,31 @@ def run_all_tests():
         f"Found {len(res_repetitive2)} results"
     )
 
+    print("\nCategory 33: Zero-Width Characters and Non-Breaking Spaces Handling")
+    res_zwsp = enhanced_search("ขอใจ\u200bกันหนาว")
+    pass_zwsp = (
+        len(res_zwsp) > 0 and
+        res_zwsp[0]['title'] == "ขอใจกันหนาว" and
+        res_zwsp[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Zero-width space: 'ขอใจ\\u200bกันหนาว' ranks 'ขอใจกันหนาว' at #1",
+        pass_zwsp,
+        f"Rank #1: {res_zwsp[0]['title'] if res_zwsp else None}"
+    )
+
+    res_nbsp = enhanced_search("เมื่อเลิกงานเดินเหงา\u00a0มีเงาเป็นเพื่อนเข้าซอย")
+    pass_nbsp = (
+        len(res_nbsp) > 0 and
+        res_nbsp[0]['title'] == "ขอใจกันหนาว" and
+        res_nbsp[0]['score'] >= 0.85
+    )
+    report.assert_test(
+        "Non-breaking space: 'เมื่อเลิกงานเดินเหงา\\u00a0มีเงาเป็นเพื่อนเข้าซอย' ranks 'ขอใจกันหนาว' at #1",
+        pass_nbsp,
+        f"Rank #1: {res_nbsp[0]['title'] if res_nbsp else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
