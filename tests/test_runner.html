@@ -1384,6 +1384,32 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} จัดการ NBSP สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "34. การค้นหาชื่อเพลงภาษาอังกฤษตัวพิมพ์ใหญ่ (Uppercase Latin & Mixed-Case Subtitle)",
+    name: "ค้นหา 'FLICK' (ตัวพิมพ์ใหญ่ทั้งหมด) ต้องได้ 'สะบัด (Flick)' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("FLICK");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "สะบัด (Flick)" && res[0].score >= 0.88;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับตัวพิมพ์ใหญ่สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "34. การค้นหาชื่อเพลงภาษาอังกฤษตัวพิมพ์ใหญ่ (Uppercase Latin & Mixed-Case Subtitle)",
+    name: "ค้นหา 'สะบัด FLICK' (ชื่อไทยผสมอังกฤษตัวพิมพ์ใหญ่) ต้องได้ 'สะบัด (Flick)' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("สะบัด FLICK");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "สะบัด (Flick)" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับชื่อผสมตัวพิมพ์ใหญ่สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 

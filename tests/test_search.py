@@ -1663,6 +1663,33 @@ def run_all_tests():
         f"Rank #1: {res_nbsp[0]['title'] if res_nbsp else None}"
     )
 
+    print("\nCategory 34: Uppercase Latin & Mixed-Case Subtitle Omnibox Queries")
+    # 1. Uppercase Subtitle Query Case-Insensitivity
+    res_caps1 = enhanced_search("FLICK")
+    pass_caps1 = (
+        len(res_caps1) > 0 and
+        res_caps1[0]['title'] == "สะบัด (Flick)" and
+        res_caps1[0]['score'] >= 0.88
+    )
+    report.assert_test(
+        "Uppercase Subtitle: 'FLICK' ranks 'สะบัด (Flick)' at #1 with score >= 0.88",
+        pass_caps1,
+        f"Rank #1: {res_caps1[0]['title'] if res_caps1 else None}, score={res_caps1[0]['score'] if res_caps1 else None}"
+    )
+
+    # 2. Mixed Thai Title & Uppercase Subtitle
+    res_caps2 = enhanced_search("สะบัด FLICK")
+    pass_caps2 = (
+        len(res_caps2) > 0 and
+        res_caps2[0]['title'] == "สะบัด (Flick)" and
+        res_caps2[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Mixed Thai & Uppercase Subtitle: 'สะบัด FLICK' ranks 'สะบัด (Flick)' at #1 with score >= 0.95",
+        pass_caps2,
+        f"Rank #1: {res_caps2[0]['title'] if res_caps2 else None}, score={res_caps2[0]['score'] if res_caps2 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
