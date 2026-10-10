@@ -2626,6 +2626,7 @@ function highlightText(text, query, matchedTerms) {
     const regex = new RegExp('(' + pattern + ')', 'gi');
     return escaped.replace(regex, '<mark>$1</mark>');
   } catch (err) {
+    console.warn('highlightLyrics regex error:', err);
     return escaped;
   }
 }
@@ -3126,6 +3127,7 @@ const SafeStorage = {
       window.localStorage.removeItem(key);
       return true;
     } catch (e) {
+      console.warn('SafeStorage remove error:', e);
       return false;
     }
   }
@@ -3250,6 +3252,7 @@ function esc(s) {
   return d.innerHTML;
 }
 function escRegex(s) {
+  if (!s || typeof s !== 'string') return '';
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
