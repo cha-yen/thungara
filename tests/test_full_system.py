@@ -524,6 +524,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 33 zero-width test suite",
             "33. การจัดการอักขระ Zero-Width และช่องว่าง Non-Breaking Space" in runner_text
         )
+        self.check(
+            "SafeStorage remove exception logging and escRegex defensive type guard implemented",
+            "console.warn('SafeStorage remove error:', e);" in html_content and "if (!s || typeof s !== 'string') return '';" in html_content
+        )
+        self.check(
+            "Highlight lyrics regex compilation defensive warning logging implemented",
+            "console.warn('highlightLyrics regex error:', err);" in html_content
+        )
+        self.check(
+            "Category 34 uppercase Latin and mixed-case subtitle test suite verified",
+            "Category 34: Uppercase Latin & Mixed-Case Subtitle Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 34 uppercase Latin subtitle suite",
+            "34. การค้นหาชื่อเพลงภาษาอังกฤษตัวพิมพ์ใหญ่" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
