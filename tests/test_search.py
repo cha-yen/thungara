@@ -1690,6 +1690,33 @@ def run_all_tests():
         f"Rank #1: {res_caps2[0]['title'] if res_caps2 else None}, score={res_caps2[0]['score'] if res_caps2 else None}"
     )
 
+    print("\nCategory 35: Bracket-Wrapped & Enclosed Omnibox Queries")
+    # 1. Square Bracket Wrapped Query
+    res_bracket1 = enhanced_search("[ขอใจกันหนาว]")
+    pass_bracket1 = (
+        len(res_bracket1) > 0 and
+        res_bracket1[0]['title'] == "ขอใจกันหนาว" and
+        res_bracket1[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Square Bracket Query: '[ขอใจกันหนาว]' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_bracket1,
+        f"Rank #1: {res_bracket1[0]['title'] if res_bracket1 else None}, score={res_bracket1[0]['score'] if res_bracket1 else None}"
+    )
+
+    # 2. Curly Brace Wrapped Lyrics Query
+    res_bracket2 = enhanced_search("{เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย}")
+    pass_bracket2 = (
+        len(res_bracket2) > 0 and
+        res_bracket2[0]['title'] == "ขอใจกันหนาว" and
+        res_bracket2[0]['score'] >= 0.90
+    )
+    report.assert_test(
+        "Curly Brace Query: '{เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย}' ranks 'ขอใจกันหนาว' at #1 with score >= 0.90",
+        pass_bracket2,
+        f"Rank #1: {res_bracket2[0]['title'] if res_bracket2 else None}, score={res_bracket2[0]['score'] if res_bracket2 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
