@@ -2417,11 +2417,12 @@ function renderResults(results, query) {
   currentResults = sortResultsList(rawSearchResults);
   displayedCount = 0;
 
-  if (currentResults.length === 0 && query.trim()) {
+  const trimmedQuery = (query || '').trim();
+  if (currentResults.length === 0 && trimmedQuery) {
     container.style.display = 'none';
     emptyState.style.display = 'block';
     emptyState.innerHTML = '<div class="icon">&#x1F50D;</div>'
-      + '<p class="not-found-title">ไม่พบเพลงที่ตรงกับ "' + esc(query) + '"</p>'
+      + '<p class="not-found-title">ไม่พบเพลงที่ตรงกับ "' + esc(trimmedQuery) + '"</p>'
       + '<div class="search-tips">'
       + '<p class="tips-title">ลองวิธีนี้ดู</p>'
       + '<ul>'
@@ -2485,7 +2486,7 @@ function appendNextBatch(query) {
     const r = nextBatch[i];
     const song = DATA.songs[r.idx];
     const matchedTerms = (r.evidence && r.evidence.matchedTerms) ? r.evidence.matchedTerms : [];
-    const pct = query.trim() ? getMatchPercent(r) + '%' : '—';
+    const pct = (query && query.trim()) ? getMatchPercent(r) + '%' : '—';
     const preview = highlightText(getPreview(song.lyrics, query, matchedTerms), query, matchedTerms);
     const delay = Math.min(i * 0.03, 0.4);
 
@@ -2965,6 +2966,7 @@ function initSpeechRecognition() {
   };
 
   recognition.onerror = function(event) {
+    console.warn('SpeechRecognition error:', event && event.error);
     isRecording = false;
     micBtn.classList.remove('recording');
     const msg = event.error === 'no-speech' ? 'ไม่ได้ยินเสียง ลองใหม่อีกครั้ง'
