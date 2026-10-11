@@ -1410,6 +1410,32 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับชื่อผสมตัวพิมพ์ใหญ่สำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "35. การค้นหาคำที่ครอบด้วยเครื่องหมายวงเล็บเหลี่ยมและปีกกา (Bracket-Wrapped & Enclosed Queries)",
+    name: "ค้นหา '[ขอใจกันหนาว]' (ครอบด้วยเครื่องหมายก้ามปู) ต้องได้ 'ขอใจกันหนาว' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("[ขอใจกันหนาว]");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับก้ามปูสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "35. การค้นหาคำที่ครอบด้วยเครื่องหมายวงเล็บเหลี่ยมและปีกกา (Bracket-Wrapped & Enclosed Queries)",
+    name: "ค้นหา '{เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย}' (ครอบด้วยปีกกา) ต้องได้ 'ขอใจกันหนาว' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("{เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย}");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.90;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับปีกกาสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
