@@ -540,6 +540,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 34 uppercase Latin subtitle suite",
             "34. การค้นหาชื่อเพลงภาษาอังกฤษตัวพิมพ์ใหญ่" in runner_text
         )
+        self.check(
+            "Render results query defensive null trimming guards implemented",
+            "const trimmedQuery = (query || '').trim();" in html_content and "(query && query.trim()) ? getMatchPercent(r)" in html_content
+        )
+        self.check(
+            "Speech recognition error console warning logging implemented",
+            "console.warn('SpeechRecognition error:', event && event.error);" in html_content
+        )
+        self.check(
+            "Category 35 bracket-wrapped and enclosed queries test suite verified",
+            "Category 35: Bracket-Wrapped & Enclosed Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 35 bracket-wrapped query suite",
+            "35. การค้นหาคำที่ครอบด้วยเครื่องหมายวงเล็บเหลี่ยมและปีกกา" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
