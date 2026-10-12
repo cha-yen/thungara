@@ -556,6 +556,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 35 bracket-wrapped query suite",
             "35. การค้นหาคำที่ครอบด้วยเครื่องหมายวงเล็บเหลี่ยมและปีกกา" in runner_text
         )
+        self.check(
+            "Match percent defensive null result validation implemented",
+            "if (!result) return 0;" in html_content
+        )
+        self.check(
+            "YouTube ID defensive resolution guard implemented in modal and share",
+            "YOUTUBE_MAP ? (YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)]) : null" in html_content
+        )
+        self.check(
+            "Category 36 angle bracket and parenthetical queries test suite verified",
+            "Category 36: Angle Bracket & Parenthetical Enclosed Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 36 angle bracket query suite",
+            "36. การค้นหาคำที่ครอบด้วยเครื่องหมายวงเล็บสามเหลี่ยมและวงเล็บกลม" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

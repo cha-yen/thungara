@@ -1717,6 +1717,33 @@ def run_all_tests():
         f"Rank #1: {res_bracket2[0]['title'] if res_bracket2 else None}, score={res_bracket2[0]['score'] if res_bracket2 else None}"
     )
 
+    print("\nCategory 36: Angle Bracket & Parenthetical Enclosed Omnibox Queries")
+    # 1. Angle Bracket Enclosed Title Query
+    res_angle = enhanced_search("<ขอใจกันหนาว>")
+    pass_angle = (
+        len(res_angle) > 0 and
+        res_angle[0]['title'] == "ขอใจกันหนาว" and
+        res_angle[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Angle Bracket Query: '<ขอใจกันหนาว>' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_angle,
+        f"Rank #1: {res_angle[0]['title'] if res_angle else None}, score={res_angle[0]['score'] if res_angle else None}"
+    )
+
+    # 2. Parentheses Enclosed Lyrics Query
+    res_paren = enhanced_search("(เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย)")
+    pass_paren = (
+        len(res_paren) > 0 and
+        res_paren[0]['title'] == "ขอใจกันหนาว" and
+        res_paren[0]['score'] >= 0.90
+    )
+    report.assert_test(
+        "Parentheses Query: '(เมื่อเลิกงานเดินเหงา มีเงาเป็นเพื่อนเข้าซอย)' ranks 'ขอใจกันหนาว' at #1 with score >= 0.90",
+        pass_paren,
+        f"Rank #1: {res_paren[0]['title'] if res_paren else None}, score={res_paren[0]['score'] if res_paren else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
