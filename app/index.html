@@ -2463,6 +2463,7 @@ function renderResults(results, query) {
 }
 
 function getMatchPercent(result) {
+  if (!result) return 0;
   if (result.exactMatch) return 100;
 
   const score = Math.max(0, Math.min(1.0, result.score || 0));
@@ -2715,7 +2716,7 @@ function openModal(idx) {
 function renderVideoPreview(song, idx) {
   const container = document.getElementById('modal-video-wrap');
   if (!container) return;
-  const ytId = song.yt || YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)];
+  const ytId = song.yt || (YOUTUBE_MAP ? (YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)]) : null);
 
   if (ytId) {
     const ytUrl = 'https://www.youtube.com/watch?v=' + ytId;
@@ -2755,7 +2756,7 @@ function shareCurrentSong() {
 async function shareSong(idx) {
   if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
   const song = DATA.songs[idx];
-  const ytId = song.yt || YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)];
+  const ytId = song.yt || (YOUTUBE_MAP ? (YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)]) : null);
   const ytUrl = ytId ? 'https://youtu.be/' + ytId : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' ' + song.artist);
   
   const rawLyrics = song.lyrics || '';
