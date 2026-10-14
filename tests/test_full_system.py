@@ -572,6 +572,22 @@ class FullSystemTester:
             "Browser test runner synced with Category 36 angle bracket query suite",
             "36. การค้นหาคำที่ครอบด้วยเครื่องหมายวงเล็บสามเหลี่ยมและวงเล็บกลม" in runner_text
         )
+        self.check(
+            "Toast notification message defensive argument guard implemented",
+            "if (!msg) return;" in html_content
+        )
+        self.check(
+            "URL parameter handling defensive catch error logging implemented",
+            "console.warn('handleUrlParams error:', e);" in html_content
+        )
+        self.check(
+            "Category 37 arithmetic and mathematical symbol queries test suite verified",
+            "Category 37: Mathematical & Arithmetic Symbol Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 37 arithmetic symbol query suite",
+            "37. การค้นหาคำที่มีเครื่องหมายทางคณิตศาสตร์" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

@@ -1462,6 +1462,32 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับวงเล็บกลมสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "37. การค้นหาคำที่มีเครื่องหมายทางคณิตศาสตร์ (Mathematical & Arithmetic Symbol Queries)",
+    name: "ค้นหา '+ขอใจกันหนาว+' (ล้อมด้วยเครื่องหมายบวก) ต้องได้ 'ขอใจกันหนาว' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("+ขอใจกันหนาว+");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับเครื่องหมายบวกล้อมคำสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "37. การค้นหาคำที่มีเครื่องหมายทางคณิตศาสตร์ (Mathematical & Arithmetic Symbol Queries)",
+    name: "ค้นหา 'ขอใจกันหนาว + ศิริพร อำไพพงษ์' (เชื่อมชื่อเพลงและศิลปินด้วยบวก) ต้องได้ 'ขอใจกันหนาว' อันดับ 1",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว + ศิริพร อำไพพงษ์");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับเครื่องหมายบวกเชื่อมคำสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
