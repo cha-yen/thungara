@@ -1744,6 +1744,33 @@ def run_all_tests():
         f"Rank #1: {res_paren[0]['title'] if res_paren else None}, score={res_paren[0]['score'] if res_paren else None}"
     )
 
+    print("\nCategory 37: Mathematical & Arithmetic Symbol Omnibox Queries")
+    # 1. Plus Sign Enclosed Title Query
+    res_plus1 = enhanced_search("+ขอใจกันหนาว+")
+    pass_plus1 = (
+        len(res_plus1) > 0 and
+        res_plus1[0]['title'] == "ขอใจกันหนาว" and
+        res_plus1[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Plus Enclosure: '+ขอใจกันหนาว+' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_plus1,
+        f"Rank #1: {res_plus1[0]['title'] if res_plus1 else None}, score={res_plus1[0]['score'] if res_plus1 else None}"
+    )
+
+    # 2. Plus Sign Conjunction of Song Title and Artist
+    res_plus2 = enhanced_search("ขอใจกันหนาว + ศิริพร อำไพพงษ์")
+    pass_plus2 = (
+        len(res_plus2) > 0 and
+        res_plus2[0]['title'] == "ขอใจกันหนาว" and
+        res_plus2[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Plus Conjunction: 'ขอใจกันหนาว + ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_plus2,
+        f"Rank #1: {res_plus2[0]['title'] if res_plus2 else None}, score={res_plus2[0]['score'] if res_plus2 else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
