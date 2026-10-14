@@ -1750,7 +1750,9 @@ function handleUrlParams() {
     if (currentQuery || hasFilter) {
       doSearch();
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('handleUrlParams error:', e);
+  }
 }
 
 function populateFilters() {
@@ -2839,6 +2841,7 @@ function fallbackCopy(text, successMsg) {
 
 let toastTimer = null;
 function showToast(msg) {
+  if (!msg) return;
   let toast = document.getElementById('toast-msg');
   if (!toast) {
     toast = document.createElement('div');
@@ -3378,7 +3381,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v35') caches.delete(k);
+      if (k !== 'thungara-v36') caches.delete(k);
     });
   });
 }
