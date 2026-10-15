@@ -1771,6 +1771,33 @@ def run_all_tests():
         f"Rank #1: {res_plus2[0]['title'] if res_plus2 else None}, score={res_plus2[0]['score'] if res_plus2 else None}"
     )
 
+    print("\nCategory 38: Currency, Hashtag & Commercial Symbol Omnibox Queries")
+    # 1. Hashtag Prefix Title Query
+    res_hash = enhanced_search("#ขอใจกันหนาว")
+    pass_hash = (
+        len(res_hash) > 0 and
+        res_hash[0]['title'] == "ขอใจกันหนาว" and
+        res_hash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Hashtag Prefix: '#ขอใจกันหนาว' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_hash,
+        f"Rank #1: {res_hash[0]['title'] if res_hash else None}, score={res_hash[0]['score'] if res_hash else None}"
+    )
+
+    # 2. Ampersand Conjunction of Song Title and Artist
+    res_amp = enhanced_search("ขอใจกันหนาว & ศิริพร อำไพพงษ์")
+    pass_amp = (
+        len(res_amp) > 0 and
+        res_amp[0]['title'] == "ขอใจกันหนาว" and
+        res_amp[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Ampersand Conjunction: 'ขอใจกันหนาว & ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_amp,
+        f"Rank #1: {res_amp[0]['title'] if res_amp else None}, score={res_amp[0]['score'] if res_amp else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
