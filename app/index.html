@@ -3268,23 +3268,30 @@ function autoResize(el) {
   el.style.height = Math.min(el.scrollHeight, 160) + 'px';
 }
 
-document.getElementById('search-input').addEventListener('input', function() {
-  autoResize(this);
-  clearTimeout(debounceTimer);
-  if (this.value.trim()) {
-    setSearchProgress(true);
-  } else {
-    document.getElementById('filter-artist').value = '';
-    document.getElementById('filter-emotion').value = '';
-    document.getElementById('filter-year').value = '';
-  }
-  debounceTimer = setTimeout(doSearch, 300);
-  document.getElementById('btn-clear').classList.toggle('show', this.value.length > 0);
-});
+const searchInput = document.getElementById('search-input');
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    autoResize(this);
+    clearTimeout(debounceTimer);
+    if (this.value.trim()) {
+      setSearchProgress(true);
+    } else {
+      const fArtist = document.getElementById('filter-artist');
+      if (fArtist) fArtist.value = '';
+      const fEmotion = document.getElementById('filter-emotion');
+      if (fEmotion) fEmotion.value = '';
+      const fYear = document.getElementById('filter-year');
+      if (fYear) fYear.value = '';
+    }
+    debounceTimer = setTimeout(doSearch, 300);
+    const btnClear = document.getElementById('btn-clear');
+    if (btnClear) btnClear.classList.toggle('show', this.value.length > 0);
+  });
 
-document.getElementById('search-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); clearTimeout(debounceTimer); doSearch(); }
-});
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); clearTimeout(debounceTimer); doSearch(); }
+  });
+}
 
 document.addEventListener('keydown', function(e) {
   const modalOverlay = document.getElementById('modal-overlay');
