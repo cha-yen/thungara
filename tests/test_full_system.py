@@ -588,6 +588,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 37 arithmetic symbol query suite",
             "37. การค้นหาคำที่มีเครื่องหมายทางคณิตศาสตร์" in runner_text
         )
+        self.check(
+            "Search input and clear button defensive element null guards implemented",
+            "const searchInput = document.getElementById('search-input');" in html_content and "if (searchInput) {" in html_content and "if (btnClear) btnClear.classList.toggle" in html_content
+        )
+        self.check(
+            "Category 38 hashtag and commercial symbol queries test suite verified",
+            "Category 38: Currency, Hashtag & Commercial Symbol Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 38 hashtag symbol query suite",
+            "38. การค้นหาคำที่มีเครื่องหมายแฮชแท็กและสัญลักษณ์พิเศษ" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
