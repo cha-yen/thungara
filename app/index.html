@@ -3023,20 +3023,23 @@ function setSearchProgress(active) {
 }
 
 function doSearch() {
-  const query = document.getElementById('search-input').value.trim();
+  const inputEl = document.getElementById('search-input');
+  const query = inputEl ? inputEl.value.trim() : '';
   currentQuery = query;
-  document.getElementById('btn-clear').classList.toggle('show', query.length > 0);
+  const btnClear = document.getElementById('btn-clear');
+  if (btnClear) btnClear.classList.toggle('show', query.length > 0);
   if (!DATA) return;
-  if (!query && !document.getElementById('filter-artist').value
-      && !document.getElementById('filter-emotion').value
-      && !document.getElementById('filter-year').value) {
+  const fArtistEl = document.getElementById('filter-artist');
+  const fEmotionEl = document.getElementById('filter-emotion');
+  const fYearEl = document.getElementById('filter-year');
+  const fa = fArtistEl ? fArtistEl.value : '';
+  const fe = fEmotionEl ? fEmotionEl.value : '';
+  const fy = fYearEl ? fYearEl.value : '';
+  if (!query && !fa && !fe && !fy) {
     setSearchProgress(false);
     renderResults([], '');
     return;
   }
-  const fa = document.getElementById('filter-artist').value;
-  const fe = document.getElementById('filter-emotion').value;
-  const fy = document.getElementById('filter-year').value;
   const searchId = ++currentSearchId;
 
   if (searchWorker) {
@@ -3388,7 +3391,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v37') caches.delete(k);
+      if (k !== 'thungara-v38') caches.delete(k);
     });
   });
 }

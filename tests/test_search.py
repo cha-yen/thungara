@@ -1798,6 +1798,33 @@ def run_all_tests():
         f"Rank #1: {res_amp[0]['title'] if res_amp else None}, score={res_amp[0]['score'] if res_amp else None}"
     )
 
+    print("\nCategory 39: Punctuation Colon, Semicolon & Delimiter Omnibox Queries")
+    # 1. Colon Delimited Song Title and Artist Query
+    res_colon = enhanced_search("ขอใจกันหนาว: ศิริพร อำไพพงษ์")
+    pass_colon = (
+        len(res_colon) > 0 and
+        res_colon[0]['title'] == "ขอใจกันหนาว" and
+        res_colon[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Colon Conjunction: 'ขอใจกันหนาว: ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_colon,
+        f"Rank #1: {res_colon[0]['title'] if res_colon else None}, score={res_colon[0]['score'] if res_colon else None}"
+    )
+
+    # 2. Semicolon Delimited Song Title and Artist Query
+    res_semi = enhanced_search("ขอใจกันหนาว; ศิริพร อำไพพงษ์")
+    pass_semi = (
+        len(res_semi) > 0 and
+        res_semi[0]['title'] == "ขอใจกันหนาว" and
+        res_semi[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Semicolon Conjunction: 'ขอใจกันหนาว; ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_semi,
+        f"Rank #1: {res_semi[0]['title'] if res_semi else None}, score={res_semi[0]['score'] if res_semi else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
