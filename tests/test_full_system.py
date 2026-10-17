@@ -600,6 +600,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 38 hashtag symbol query suite",
             "38. การค้นหาคำที่มีเครื่องหมายแฮชแท็กและสัญลักษณ์พิเศษ" in runner_text
         )
+        self.check(
+            "DoSearch input and filter elements defensive null guards implemented",
+            "const inputEl = document.getElementById('search-input');" in html_content and "const query = inputEl ? inputEl.value.trim() : '';" in html_content and "const fa = fArtistEl ? fArtistEl.value : '';" in html_content
+        )
+        self.check(
+            "Category 39 colon and semicolon delimiter queries test suite verified",
+            "Category 39: Punctuation Colon, Semicolon & Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 39 colon and semicolon delimiter suite",
+            "39. การค้นหาคำที่มีเครื่องหมายโคลอนและเซมิโคลอน" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
