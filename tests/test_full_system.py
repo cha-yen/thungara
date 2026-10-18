@@ -612,6 +612,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 39 colon and semicolon delimiter suite",
             "39. การค้นหาคำที่มีเครื่องหมายโคลอนและเซมิโคลอน" in runner_text
         )
+        self.check(
+            "OpenModal modal elements defensive null guards implemented",
+            "const elTitle = document.getElementById('modal-title');" in html_content and "if (elTitle) elTitle.innerHTML" in html_content and "if (elLyrics) elLyrics.innerHTML" in html_content
+        )
+        self.check(
+            "Category 40 pipe and slash delimiter queries test suite verified",
+            "Category 40: Pipe & Slash Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 40 pipe and slash delimiter suite",
+            "40. การค้นหาคำที่มีเครื่องหมายไปป์และสแลช" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
