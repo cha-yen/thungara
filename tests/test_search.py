@@ -1825,6 +1825,33 @@ def run_all_tests():
         f"Rank #1: {res_semi[0]['title'] if res_semi else None}, score={res_semi[0]['score'] if res_semi else None}"
     )
 
+    print("\nCategory 40: Pipe & Slash Delimiter Omnibox Queries")
+    # 1. Pipe Delimited Song Title and Artist Query
+    res_pipe = enhanced_search("ขอใจกันหนาว | ศิริพร อำไพพงษ์")
+    pass_pipe = (
+        len(res_pipe) > 0 and
+        res_pipe[0]['title'] == "ขอใจกันหนาว" and
+        res_pipe[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Pipe Conjunction: 'ขอใจกันหนาว | ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_pipe,
+        f"Rank #1: {res_pipe[0]['title'] if res_pipe else None}, score={res_pipe[0]['score'] if res_pipe else None}"
+    )
+
+    # 2. Slash Delimited Song Title and Artist Query
+    res_slash = enhanced_search("ขอใจกันหนาว / ศิริพร อำไพพงษ์")
+    pass_slash = (
+        len(res_slash) > 0 and
+        res_slash[0]['title'] == "ขอใจกันหนาว" and
+        res_slash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Slash Conjunction: 'ขอใจกันหนาว / ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_slash,
+        f"Rank #1: {res_slash[0]['title'] if res_slash else None}, score={res_slash[0]['score'] if res_slash else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
