@@ -1852,6 +1852,33 @@ def run_all_tests():
         f"Rank #1: {res_slash[0]['title'] if res_slash else None}, score={res_slash[0]['score'] if res_slash else None}"
     )
 
+    print("\nCategory 41: Hyphen, Dash & Tilde Delimiter Omnibox Queries")
+    # 1. Hyphen Delimited Song Title and Artist Query
+    res_dash = enhanced_search("ขอใจกันหนาว - ศิริพร อำไพพงษ์")
+    pass_dash = (
+        len(res_dash) > 0 and
+        res_dash[0]['title'] == "ขอใจกันหนาว" and
+        res_dash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Dash Conjunction: 'ขอใจกันหนาว - ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dash,
+        f"Rank #1: {res_dash[0]['title'] if res_dash else None}, score={res_dash[0]['score'] if res_dash else None}"
+    )
+
+    # 2. Tilde Delimited Song Title and Artist Query
+    res_tilde = enhanced_search("ขอใจกันหนาว ~ ศิริพร อำไพพงษ์")
+    pass_tilde = (
+        len(res_tilde) > 0 and
+        res_tilde[0]['title'] == "ขอใจกันหนาว" and
+        res_tilde[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Tilde Conjunction: 'ขอใจกันหนาว ~ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tilde,
+        f"Rank #1: {res_tilde[0]['title'] if res_tilde else None}, score={res_tilde[0]['score'] if res_tilde else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

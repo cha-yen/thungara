@@ -624,6 +624,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 40 pipe and slash delimiter suite",
             "40. การค้นหาคำที่มีเครื่องหมายไปป์และสแลช" in runner_text
         )
+        self.check(
+            "RenderResults and closeModal defensive element null guards implemented",
+            "if (container) container.style.display = 'none';" in html_content and "if (!e || !e.target || typeof e.target.closest !== 'function') return;" in html_content
+        )
+        self.check(
+            "Category 41 hyphen, dash and tilde delimiter queries test suite verified",
+            "Category 41: Hyphen, Dash & Tilde Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 41 hyphen, dash and tilde delimiter suite",
+            "41. การค้นหาคำที่มีเครื่องหมายยัติภังค์และตัวหนอน" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
