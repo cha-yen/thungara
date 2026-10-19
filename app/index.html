@@ -2421,20 +2421,22 @@ function renderResults(results, query) {
 
   const trimmedQuery = (query || '').trim();
   if (currentResults.length === 0 && trimmedQuery) {
-    container.style.display = 'none';
-    emptyState.style.display = 'block';
-    emptyState.innerHTML = '<div class="icon">&#x1F50D;</div>'
-      + '<p class="not-found-title">ไม่พบเพลงที่ตรงกับ "' + esc(trimmedQuery) + '"</p>'
-      + '<div class="search-tips">'
-      + '<p class="tips-title">ลองวิธีนี้ดู</p>'
-      + '<ul>'
-      + '<li>พิมพ์เนื้อเพลงสั้นลง เช่น วลีที่จำได้</li>'
-      + '<li>ตรวจสอบตัวสะกดอีกครั้ง</li>'
-      + '<li>ค้นหาด้วยชื่อศิลปิน หรือชื่อเพลงโดยตรง</li>'
-      + '<li>ลองร้องผ่านไมค์แทนการพิมพ์</li>'
-      + '<li>ลองเอาตัวกรองศิลปิน/อารมณ์/ปี ออก</li>'
-      + '</ul></div>';
-    stats.textContent = 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา';
+    if (container) container.style.display = 'none';
+    if (emptyState) {
+      emptyState.style.display = 'block';
+      emptyState.innerHTML = '<div class="icon">&#x1F50D;</div>'
+        + '<p class="not-found-title">ไม่พบเพลงที่ตรงกับ "' + esc(trimmedQuery) + '"</p>'
+        + '<div class="search-tips">'
+        + '<p class="tips-title">ลองวิธีนี้ดู</p>'
+        + '<ul>'
+        + '<li>พิมพ์เนื้อเพลงสั้นลง เช่น วลีที่จำได้</li>'
+        + '<li>ตรวจสอบตัวสะกดอีกครั้ง</li>'
+        + '<li>ค้นหาด้วยชื่อศิลปิน หรือชื่อเพลงโดยตรง</li>'
+        + '<li>ลองร้องผ่านไมค์แทนการพิมพ์</li>'
+        + '<li>ลองเอาตัวกรองศิลปิน/อารมณ์/ปี ออก</li>'
+        + '</ul></div>';
+    }
+    if (stats) stats.textContent = 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา';
     return;
   }
 
@@ -2443,23 +2445,28 @@ function renderResults(results, query) {
     const fE = document.getElementById('filter-emotion');
     const fY = document.getElementById('filter-year');
     const hasFilter = (fA && fA.value) || (fE && fE.value) || (fY && fY.value);
-    container.style.display = 'none';
-    emptyState.style.display = 'block';
-    if (hasFilter) {
-      emptyState.innerHTML = '<div class="icon">&#x1F50D;</div>'
-        + '<p class="not-found-title">ไม่พบเพลงตามตัวกรองที่เลือก</p>'
-        + '<div class="search-tips"><p class="tips-title">ลองวิธีนี้ดู</p><ul><li>ลองเปลี่ยนตัวกรองศิลปิน อารมณ์ หรือปี</li><li>กดรีเซ็ตตัวกรองเป็นค่าเริ่มต้น</li></ul></div>';
-      stats.textContent = 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา';
-    } else {
-      emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้ทันที</p>';
-      stats.textContent = DATA ? DATA.songs.length + ' เพลงพร้อมค้นหา' : '';
+    if (container) container.style.display = 'none';
+    if (emptyState) {
+      emptyState.style.display = 'block';
+      if (hasFilter) {
+        emptyState.innerHTML = '<div class="icon">&#x1F50D;</div>'
+          + '<p class="not-found-title">ไม่พบเพลงตามตัวกรองที่เลือก</p>'
+          + '<div class="search-tips"><p class="tips-title">ลองวิธีนี้ดู</p><ul><li>ลองเปลี่ยนตัวกรองศิลปิน อารมณ์ หรือปี</li><li>กดรีเซ็ตตัวกรองเป็นค่าเริ่มต้น</li></ul></div>';
+      } else {
+        emptyState.innerHTML = '<div class="icon">&#x1F3B5;</div><p>พิมพ์ชื่อเพลง เนื้อร้อง หรือชื่อศิลปิน หรือกดไมค์ร้องเพลง<br>แล้วระบบจะหาเพลงให้ทันที</p>';
+      }
+    }
+    if (stats) {
+      stats.textContent = hasFilter ? 'ไม่พบเพลงที่ตรงกับเงื่อนไขการค้นหา' : (DATA ? DATA.songs.length + ' เพลงพร้อมค้นหา' : '');
     }
     return;
   }
 
-  emptyState.style.display = 'none';
-  container.style.display = 'block';
-  container.innerHTML = '<div id="song-cards-wrap"></div><div class="load-more-wrap" id="load-more-wrap" style="display:none"><button class="btn-load-more" id="btn-load-more" onclick="loadMore()" title="แสดงเพลงเพิ่มเติม" aria-label="แสดงเพลงเพิ่มเติม">แสดงเพลงเพิ่มเติม</button></div>';
+  if (emptyState) emptyState.style.display = 'none';
+  if (container) {
+    container.style.display = 'block';
+    container.innerHTML = '<div id="song-cards-wrap"></div><div class="load-more-wrap" id="load-more-wrap" style="display:none"><button class="btn-load-more" id="btn-load-more" onclick="loadMore()" title="แสดงเพลงเพิ่มเติม" aria-label="แสดงเพลงเพิ่มเติม">แสดงเพลงเพิ่มเติม</button></div>';
+  }
 
   appendNextBatch(query);
 }
@@ -2880,7 +2887,9 @@ function closeModalDirect() {
 }
 
 function closeModal(e) {
-  if (e.target === document.getElementById('modal-overlay') || e.target.closest('.modal-handle') || e.target.closest('.btn-modal-close')) {
+  if (!e || !e.target || typeof e.target.closest !== 'function') return;
+  const overlay = document.getElementById('modal-overlay');
+  if (e.target === overlay || e.target.closest('.modal-handle') || e.target.closest('.btn-modal-close')) {
     closeModalDirect();
   }
 }
