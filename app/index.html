@@ -2494,6 +2494,7 @@ function appendNextBatch(query) {
 
   for (let i = 0; i < nextBatch.length; i++) {
     const r = nextBatch[i];
+    if (!r || !DATA || !DATA.songs || !DATA.songs[r.idx]) continue;
     const song = DATA.songs[r.idx];
     const matchedTerms = (r.evidence && r.evidence.matchedTerms) ? r.evidence.matchedTerms : [];
     const pct = (query && query.trim()) ? getMatchPercent(r) + '%' : '—';
@@ -2519,15 +2520,17 @@ function appendNextBatch(query) {
 
   const label = (query && query.trim()) ? 'พบเพลงที่เกี่ยวข้อง ' : 'พบเพลงตามเงื่อนไข ';
   if (currentResults.length > displayedCount) {
-    stats.textContent = label + currentResults.length + ' เพลง (กำลังแสดง ' + displayedCount + ' เพลงแรก)';
+    if (stats) stats.textContent = label + currentResults.length + ' เพลง (กำลังแสดง ' + displayedCount + ' เพลงแรก)';
     const remaining = currentResults.length - displayedCount;
     const nextCount = Math.min(PAGE_SIZE, remaining);
-    btnLoadMore.innerHTML = '<span>📥</span> แสดงเพลงที่เกี่ยวข้องเพิ่มเติม (+อีก ' + nextCount + ' เพลง)';
-    btnLoadMore.setAttribute('aria-label', 'แสดงเพลงที่เกี่ยวข้องเพิ่มเติม อีก ' + nextCount + ' เพลง');
-    loadMoreWrap.style.display = 'block';
+    if (btnLoadMore) {
+      btnLoadMore.innerHTML = '<span>📥</span> แสดงเพลงที่เกี่ยวข้องเพิ่มเติม (+อีก ' + nextCount + ' เพลง)';
+      btnLoadMore.setAttribute('aria-label', 'แสดงเพลงที่เกี่ยวข้องเพิ่มเติม อีก ' + nextCount + ' เพลง');
+    }
+    if (loadMoreWrap) loadMoreWrap.style.display = 'block';
   } else {
-    stats.textContent = label + currentResults.length + ' เพลง' + (currentResults.length > PAGE_SIZE ? ' (แสดงครบทั้งหมดแล้ว)' : '');
-    loadMoreWrap.style.display = 'none';
+    if (stats) stats.textContent = label + currentResults.length + ' เพลง' + (currentResults.length > PAGE_SIZE ? ' (แสดงครบทั้งหมดแล้ว)' : '');
+    if (loadMoreWrap) loadMoreWrap.style.display = 'none';
   }
 }
 
@@ -3404,7 +3407,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v40') caches.delete(k);
+      if (k !== 'thungara-v41') caches.delete(k);
     });
   });
 }
