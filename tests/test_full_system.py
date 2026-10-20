@@ -636,6 +636,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 41 hyphen, dash and tilde delimiter suite",
             "41. การค้นหาคำที่มีเครื่องหมายยัติภังค์และตัวหนอน" in runner_text
         )
+        self.check(
+            "AppendNextBatch song and container defensive null guards implemented",
+            "if (!r || !DATA || !DATA.songs || !DATA.songs[r.idx]) continue;" in html_content and "if (stats) stats.textContent = label + currentResults.length" in html_content
+        )
+        self.check(
+            "Category 42 underscore and asterisk delimiter queries test suite verified",
+            "Category 42: Underscore & Asterisk Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 42 underscore and asterisk delimiter suite",
+            "42. การค้นหาคำที่มีเครื่องหมายขีดล่างและดอกจัน" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
