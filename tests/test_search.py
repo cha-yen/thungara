@@ -1879,6 +1879,33 @@ def run_all_tests():
         f"Rank #1: {res_tilde[0]['title'] if res_tilde else None}, score={res_tilde[0]['score'] if res_tilde else None}"
     )
 
+    print("\nCategory 42: Underscore & Asterisk Delimiter Omnibox Queries")
+    # 1. Underscore Delimited Song Title and Artist Query
+    res_score = enhanced_search("ขอใจกันหนาว _ ศิริพร อำไพพงษ์")
+    pass_score = (
+        len(res_score) > 0 and
+        res_score[0]['title'] == "ขอใจกันหนาว" and
+        res_score[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Underscore Conjunction: 'ขอใจกันหนาว _ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_score,
+        f"Rank #1: {res_score[0]['title'] if res_score else None}, score={res_score[0]['score'] if res_score else None}"
+    )
+
+    # 2. Asterisk Delimited Song Title and Artist Query
+    res_star = enhanced_search("ขอใจกันหนาว * ศิริพร อำไพพงษ์")
+    pass_star = (
+        len(res_star) > 0 and
+        res_star[0]['title'] == "ขอใจกันหนาว" and
+        res_star[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Asterisk Conjunction: 'ขอใจกันหนาว * ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_star,
+        f"Rank #1: {res_star[0]['title'] if res_star else None}, score={res_star[0]['score'] if res_star else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
