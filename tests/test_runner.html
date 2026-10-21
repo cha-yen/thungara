@@ -1620,6 +1620,33 @@ const TEST_CASES = [
       };
     }
   }
+,
+  {
+    category: "43. การค้นหาคำที่มีเครื่องหมายจุดหัวข้อย่อยและจุดกึ่งกลาง (Bullet & Middle Dot Delimiter Queries)",
+    name: "ค้นหา 'ขอใจกันหนาว • ศิริพร อำไพพงษ์' (เชื่อมด้วยจุด •) ต้องได้ 'ขอใจกันหนาว' อันดับ 1 (score >= 0.95)",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว • ศิริพร อำไพพงษ์");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับ • เชื่อมคำสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "43. การค้นหาคำที่มีเครื่องหมายจุดหัวข้อย่อยและจุดกึ่งกลาง (Bullet & Middle Dot Delimiter Queries)",
+    name: "ค้นหา 'ขอใจกันหนาว · ศิริพร อำไพพงษ์' (เชื่อมด้วยจุดกลาง ·) ต้องได้ 'ขอใจกันหนาว' อันดับ 1 (score >= 0.95)",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว · ศิริพร อำไพพงษ์");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับ · เชื่อมคำสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  }
 ];
 
 async function startTests() {
