@@ -1906,6 +1906,33 @@ def run_all_tests():
         f"Rank #1: {res_star[0]['title'] if res_star else None}, score={res_star[0]['score'] if res_star else None}"
     )
 
+    print("\nCategory 43: Bullet & Middle Dot Delimiter Omnibox Queries")
+    # 1. Bullet Delimited Song Title and Artist Query
+    res_bullet = enhanced_search("ขอใจกันหนาว • ศิริพร อำไพพงษ์")
+    pass_bullet = (
+        len(res_bullet) > 0 and
+        res_bullet[0]['title'] == "ขอใจกันหนาว" and
+        res_bullet[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Bullet Conjunction: 'ขอใจกันหนาว • ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_bullet,
+        f"Rank #1: {res_bullet[0]['title'] if res_bullet else None}, score={res_bullet[0]['score'] if res_bullet else None}"
+    )
+
+    # 2. Middle Dot Delimited Song Title and Artist Query
+    res_dot = enhanced_search("ขอใจกันหนาว · ศิริพร อำไพพงษ์")
+    pass_dot = (
+        len(res_dot) > 0 and
+        res_dot[0]['title'] == "ขอใจกันหนาว" and
+        res_dot[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Middle Dot Conjunction: 'ขอใจกันหนาว · ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dot,
+        f"Rank #1: {res_dot[0]['title'] if res_dot else None}, score={res_dot[0]['score'] if res_dot else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
