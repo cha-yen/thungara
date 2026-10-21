@@ -648,6 +648,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 42 underscore and asterisk delimiter suite",
             "42. การค้นหาคำที่มีเครื่องหมายขีดล่างและดอกจัน" in runner_text
         )
+        self.check(
+            "SortResultsList defensive array and score null guards implemented",
+            "if (!Array.isArray(list) || list.length <= 1 || !DATA || !DATA.songs) return Array.isArray(list) ? list : [];" in html_content and "const sA = (a && typeof a.score === 'number') ? a.score : 0;" in html_content
+        )
+        self.check(
+            "Category 43 bullet and middle dot delimiter queries test suite verified",
+            "Category 43: Bullet & Middle Dot Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 43 bullet and middle dot delimiter suite",
+            "43. การค้นหาคำที่มีเครื่องหมายจุดหัวข้อย่อยและจุดกึ่งกลาง" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
