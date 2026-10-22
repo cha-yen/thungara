@@ -1933,6 +1933,33 @@ def run_all_tests():
         f"Rank #1: {res_dot[0]['title'] if res_dot else None}, score={res_dot[0]['score'] if res_dot else None}"
     )
 
+    print("\nCategory 44: Exclamation & Question Mark Delimiter Omnibox Queries")
+    # 1. Exclamation Mark Delimited Song Title and Artist Query
+    res_excl = enhanced_search("ขอใจกันหนาว ! ศิริพร อำไพพงษ์")
+    pass_excl = (
+        len(res_excl) > 0 and
+        res_excl[0]['title'] == "ขอใจกันหนาว" and
+        res_excl[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Exclamation Conjunction: 'ขอใจกันหนาว ! ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_excl,
+        f"Rank #1: {res_excl[0]['title'] if res_excl else None}, score={res_excl[0]['score'] if res_excl else None}"
+    )
+
+    # 2. Question Mark Delimited Song Title and Artist Query
+    res_quest = enhanced_search("ขอใจกันหนาว ? ศิริพร อำไพพงษ์")
+    pass_quest = (
+        len(res_quest) > 0 and
+        res_quest[0]['title'] == "ขอใจกันหนาว" and
+        res_quest[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Question Mark Conjunction: 'ขอใจกันหนาว ? ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_quest,
+        f"Rank #1: {res_quest[0]['title'] if res_quest else None}, score={res_quest[0]['score'] if res_quest else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

@@ -660,6 +660,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 43 bullet and middle dot delimiter suite",
             "43. การค้นหาคำที่มีเครื่องหมายจุดหัวข้อย่อยและจุดกึ่งกลาง" in runner_text
         )
+        self.check(
+            "Recent searches defensive string validation and null guards implemented",
+            "if (!q || typeof q !== 'string' || q.trim().length < 2) return;" in html_content and "if (!term || typeof term !== 'string') return;" in html_content
+        )
+        self.check(
+            "Category 44 exclamation and question mark delimiter queries test suite verified",
+            "Category 44: Exclamation & Question Mark Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 44 exclamation and question mark delimiter suite",
+            "44. การค้นหาคำที่มีเครื่องหมายอัศเจรีย์และปรัศนี" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
