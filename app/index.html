@@ -2826,19 +2826,23 @@ function copyLyrics(idx) {
 }
 
 function copyToClipboard(text, successMsg) {
+  if (!text || typeof text !== 'string') return;
+  const msg = typeof successMsg === 'string' ? successMsg : 'คัดลอกเรียบร้อยแล้ว!';
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
-      showToast(successMsg);
+      showToast(msg);
     }).catch(err => {
       console.warn('navigator.clipboard.writeText failed, using fallback:', err);
-      fallbackCopy(text, successMsg);
+      fallbackCopy(text, msg);
     });
   } else {
-    fallbackCopy(text, successMsg);
+    fallbackCopy(text, msg);
   }
 }
 
 function fallbackCopy(text, successMsg) {
+  if (!text || typeof text !== 'string') return;
+  const msg = typeof successMsg === 'string' ? successMsg : 'คัดลอกเรียบร้อยแล้ว!';
   const ta = document.createElement('textarea');
   ta.value = text;
   ta.setAttribute('readonly', '');
@@ -2851,7 +2855,7 @@ function fallbackCopy(text, successMsg) {
   try {
     const successful = document.execCommand('copy');
     if (successful) {
-      showToast(successMsg);
+      showToast(msg);
     } else {
       showToast('ไม่สามารถคัดลอกได้');
     }
@@ -3419,7 +3423,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v43') caches.delete(k);
+      if (k !== 'thungara-v44') caches.delete(k);
     });
   });
 }

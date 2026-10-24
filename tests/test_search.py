@@ -1960,6 +1960,33 @@ def run_all_tests():
         f"Rank #1: {res_quest[0]['title'] if res_quest else None}, score={res_quest[0]['score'] if res_quest else None}"
     )
 
+    print("\nCategory 45: Caret & At Sign Delimiter Omnibox Queries")
+    # 1. Caret Delimited Song Title and Artist Query
+    res_caret = enhanced_search("ขอใจกันหนาว ^ ศิริพร อำไพพงษ์")
+    pass_caret = (
+        len(res_caret) > 0 and
+        res_caret[0]['title'] == "ขอใจกันหนาว" and
+        res_caret[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Caret Conjunction: 'ขอใจกันหนาว ^ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_caret,
+        f"Rank #1: {res_caret[0]['title'] if res_caret else None}, score={res_caret[0]['score'] if res_caret else None}"
+    )
+
+    # 2. At Sign Delimited Song Title and Artist Query
+    res_at = enhanced_search("ขอใจกันหนาว @ ศิริพร อำไพพงษ์")
+    pass_at = (
+        len(res_at) > 0 and
+        res_at[0]['title'] == "ขอใจกันหนาว" and
+        res_at[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "At Sign Conjunction: 'ขอใจกันหนาว @ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_at,
+        f"Rank #1: {res_at[0]['title'] if res_at else None}, score={res_at[0]['score'] if res_at else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
