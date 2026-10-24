@@ -672,6 +672,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 44 exclamation and question mark delimiter suite",
             "44. การค้นหาคำที่มีเครื่องหมายอัศเจรีย์และปรัศนี" in runner_text
         )
+        self.check(
+            "CopyToClipboard and fallbackCopy defensive string and type guards implemented",
+            "if (!text || typeof text !== 'string') return;" in html_content and "const msg = typeof successMsg === 'string' ? successMsg : 'คัดลอกเรียบร้อยแล้ว!';" in html_content
+        )
+        self.check(
+            "Category 45 caret and at sign delimiter queries test suite verified",
+            "Category 45: Caret & At Sign Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 45 caret and at sign delimiter suite",
+            "45. การค้นหาคำที่มีเครื่องหมายหมวกและแอดไซน์" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
