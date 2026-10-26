@@ -2868,9 +2868,10 @@ function fallbackCopy(text, successMsg) {
 
 let toastTimer = null;
 function showToast(msg) {
-  if (!msg) return;
+  if (!msg || typeof msg !== 'string' || !msg.trim()) return;
   let toast = document.getElementById('toast-msg');
   if (!toast) {
+    if (!document.body) return;
     toast = document.createElement('div');
     toast.id = 'toast-msg';
     toast.className = 'toast-msg';
@@ -3298,7 +3299,7 @@ function escRegex(s) {
 }
 
 function autoResize(el) {
-  if (!el) return;
+  if (!el || !el.style || typeof el.scrollHeight !== 'number') return;
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 160) + 'px';
 }
