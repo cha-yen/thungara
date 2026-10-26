@@ -684,6 +684,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 45 caret and at sign delimiter suite",
             "45. การค้นหาคำที่มีเครื่องหมายหมวกและแอดไซน์" in runner_text
         )
+        self.check(
+            "ShowToast and autoResize defensive type and element guards implemented",
+            "if (!msg || typeof msg !== 'string' || !msg.trim()) return;" in html_content and "if (!el || !el.style || typeof el.scrollHeight !== 'number') return;" in html_content
+        )
+        self.check(
+            "Category 46 percent and dollar delimiter queries test suite verified",
+            "Category 46: Percent Sign & Dollar Sign Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 46 percent and dollar delimiter suite",
+            "46. การค้นหาคำที่มีเครื่องหมายเปอร์เซ็นต์และดอลลาร์" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
