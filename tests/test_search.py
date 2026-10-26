@@ -1987,6 +1987,33 @@ def run_all_tests():
         f"Rank #1: {res_at[0]['title'] if res_at else None}, score={res_at[0]['score'] if res_at else None}"
     )
 
+    print("\nCategory 46: Percent Sign & Dollar Sign Delimiter Omnibox Queries")
+    # 1. Percent Sign Delimited Song Title and Artist Query
+    res_pct = enhanced_search("ขอใจกันหนาว % ศิริพร อำไพพงษ์")
+    pass_pct = (
+        len(res_pct) > 0 and
+        res_pct[0]['title'] == "ขอใจกันหนาว" and
+        res_pct[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Percent Conjunction: 'ขอใจกันหนาว % ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_pct,
+        f"Rank #1: {res_pct[0]['title'] if res_pct else None}, score={res_pct[0]['score'] if res_pct else None}"
+    )
+
+    # 2. Dollar Sign Delimited Song Title and Artist Query
+    res_dlr = enhanced_search("ขอใจกันหนาว $ ศิริพร อำไพพงษ์")
+    pass_dlr = (
+        len(res_dlr) > 0 and
+        res_dlr[0]['title'] == "ขอใจกันหนาว" and
+        res_dlr[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Dollar Conjunction: 'ขอใจกันหนาว $ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dlr,
+        f"Rank #1: {res_dlr[0]['title'] if res_dlr else None}, score={res_dlr[0]['score'] if res_dlr else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
