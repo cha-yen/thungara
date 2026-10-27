@@ -2014,6 +2014,33 @@ def run_all_tests():
         f"Rank #1: {res_dlr[0]['title'] if res_dlr else None}, score={res_dlr[0]['score'] if res_dlr else None}"
     )
 
+    print("\nCategory 47: Comma & Ellipsis Delimiter Omnibox Queries")
+    # 1. Comma Delimited Song Title and Artist Query
+    res_comma = enhanced_search("ขอใจกันหนาว , ศิริพร อำไพพงษ์")
+    pass_comma = (
+        len(res_comma) > 0 and
+        res_comma[0]['title'] == "ขอใจกันหนาว" and
+        res_comma[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Comma Conjunction: 'ขอใจกันหนาว , ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_comma,
+        f"Rank #1: {res_comma[0]['title'] if res_comma else None}, score={res_comma[0]['score'] if res_comma else None}"
+    )
+
+    # 2. Ellipsis Delimited Song Title and Artist Query
+    res_ellip = enhanced_search("ขอใจกันหนาว ... ศิริพร อำไพพงษ์")
+    pass_ellip = (
+        len(res_ellip) > 0 and
+        res_ellip[0]['title'] == "ขอใจกันหนาว" and
+        res_ellip[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Ellipsis Conjunction: 'ขอใจกันหนาว ... ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_ellip,
+        f"Rank #1: {res_ellip[0]['title'] if res_ellip else None}, score={res_ellip[0]['score'] if res_ellip else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

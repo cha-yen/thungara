@@ -696,6 +696,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 46 percent and dollar delimiter suite",
             "46. การค้นหาคำที่มีเครื่องหมายเปอร์เซ็นต์และดอลลาร์" in runner_text
         )
+        self.check(
+            "SafeStorage defensive key string and serialization null guards implemented",
+            "if (!key || typeof key !== 'string' || typeof window === 'undefined' || !window.localStorage) return fallback;" in html_content and "if (!key || typeof key !== 'string' || value === undefined) return false;" in html_content
+        )
+        self.check(
+            "Category 47 comma and ellipsis delimiter queries test suite verified",
+            "Category 47: Comma & Ellipsis Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 47 comma and ellipsis delimiter suite",
+            "47. การค้นหาคำที่มีเครื่องหมายจุลภาคและจุดไข่ปลา" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

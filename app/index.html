@@ -3127,7 +3127,7 @@ function clearSearch() {
 const SafeStorage = {
   get(key, fallback = null) {
     try {
-      if (typeof window === 'undefined' || !window.localStorage) return fallback;
+      if (!key || typeof key !== 'string' || typeof window === 'undefined' || !window.localStorage) return fallback;
       const val = window.localStorage.getItem(key);
       return val !== null ? val : fallback;
     } catch (e) {
@@ -3136,15 +3136,16 @@ const SafeStorage = {
   },
   getJSON(key, fallback = null) {
     try {
+      if (!key || typeof key !== 'string') return fallback;
       const raw = this.get(key);
-      return raw ? JSON.parse(raw) : fallback;
+      return (raw && typeof raw === 'string') ? JSON.parse(raw) : fallback;
     } catch (e) {
       return fallback;
     }
   },
   set(key, value) {
     try {
-      if (typeof window === 'undefined' || !window.localStorage) return false;
+      if (!key || typeof key !== 'string' || typeof window === 'undefined' || !window.localStorage) return false;
       window.localStorage.setItem(key, String(value));
       return true;
     } catch (e) {
@@ -3154,7 +3155,10 @@ const SafeStorage = {
   },
   setJSON(key, value) {
     try {
-      return this.set(key, JSON.stringify(value));
+      if (!key || typeof key !== 'string' || value === undefined) return false;
+      const serialized = JSON.stringify(value);
+      if (typeof serialized !== 'string') return false;
+      return this.set(key, serialized);
     } catch (e) {
       console.warn('SafeStorage setJSON error:', e);
       return false;
@@ -3162,7 +3166,7 @@ const SafeStorage = {
   },
   remove(key) {
     try {
-      if (typeof window === 'undefined' || !window.localStorage) return false;
+      if (!key || typeof key !== 'string' || typeof window === 'undefined' || !window.localStorage) return false;
       window.localStorage.removeItem(key);
       return true;
     } catch (e) {
@@ -3424,7 +3428,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v45') caches.delete(k);
+      if (k !== 'thungara-v46') caches.delete(k);
     });
   });
 }
