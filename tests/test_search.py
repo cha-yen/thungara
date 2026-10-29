@@ -2041,6 +2041,33 @@ def run_all_tests():
         f"Rank #1: {res_ellip[0]['title'] if res_ellip else None}, score={res_ellip[0]['score'] if res_ellip else None}"
     )
 
+    print("\nCategory 48: Equal Sign & Double Hyphen Delimiter Omnibox Queries")
+    # 1. Equal Sign Delimited Song Title and Artist Query
+    res_equal = enhanced_search("ขอใจกันหนาว = ศิริพร อำไพพงษ์")
+    pass_equal = (
+        len(res_equal) > 0 and
+        res_equal[0]['title'] == "ขอใจกันหนาว" and
+        res_equal[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Equal Sign Conjunction: 'ขอใจกันหนาว = ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_equal,
+        f"Rank #1: {res_equal[0]['title'] if res_equal else None}, score={res_equal[0]['score'] if res_equal else None}"
+    )
+
+    # 2. Double Hyphen Delimited Song Title and Artist Query
+    res_dhyphen = enhanced_search("ขอใจกันหนาว -- ศิริพร อำไพพงษ์")
+    pass_dhyphen = (
+        len(res_dhyphen) > 0 and
+        res_dhyphen[0]['title'] == "ขอใจกันหนาว" and
+        res_dhyphen[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Hyphen Conjunction: 'ขอใจกันหนาว -- ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dhyphen,
+        f"Rank #1: {res_dhyphen[0]['title'] if res_dhyphen else None}, score={res_dhyphen[0]['score'] if res_dhyphen else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
