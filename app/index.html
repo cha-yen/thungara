@@ -3249,6 +3249,7 @@ function getTheme() {
 }
 function applyTheme(theme) {
   const root = document.documentElement;
+  if (!root) return;
   if (theme === 'dark') {
     root.setAttribute('data-theme', 'dark');
   } else if (theme === 'light') {
@@ -3268,7 +3269,13 @@ function isDarkActive() {
   const theme = getTheme();
   if (theme === 'dark') return true;
   if (theme === 'light') return false;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  try {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      return !!(mql && mql.matches);
+    }
+  } catch (e) {}
+  return false;
 }
 function updateThemeIcon() {
   const btn = document.getElementById('btn-theme');
