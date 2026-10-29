@@ -708,6 +708,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 47 comma and ellipsis delimiter suite",
             "47. การค้นหาคำที่มีเครื่องหมายจุลภาคและจุดไข่ปลา" in runner_text
         )
+        self.check(
+            "ApplyTheme and isDarkActive defensive root and matchMedia guards implemented",
+            "if (!root) return;" in html_content and "if (typeof window !== 'undefined' && typeof window.matchMedia === 'function')" in html_content
+        )
+        self.check(
+            "Category 48 equal sign and double hyphen delimiter queries test suite verified",
+            "Category 48: Equal Sign & Double Hyphen Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 48 equal sign and double hyphen delimiter suite",
+            "48. การค้นหาคำที่มีเครื่องหมายเท่ากับและขีดคู่" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
