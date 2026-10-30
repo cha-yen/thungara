@@ -720,6 +720,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 48 equal sign and double hyphen delimiter suite",
             "48. การค้นหาคำที่มีเครื่องหมายเท่ากับและขีดคู่" in runner_text
         )
+        self.check(
+            "PopulateFilters and clearSearch defensive null and focus guards implemented",
+            "if (a !== null && a !== undefined && String(a).trim())" in html_content and "if (el && typeof el.focus === 'function')" in html_content
+        )
+        self.check(
+            "Category 49 backtick and quotation mark delimiter queries test suite verified",
+            "Category 49: Backtick & Quotation Mark Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 49 backtick and quotation mark delimiter suite",
+            "49. การค้นหาคำที่มีเครื่องหมายแบ็กทิกและเครื่องหมายคำพูด" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
