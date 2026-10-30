@@ -2068,6 +2068,33 @@ def run_all_tests():
         f"Rank #1: {res_dhyphen[0]['title'] if res_dhyphen else None}, score={res_dhyphen[0]['score'] if res_dhyphen else None}"
     )
 
+    print("\nCategory 49: Backtick & Quotation Mark Delimiter Omnibox Queries")
+    # 1. Backtick Delimited Song Title and Artist Query
+    res_btick = enhanced_search("ขอใจกันหนาว ` ศิริพร อำไพพงษ์")
+    pass_btick = (
+        len(res_btick) > 0 and
+        res_btick[0]['title'] == "ขอใจกันหนาว" and
+        res_btick[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Backtick Conjunction: 'ขอใจกันหนาว ` ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_btick,
+        f"Rank #1: {res_btick[0]['title'] if res_btick else None}, score={res_btick[0]['score'] if res_btick else None}"
+    )
+
+    # 2. Quotation Mark Delimited Song Title and Artist Query
+    res_quote = enhanced_search('ขอใจกันหนาว " ศิริพร อำไพพงษ์')
+    pass_quote = (
+        len(res_quote) > 0 and
+        res_quote[0]['title'] == "ขอใจกันหนาว" and
+        res_quote[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Quotation Mark Conjunction: 'ขอใจกันหนาว \" ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_quote,
+        f"Rank #1: {res_quote[0]['title'] if res_quote else None}, score={res_quote[0]['score'] if res_quote else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

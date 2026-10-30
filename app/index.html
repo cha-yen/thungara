@@ -1761,17 +1761,23 @@ function populateFilters() {
   const fYear = document.getElementById('filter-year');
   if (fArtist && Array.isArray(DATA && DATA.artists)) {
     DATA.artists.forEach(a => {
-      fArtist.insertAdjacentHTML('beforeend', '<option value="'+esc(a)+'">'+esc(a)+'</option>');
+      if (a !== null && a !== undefined && String(a).trim()) {
+        fArtist.insertAdjacentHTML('beforeend', '<option value="'+esc(a)+'">'+esc(a)+'</option>');
+      }
     });
   }
   if (fEmotion && Array.isArray(DATA && DATA.emotions)) {
     DATA.emotions.forEach(e => {
-      fEmotion.insertAdjacentHTML('beforeend', '<option value="'+esc(e)+'">'+esc(e)+'</option>');
+      if (e !== null && e !== undefined && String(e).trim()) {
+        fEmotion.insertAdjacentHTML('beforeend', '<option value="'+esc(e)+'">'+esc(e)+'</option>');
+      }
     });
   }
   if (fYear && Array.isArray(DATA && DATA.years)) {
     DATA.years.forEach(y => {
-      fYear.insertAdjacentHTML('beforeend', '<option value="'+esc(y)+'">'+esc(y)+'</option>');
+      if (y !== null && y !== undefined && String(y).trim()) {
+        fYear.insertAdjacentHTML('beforeend', '<option value="'+esc(y)+'">'+esc(y)+'</option>');
+      }
     });
   }
 }
@@ -3121,7 +3127,9 @@ function clearSearch() {
   const fSort = document.getElementById('filter-sort');
   if (fSort) fSort.value = 'relevance';
   renderResults([], '');
-  if (el) el.focus();
+  if (el && typeof el.focus === 'function') {
+    try { el.focus(); } catch (e) {}
+  }
 }
 
 const SafeStorage = {
@@ -3435,7 +3443,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v47') caches.delete(k);
+      if (k !== 'thungara-v48') caches.delete(k);
     });
   });
 }
