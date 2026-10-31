@@ -2095,6 +2095,33 @@ def run_all_tests():
         f"Rank #1: {res_quote[0]['title'] if res_quote else None}, score={res_quote[0]['score'] if res_quote else None}"
     )
 
+    print("\nCategory 50: Backslash & Double Slash Delimiter Omnibox Queries")
+    # 1. Backslash Delimited Song Title and Artist Query
+    res_bslash = enhanced_search("ขอใจกันหนาว \\ ศิริพร อำไพพงษ์")
+    pass_bslash = (
+        len(res_bslash) > 0 and
+        res_bslash[0]['title'] == "ขอใจกันหนาว" and
+        res_bslash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Backslash Conjunction: 'ขอใจกันหนาว \\ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_bslash,
+        f"Rank #1: {res_bslash[0]['title'] if res_bslash else None}, score={res_bslash[0]['score'] if res_bslash else None}"
+    )
+
+    # 2. Double Slash Delimited Song Title and Artist Query
+    res_dslash = enhanced_search("ขอใจกันหนาว // ศิริพร อำไพพงษ์")
+    pass_dslash = (
+        len(res_dslash) > 0 and
+        res_dslash[0]['title'] == "ขอใจกันหนาว" and
+        res_dslash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Slash Conjunction: 'ขอใจกันหนาว // ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dslash,
+        f"Rank #1: {res_dslash[0]['title'] if res_dslash else None}, score={res_dslash[0]['score'] if res_dslash else None}"
+    )
+
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

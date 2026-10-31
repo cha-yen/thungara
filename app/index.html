@@ -2487,10 +2487,11 @@ function renderResults(results, query) {
 }
 
 function getMatchPercent(result) {
-  if (!result) return 0;
+  if (!result || typeof result !== 'object') return 0;
   if (result.exactMatch) return 100;
 
-  const score = Math.max(0, Math.min(1.0, result.score || 0));
+  const scoreVal = (typeof result.score === 'number' && !isNaN(result.score)) ? result.score : 0;
+  const score = Math.max(0, Math.min(1.0, scoreVal));
   if (score === 0) return 1;
 
   return Math.min(99, Math.max(1, Math.round(score * 100)));
@@ -2550,6 +2551,7 @@ function appendNextBatch(query) {
 }
 
 function loadMore() {
+  if (!Array.isArray(currentResults) || displayedCount >= currentResults.length) return;
   appendNextBatch(currentQuery);
 }
 
@@ -3443,7 +3445,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v48') caches.delete(k);
+      if (k !== 'thungara-v49') caches.delete(k);
     });
   });
 }
