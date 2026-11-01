@@ -2556,7 +2556,7 @@ function loadMore() {
 }
 
 function getPreview(lyrics, query, matchedTerms) {
-  if (!lyrics) return '';
+  if (!lyrics || typeof lyrics !== 'string') return '';
   const rawQ = (query || '').trim();
 
   const candidates = [];
@@ -2621,7 +2621,7 @@ function getPreview(lyrics, query, matchedTerms) {
 }
 
 function highlightText(text, query, matchedTerms) {
-  if (!text) return '';
+  if (!text || typeof text !== 'string') return '';
   const rawQ = (query || '').trim();
   const wordsToHighlight = [];
 
@@ -3445,7 +3445,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v49') caches.delete(k);
+      if (k !== 'thungara-v50') caches.delete(k);
     });
   });
 }

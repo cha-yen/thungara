@@ -2122,6 +2122,32 @@ def run_all_tests():
         f"Rank #1: {res_dslash[0]['title'] if res_dslash else None}, score={res_dslash[0]['score'] if res_dslash else None}"
     )
 
+    print("\nCategory 51: Arrow & Fat Arrow Delimiter Omnibox Queries")
+    # 1. Arrow Delimited Song Title and Artist Query
+    res_arrow = enhanced_search("ขอใจกันหนาว -> ศิริพร อำไพพงษ์")
+    pass_arrow = (
+        len(res_arrow) > 0 and
+        res_arrow[0]['title'] == "ขอใจกันหนาว" and
+        res_arrow[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Arrow Conjunction: 'ขอใจกันหนาว -> ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_arrow,
+        f"Rank #1: {res_arrow[0]['title'] if res_arrow else None}, score={res_arrow[0]['score'] if res_arrow else None}"
+    )
+
+    # 2. Fat Arrow Delimited Song Title and Artist Query
+    res_farrow = enhanced_search("ขอใจกันหนาว => ศิริพร อำไพพงษ์")
+    pass_farrow = (
+        len(res_farrow) > 0 and
+        res_farrow[0]['title'] == "ขอใจกันหนาว" and
+        res_farrow[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Fat Arrow Conjunction: 'ขอใจกันหนาว => ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_farrow,
+        f"Rank #1: {res_farrow[0]['title'] if res_farrow else None}, score={res_farrow[0]['score'] if res_farrow else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
