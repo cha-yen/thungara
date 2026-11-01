@@ -744,6 +744,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 50 backslash and double slash delimiter suite",
             "50. การค้นหาคำที่มีเครื่องหมายแบ็กสแลชและดับเบิลสแลช" in runner_text
         )
+        self.check(
+            "GetPreview and highlightText defensive string type guards implemented",
+            "if (!lyrics || typeof lyrics !== 'string') return '';" in html_content and "if (!text || typeof text !== 'string') return '';" in html_content
+        )
+        self.check(
+            "Category 51 arrow and fat arrow delimiter queries test suite verified",
+            "Category 51: Arrow & Fat Arrow Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 51 arrow and fat arrow delimiter suite",
+            "51. การค้นหาคำที่มีเครื่องหมายลูกศรและแฟตแอร์โรว์" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
