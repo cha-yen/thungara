@@ -756,6 +756,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 51 arrow and fat arrow delimiter suite",
             "51. การค้นหาคำที่มีเครื่องหมายลูกศรและแฟตแอร์โรว์" in runner_text
         )
+        self.check(
+            "GetArtistSongCount and filterByArtistFromModal defensive string type guards implemented",
+            "if (!DATA || !DATA.songs || !artistName || typeof artistName !== 'string') return 0;" in html_content and "if (!artistName || typeof artistName !== 'string') return;" in html_content
+        )
+        self.check(
+            "Category 52 double colon and double pipe delimiter queries test suite verified",
+            "Category 52: Double Colon & Double Pipe Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 52 double colon and double pipe delimiter suite",
+            "52. การค้นหาคำที่มีเครื่องหมายดับเบิลโคลอนและดับเบิลไปป์" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
