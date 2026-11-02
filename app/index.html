@@ -2665,7 +2665,7 @@ function highlightText(text, query, matchedTerms) {
 let currentModalSongIdx = null;
 
 function getArtistSongCount(artistName) {
-  if (!DATA || !DATA.songs || !artistName) return 0;
+  if (!DATA || !DATA.songs || !artistName || typeof artistName !== 'string') return 0;
   const targetNorm = normalizeText(artistName);
   if (!targetNorm) return 0;
   let count = 0;
@@ -2680,7 +2680,7 @@ function getArtistSongCount(artistName) {
 }
 
 function filterByArtistFromModal(artistName) {
-  if (!artistName) return;
+  if (!artistName || typeof artistName !== 'string') return;
   closeModalDirect();
   const input = document.getElementById('search-input');
   if (input) {
