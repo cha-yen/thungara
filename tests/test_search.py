@@ -2148,6 +2148,32 @@ def run_all_tests():
         pass_farrow,
         f"Rank #1: {res_farrow[0]['title'] if res_farrow else None}, score={res_farrow[0]['score'] if res_farrow else None}"
     )
+    print("\nCategory 52: Double Colon & Double Pipe Delimiter Omnibox Queries")
+    # 1. Double Colon Delimited Song Title and Artist Query
+    res_dcolon = enhanced_search("ขอใจกันหนาว :: ศิริพร อำไพพงษ์")
+    pass_dcolon = (
+        len(res_dcolon) > 0 and
+        res_dcolon[0]['title'] == "ขอใจกันหนาว" and
+        res_dcolon[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Colon Conjunction: 'ขอใจกันหนาว :: ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dcolon,
+        f"Rank #1: {res_dcolon[0]['title'] if res_dcolon else None}, score={res_dcolon[0]['score'] if res_dcolon else None}"
+    )
+
+    # 2. Double Pipe Delimited Song Title and Artist Query
+    res_dpipe = enhanced_search("ขอใจกันหนาว || ศิริพร อำไพพงษ์")
+    pass_dpipe = (
+        len(res_dpipe) > 0 and
+        res_dpipe[0]['title'] == "ขอใจกันหนาว" and
+        res_dpipe[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Pipe Conjunction: 'ขอใจกันหนาว || ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dpipe,
+        f"Rank #1: {res_dpipe[0]['title'] if res_dpipe else None}, score={res_dpipe[0]['score'] if res_dpipe else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
