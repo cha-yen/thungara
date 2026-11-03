@@ -2775,13 +2775,13 @@ function renderVideoPreview(song, idx) {
 }
 
 function copyCurrentLyrics() {
-  if (currentModalSongIdx !== null) {
+  if (typeof currentModalSongIdx === 'number') {
     copyLyrics(currentModalSongIdx);
   }
 }
 
 function shareCurrentSong() {
-  if (currentModalSongIdx !== null) {
+  if (typeof currentModalSongIdx === 'number') {
     shareSong(currentModalSongIdx);
   }
 }
@@ -3205,7 +3205,8 @@ function saveRecentSearch(q) {
 }
 
 function removeRecentSearch(q, e) {
-  if (e) e.stopPropagation();
+  if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+  if (!q || typeof q !== 'string') return;
   let list = getRecentSearches();
   if (!Array.isArray(list)) list = [];
   list = list.filter(item => item !== q);
