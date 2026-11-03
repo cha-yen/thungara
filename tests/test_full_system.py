@@ -768,6 +768,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 52 double colon and double pipe delimiter suite",
             "52. การค้นหาคำที่มีเครื่องหมายดับเบิลโคลอนและดับเบิลไปป์" in runner_text
         )
+        self.check(
+            "RemoveRecentSearch and modal actions defensive event and type guards implemented",
+            "if (e && typeof e.stopPropagation === 'function') e.stopPropagation();" in html_content and "if (typeof currentModalSongIdx === 'number')" in html_content
+        )
+        self.check(
+            "Category 53 double ampersand and double plus delimiter queries test suite verified",
+            "Category 53: Double Ampersand & Double Plus Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 53 double ampersand and double plus delimiter suite",
+            "53. การค้นหาคำที่มีเครื่องหมายดับเบิลแอมเพอร์แซนด์และดับเบิลพลัส" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
