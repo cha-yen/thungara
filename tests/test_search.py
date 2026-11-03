@@ -2174,6 +2174,32 @@ def run_all_tests():
         pass_dpipe,
         f"Rank #1: {res_dpipe[0]['title'] if res_dpipe else None}, score={res_dpipe[0]['score'] if res_dpipe else None}"
     )
+    print("\nCategory 53: Double Ampersand & Double Plus Delimiter Omnibox Queries")
+    # 1. Double Ampersand Delimited Song Title and Artist Query
+    res_damp = enhanced_search("ขอใจกันหนาว && ศิริพร อำไพพงษ์")
+    pass_damp = (
+        len(res_damp) > 0 and
+        res_damp[0]['title'] == "ขอใจกันหนาว" and
+        res_damp[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Ampersand Conjunction: 'ขอใจกันหนาว && ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_damp,
+        f"Rank #1: {res_damp[0]['title'] if res_damp else None}, score={res_damp[0]['score'] if res_damp else None}"
+    )
+
+    # 2. Double Plus Delimited Song Title and Artist Query
+    res_dplus = enhanced_search("ขอใจกันหนาว ++ ศิริพร อำไพพงษ์")
+    pass_dplus = (
+        len(res_dplus) > 0 and
+        res_dplus[0]['title'] == "ขอใจกันหนาว" and
+        res_dplus[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Plus Conjunction: 'ขอใจกันหนาว ++ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dplus,
+        f"Rank #1: {res_dplus[0]['title'] if res_dplus else None}, score={res_dplus[0]['score'] if res_dplus else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
