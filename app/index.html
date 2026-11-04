@@ -2430,7 +2430,7 @@ function renderResults(results, query) {
   const emptyState = document.getElementById('empty-state');
   const stats = document.getElementById('stats');
 
-  rawSearchResults = results || [];
+  rawSearchResults = Array.isArray(results) ? results : [];
   currentResults = sortResultsList(rawSearchResults);
   displayedCount = 0;
 
@@ -3055,7 +3055,7 @@ function toggleRecording() {
 
 function setSearchProgress(active) {
   const el = document.getElementById('search-progress');
-  if (!el) return;
+  if (!el || !el.classList || typeof el.classList.toggle !== 'function') return;
   el.classList.toggle('active', !!active);
   el.setAttribute('aria-hidden', active ? 'false' : 'true');
 }
@@ -3446,7 +3446,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v52') caches.delete(k);
+      if (k !== 'thungara-v53') caches.delete(k);
     });
   });
 }

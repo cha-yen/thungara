@@ -780,6 +780,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 53 double ampersand and double plus delimiter suite",
             "53. การค้นหาคำที่มีเครื่องหมายดับเบิลแอมเพอร์แซนด์และดับเบิลพลัส" in runner_text
         )
+        self.check(
+            "RenderResults and setSearchProgress defensive array and classList guards implemented",
+            "rawSearchResults = Array.isArray(results) ? results : [];" in html_content and "if (!el || !el.classList || typeof el.classList.toggle !== 'function') return;" in html_content
+        )
+        self.check(
+            "Category 54 left arrow and double tilde delimiter queries test suite verified",
+            "Category 54: Left Arrow & Double Tilde Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 54 left arrow and double tilde delimiter suite",
+            "54. การค้นหาคำที่มีเครื่องหมายลูกศรซ้ายและดับเบิลทิลเดอ" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
