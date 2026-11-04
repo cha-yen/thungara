@@ -2200,6 +2200,32 @@ def run_all_tests():
         pass_dplus,
         f"Rank #1: {res_dplus[0]['title'] if res_dplus else None}, score={res_dplus[0]['score'] if res_dplus else None}"
     )
+    print("\nCategory 54: Left Arrow & Double Tilde Delimiter Omnibox Queries")
+    # 1. Left Arrow Delimited Song Title and Artist Query
+    res_larrow = enhanced_search("ขอใจกันหนาว <- ศิริพร อำไพพงษ์")
+    pass_larrow = (
+        len(res_larrow) > 0 and
+        res_larrow[0]['title'] == "ขอใจกันหนาว" and
+        res_larrow[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Left Arrow Conjunction: 'ขอใจกันหนาว <- ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_larrow,
+        f"Rank #1: {res_larrow[0]['title'] if res_larrow else None}, score={res_larrow[0]['score'] if res_larrow else None}"
+    )
+
+    # 2. Double Tilde Delimited Song Title and Artist Query
+    res_dtilde = enhanced_search("ขอใจกันหนาว ~~ ศิริพร อำไพพงษ์")
+    pass_dtilde = (
+        len(res_dtilde) > 0 and
+        res_dtilde[0]['title'] == "ขอใจกันหนาว" and
+        res_dtilde[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Tilde Conjunction: 'ขอใจกันหนาว ~~ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dtilde,
+        f"Rank #1: {res_dtilde[0]['title'] if res_dtilde else None}, score={res_dtilde[0]['score'] if res_dtilde else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
