@@ -792,6 +792,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 54 left arrow and double tilde delimiter suite",
             "54. การค้นหาคำที่มีเครื่องหมายลูกศรซ้ายและดับเบิลทิลเดอ" in runner_text
         )
+        self.check(
+            "HandleUrlParams and updateThemeIcon defensive options and setAttribute guards implemented",
+            "fArtist.options && Array.from(fArtist.options)" in html_content and "if (btn && typeof btn.setAttribute === 'function')" in html_content
+        )
+        self.check(
+            "Category 55 double caret and double asterisk delimiter queries test suite verified",
+            "Category 55: Double Caret & Double Asterisk Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 55 double caret and double asterisk delimiter suite",
+            "55. การค้นหาคำที่มีเครื่องหมายดับเบิลแคเร็ตและดับเบิลดอกจัน" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
