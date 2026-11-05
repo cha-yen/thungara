@@ -2226,6 +2226,32 @@ def run_all_tests():
         pass_dtilde,
         f"Rank #1: {res_dtilde[0]['title'] if res_dtilde else None}, score={res_dtilde[0]['score'] if res_dtilde else None}"
     )
+    print("\nCategory 55: Double Caret & Double Asterisk Delimiter Omnibox Queries")
+    # 1. Double Caret Delimited Song Title and Artist Query
+    res_dcaret = enhanced_search("ขอใจกันหนาว ^^ ศิริพร อำไพพงษ์")
+    pass_dcaret = (
+        len(res_dcaret) > 0 and
+        res_dcaret[0]['title'] == "ขอใจกันหนาว" and
+        res_dcaret[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Caret Conjunction: 'ขอใจกันหนาว ^^ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dcaret,
+        f"Rank #1: {res_dcaret[0]['title'] if res_dcaret else None}, score={res_dcaret[0]['score'] if res_dcaret else None}"
+    )
+
+    # 2. Double Asterisk Delimited Song Title and Artist Query
+    res_dstar = enhanced_search("ขอใจกันหนาว ** ศิริพร อำไพพงษ์")
+    pass_dstar = (
+        len(res_dstar) > 0 and
+        res_dstar[0]['title'] == "ขอใจกันหนาว" and
+        res_dstar[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Asterisk Conjunction: 'ขอใจกันหนาว ** ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dstar,
+        f"Rank #1: {res_dstar[0]['title'] if res_dstar else None}, score={res_dstar[0]['score'] if res_dstar else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
