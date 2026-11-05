@@ -1715,21 +1715,21 @@ function handleUrlParams() {
     let hasFilter = false;
     if (artistParam && document.getElementById('filter-artist')) {
       const fArtist = document.getElementById('filter-artist');
-      if (Array.from(fArtist.options).some(o => o.value === artistParam)) {
+      if (fArtist.options && Array.from(fArtist.options).some(o => o.value === artistParam)) {
         fArtist.value = artistParam;
         hasFilter = true;
       }
     }
     if (emotionParam && document.getElementById('filter-emotion')) {
       const fEmotion = document.getElementById('filter-emotion');
-      if (Array.from(fEmotion.options).some(o => o.value === emotionParam)) {
+      if (fEmotion.options && Array.from(fEmotion.options).some(o => o.value === emotionParam)) {
         fEmotion.value = emotionParam;
         hasFilter = true;
       }
     }
     if (yearParam && document.getElementById('filter-year')) {
       const fYear = document.getElementById('filter-year');
-      if (Array.from(fYear.options).some(o => o.value === yearParam)) {
+      if (fYear.options && Array.from(fYear.options).some(o => o.value === yearParam)) {
         fYear.value = yearParam;
         hasFilter = true;
       }
@@ -3290,7 +3290,7 @@ function isDarkActive() {
 }
 function updateThemeIcon() {
   const btn = document.getElementById('btn-theme');
-  if (btn) {
+  if (btn && typeof btn.setAttribute === 'function') {
     const isDark = isDarkActive();
     btn.textContent = isDark ? '☀️' : '🌙';
     btn.setAttribute('aria-label', isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด');
@@ -3446,7 +3446,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v53') caches.delete(k);
+      if (k !== 'thungara-v54') caches.delete(k);
     });
   });
 }
