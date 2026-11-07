@@ -2252,6 +2252,32 @@ def run_all_tests():
         pass_dstar,
         f"Rank #1: {res_dstar[0]['title'] if res_dstar else None}, score={res_dstar[0]['score'] if res_dstar else None}"
     )
+    print("\nCategory 56: Double Underscore & Bidirectional Arrow Delimiter Omnibox Queries")
+    # 1. Double Underscore Delimited Song Title and Artist Query
+    res_dunder = enhanced_search("ขอใจกันหนาว __ ศิริพร อำไพพงษ์")
+    pass_dunder = (
+        len(res_dunder) > 0 and
+        res_dunder[0]['title'] == "ขอใจกันหนาว" and
+        res_dunder[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Double Underscore Conjunction: 'ขอใจกันหนาว __ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_dunder,
+        f"Rank #1: {res_dunder[0]['title'] if res_dunder else None}, score={res_dunder[0]['score'] if res_dunder else None}"
+    )
+
+    # 2. Bidirectional Arrow Delimited Song Title and Artist Query
+    res_biarrow = enhanced_search("ขอใจกันหนาว <-> ศิริพร อำไพพงษ์")
+    pass_biarrow = (
+        len(res_biarrow) > 0 and
+        res_biarrow[0]['title'] == "ขอใจกันหนาว" and
+        res_biarrow[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Bidirectional Arrow Conjunction: 'ขอใจกันหนาว <-> ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_biarrow,
+        f"Rank #1: {res_biarrow[0]['title'] if res_biarrow else None}, score={res_biarrow[0]['score'] if res_biarrow else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

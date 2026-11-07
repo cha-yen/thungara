@@ -804,6 +804,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 55 double caret and double asterisk delimiter suite",
             "55. การค้นหาคำที่มีเครื่องหมายดับเบิลแคเร็ตและดับเบิลดอกจัน" in runner_text
         )
+        self.check(
+            "Hotkey input and scroll listener defensive setSelectionRange and toggle guards implemented",
+            "if (typeof input.setSelectionRange === 'function')" in html_content and "if (btnTop && btnTop.classList && typeof btnTop.classList.toggle === 'function')" in html_content
+        )
+        self.check(
+            "Category 56 double underscore and bidirectional arrow delimiter queries test suite verified",
+            "Category 56: Double Underscore & Bidirectional Arrow Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 56 double underscore and bidirectional arrow delimiter suite",
+            "56. การค้นหาคำที่มีเครื่องหมายดับเบิลอันเดอร์สกอร์และลูกศรสองทาง" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
