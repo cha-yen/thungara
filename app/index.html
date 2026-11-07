@@ -3431,8 +3431,10 @@ document.addEventListener('keydown', function(e) {
       e.preventDefault();
       const input = document.getElementById('search-input');
       if (input) {
-        input.focus();
-        input.setSelectionRange(input.value.length, input.value.length);
+        if (typeof input.focus === 'function') input.focus();
+        if (typeof input.setSelectionRange === 'function') {
+          input.setSelectionRange(input.value.length, input.value.length);
+        }
       }
     }
   }
@@ -3440,7 +3442,9 @@ document.addEventListener('keydown', function(e) {
 
 window.addEventListener('scroll', function() {
   const btnTop = document.getElementById('btn-top');
-  if (btnTop) btnTop.classList.toggle('show', window.scrollY > 400);
+  if (btnTop && btnTop.classList && typeof btnTop.classList.toggle === 'function') {
+    btnTop.classList.toggle('show', (window.scrollY || window.pageYOffset || 0) > 400);
+  }
 }, { passive: true });
 
 if ('caches' in window) {
