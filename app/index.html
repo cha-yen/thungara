@@ -2954,14 +2954,17 @@ function initSpeechRecognition() {
   recognition.onstart = function() {
     isRecording = true;
     finalTranscript = '';
-    micBtn.classList.add('recording');
-    recOverlay.classList.add('show');
-    recOverlay.setAttribute('aria-hidden', 'false');
-    recStatus.textContent = 'กำลังฟัง...';
-    recTranscript.innerHTML = '<span class="interim">ร้องหรือพูดเนื้อเพลงได้เลย</span>';
-    document.getElementById('rec-hint').textContent = 'แตะเพื่อหยุด';
-    const recMicIcon = recOverlay.querySelector('.rec-mic-icon');
-    if (recMicIcon) recMicIcon.focus();
+    if (micBtn && micBtn.classList) micBtn.classList.add('recording');
+    if (recOverlay && recOverlay.classList) {
+      recOverlay.classList.add('show');
+      recOverlay.setAttribute('aria-hidden', 'false');
+    }
+    if (recStatus) recStatus.textContent = 'กำลังฟัง...';
+    if (recTranscript) recTranscript.innerHTML = '<span class="interim">ร้องหรือพูดเนื้อเพลงได้เลย</span>';
+    const recHint = document.getElementById('rec-hint');
+    if (recHint) recHint.textContent = 'แตะเพื่อหยุด';
+    const recMicIcon = recOverlay ? recOverlay.querySelector('.rec-mic-icon') : null;
+    if (recMicIcon && typeof recMicIcon.focus === 'function') recMicIcon.focus();
   };
 
   recognition.onresult = function(event) {
@@ -2983,7 +2986,7 @@ function initSpeechRecognition() {
 
   recognition.onend = function() {
     isRecording = false;
-    micBtn.classList.remove('recording');
+    if (micBtn && micBtn.classList) micBtn.classList.remove('recording');
     if (finalTranscript.trim()) {
       recStatus.textContent = 'กำลังค้นหา...';
       setTimeout(() => {
@@ -3010,7 +3013,7 @@ function initSpeechRecognition() {
   recognition.onerror = function(event) {
     console.warn('SpeechRecognition error:', event && event.error);
     isRecording = false;
-    micBtn.classList.remove('recording');
+    if (micBtn && micBtn.classList) micBtn.classList.remove('recording');
     const msg = event.error === 'no-speech' ? 'ไม่ได้ยินเสียง ลองใหม่อีกครั้ง'
       : event.error === 'not-allowed' ? 'กรุณาอนุญาตการใช้ไมโครโฟน'
       : 'เกิดข้อผิดพลาด: ' + event.error;
