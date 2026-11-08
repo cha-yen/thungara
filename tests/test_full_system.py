@@ -816,6 +816,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 56 double underscore and bidirectional arrow delimiter suite",
             "56. การค้นหาคำที่มีเครื่องหมายดับเบิลอันเดอร์สกอร์และลูกศรสองทาง" in runner_text
         )
+        self.check(
+            "Speech recognition lifecycle defensive element guards implemented",
+            "if (micBtn && micBtn.classList) micBtn.classList.add('recording');" in html_content and "if (micBtn && micBtn.classList) micBtn.classList.remove('recording');" in html_content
+        )
+        self.check(
+            "Category 57 triple hyphen and triple plus delimiter queries test suite verified",
+            "Category 57: Triple Hyphen & Triple Plus Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 57 triple hyphen and triple plus delimiter suite",
+            "57. การค้นหาคำที่มีเครื่องหมายขีดสามชั้นและบวกสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

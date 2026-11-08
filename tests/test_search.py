@@ -2278,6 +2278,32 @@ def run_all_tests():
         pass_biarrow,
         f"Rank #1: {res_biarrow[0]['title'] if res_biarrow else None}, score={res_biarrow[0]['score'] if res_biarrow else None}"
     )
+    print("\nCategory 57: Triple Hyphen & Triple Plus Delimiter Omnibox Queries")
+    # 1. Triple Hyphen Delimited Song Title and Artist Query
+    res_thyphen = enhanced_search("ขอใจกันหนาว --- ศิริพร อำไพพงษ์")
+    pass_thyphen = (
+        len(res_thyphen) > 0 and
+        res_thyphen[0]['title'] == "ขอใจกันหนาว" and
+        res_thyphen[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Hyphen Conjunction: 'ขอใจกันหนาว --- ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_thyphen,
+        f"Rank #1: {res_thyphen[0]['title'] if res_thyphen else None}, score={res_thyphen[0]['score'] if res_thyphen else None}"
+    )
+
+    # 2. Triple Plus Delimited Song Title and Artist Query
+    res_tplus = enhanced_search("ขอใจกันหนาว +++ ศิริพร อำไพพงษ์")
+    pass_tplus = (
+        len(res_tplus) > 0 and
+        res_tplus[0]['title'] == "ขอใจกันหนาว" and
+        res_tplus[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Plus Conjunction: 'ขอใจกันหนาว +++ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tplus,
+        f"Rank #1: {res_tplus[0]['title'] if res_tplus else None}, score={res_tplus[0]['score'] if res_tplus else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
