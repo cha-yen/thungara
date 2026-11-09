@@ -2304,6 +2304,32 @@ def run_all_tests():
         pass_tplus,
         f"Rank #1: {res_tplus[0]['title'] if res_tplus else None}, score={res_tplus[0]['score'] if res_tplus else None}"
     )
+    print("\nCategory 58: Triple Equal Sign & Triple Asterisk Delimiter Omnibox Queries")
+    # 1. Triple Equal Sign Delimited Song Title and Artist Query
+    res_tequal = enhanced_search("ขอใจกันหนาว === ศิริพร อำไพพงษ์")
+    pass_tequal = (
+        len(res_tequal) > 0 and
+        res_tequal[0]['title'] == "ขอใจกันหนาว" and
+        res_tequal[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Equal Sign Conjunction: 'ขอใจกันหนาว === ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tequal,
+        f"Rank #1: {res_tequal[0]['title'] if res_tequal else None}, score={res_tequal[0]['score'] if res_tequal else None}"
+    )
+
+    # 2. Triple Asterisk Delimited Song Title and Artist Query
+    res_tasterisk = enhanced_search("ขอใจกันหนาว *** ศิริพร อำไพพงษ์")
+    pass_tasterisk = (
+        len(res_tasterisk) > 0 and
+        res_tasterisk[0]['title'] == "ขอใจกันหนาว" and
+        res_tasterisk[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Asterisk Conjunction: 'ขอใจกันหนาว *** ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tasterisk,
+        f"Rank #1: {res_tasterisk[0]['title'] if res_tasterisk else None}, score={res_tasterisk[0]['score'] if res_tasterisk else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
