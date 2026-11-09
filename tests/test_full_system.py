@@ -828,6 +828,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 57 triple hyphen and triple plus delimiter suite",
             "57. การค้นหาคำที่มีเครื่องหมายขีดสามชั้นและบวกสามชั้น" in runner_text
         )
+        self.check(
+            "Modal overflow and focus trap defensive event guards implemented",
+            "if (document.body && document.body.style) document.body.style.overflow = 'hidden';" in html_content and "if (lastEl && typeof lastEl.focus === 'function') lastEl.focus();" in html_content
+        )
+        self.check(
+            "Category 58 triple equal sign and triple asterisk delimiter queries test suite verified",
+            "Category 58: Triple Equal Sign & Triple Asterisk Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 58 triple equal sign and triple asterisk delimiter suite",
+            "58. การค้นหาคำที่มีเครื่องหมายเท่ากับสามชั้นและดอกจันสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

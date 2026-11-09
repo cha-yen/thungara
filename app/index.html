@@ -2737,13 +2737,13 @@ function openModal(idx) {
   renderVideoPreview(song, idx);
 
   const overlay = document.getElementById('modal-overlay');
-  if (overlay) {
+  if (overlay && overlay.classList) {
     overlay.classList.add('show');
-    overlay.setAttribute('aria-hidden', 'false');
+    if (typeof overlay.setAttribute === 'function') overlay.setAttribute('aria-hidden', 'false');
   }
-  document.body.style.overflow = 'hidden';
+  if (document.body && document.body.style) document.body.style.overflow = 'hidden';
   const closeBtn = document.getElementById('btn-modal-close');
-  if (closeBtn) closeBtn.focus();
+  if (closeBtn && typeof closeBtn.focus === 'function') closeBtn.focus();
 }
 
 function renderVideoPreview(song, idx) {
@@ -2897,11 +2897,11 @@ function showToast(msg) {
 
 function closeModalDirect() {
   const overlay = document.getElementById('modal-overlay');
-  if (overlay) {
+  if (overlay && overlay.classList) {
     overlay.classList.remove('show');
-    overlay.setAttribute('aria-hidden', 'true');
+    if (typeof overlay.setAttribute === 'function') overlay.setAttribute('aria-hidden', 'true');
   }
-  document.body.style.overflow = '';
+  if (document.body && document.body.style) document.body.style.overflow = '';
   const videoWrap = document.getElementById('modal-video-wrap');
   if (videoWrap) videoWrap.innerHTML = '';
   currentModalSongIdx = null;
@@ -2945,9 +2945,9 @@ function initSpeechRecognition() {
   const recTranscript = document.getElementById('rec-transcript');
 
   function hideRecOverlay() {
-    if (recOverlay) {
+    if (recOverlay && recOverlay.classList) {
       recOverlay.classList.remove('show');
-      recOverlay.setAttribute('aria-hidden', 'true');
+      if (typeof recOverlay.setAttribute === 'function') recOverlay.setAttribute('aria-hidden', 'true');
     }
   }
 
@@ -3355,10 +3355,11 @@ if (searchInput) {
 }
 
 document.addEventListener('keydown', function(e) {
+  if (!e || !e.key) return;
   const modalOverlay = document.getElementById('modal-overlay');
-  const isModalOpen = modalOverlay && modalOverlay.classList.contains('show');
+  const isModalOpen = modalOverlay && modalOverlay.classList && modalOverlay.classList.contains('show');
   const recOverlay = document.getElementById('rec-overlay');
-  const isRecOpen = recOverlay && recOverlay.classList.contains('show');
+  const isRecOpen = recOverlay && recOverlay.classList && recOverlay.classList.contains('show');
 
   if (isRecOpen && e.key === 'Tab') {
     const focusables = recOverlay.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
@@ -3368,12 +3369,12 @@ document.addEventListener('keydown', function(e) {
       if (e.shiftKey) {
         if (document.activeElement === firstEl || !recOverlay.contains(document.activeElement)) {
           e.preventDefault();
-          lastEl.focus();
+          if (lastEl && typeof lastEl.focus === 'function') lastEl.focus();
         }
       } else {
         if (document.activeElement === lastEl || !recOverlay.contains(document.activeElement)) {
           e.preventDefault();
-          firstEl.focus();
+          if (firstEl && typeof firstEl.focus === 'function') firstEl.focus();
         }
       }
     }
@@ -3388,12 +3389,12 @@ document.addEventListener('keydown', function(e) {
       if (e.shiftKey) {
         if (document.activeElement === firstEl || !modalOverlay.contains(document.activeElement)) {
           e.preventDefault();
-          lastEl.focus();
+          if (lastEl && typeof lastEl.focus === 'function') lastEl.focus();
         }
       } else {
         if (document.activeElement === lastEl || !modalOverlay.contains(document.activeElement)) {
           e.preventDefault();
-          firstEl.focus();
+          if (firstEl && typeof firstEl.focus === 'function') firstEl.focus();
         }
       }
     }
@@ -3405,11 +3406,11 @@ document.addEventListener('keydown', function(e) {
       if (isRecording) {
         toggleRecording();
       } else {
-        recOverlay.classList.remove('show');
-        recOverlay.setAttribute('aria-hidden', 'true');
+        if (recOverlay && recOverlay.classList) recOverlay.classList.remove('show');
+        if (recOverlay && typeof recOverlay.setAttribute === 'function') recOverlay.setAttribute('aria-hidden', 'true');
       }
       const micBtn = document.getElementById('mic-btn');
-      if (micBtn) micBtn.focus();
+      if (micBtn && typeof micBtn.focus === 'function') micBtn.focus();
       e.preventDefault();
       return;
     }
@@ -3421,7 +3422,7 @@ document.addEventListener('keydown', function(e) {
     const input = document.getElementById('search-input');
     if (input && (document.activeElement === input || input.value)) {
       clearSearch();
-      input.blur();
+      if (typeof input.blur === 'function') input.blur();
       e.preventDefault();
     }
     return;
@@ -3453,7 +3454,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v56') caches.delete(k);
+      if (k !== 'thungara-v57') caches.delete(k);
     });
   });
 }
