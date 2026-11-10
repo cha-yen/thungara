@@ -840,6 +840,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 58 triple equal sign and triple asterisk delimiter suite",
             "58. การค้นหาคำที่มีเครื่องหมายเท่ากับสามชั้นและดอกจันสามชั้น" in runner_text
         )
+        self.check(
+            "Speech recognition completion and error lifecycle defensive element guards implemented",
+            "if (recTranscript) recTranscript.innerHTML = html" in html_content and "if (recStatus) recStatus.textContent = msg;" in html_content
+        )
+        self.check(
+            "Category 59 triple tilde and triple dot delimiter queries test suite verified",
+            "Category 59: Triple Tilde & Triple Dot Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 59 triple tilde and triple dot delimiter suite",
+            "59. การค้นหาคำที่มีเครื่องหมายตัวหนอนสามชั้นและจุดสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

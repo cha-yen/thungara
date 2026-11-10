@@ -2330,6 +2330,32 @@ def run_all_tests():
         pass_tasterisk,
         f"Rank #1: {res_tasterisk[0]['title'] if res_tasterisk else None}, score={res_tasterisk[0]['score'] if res_tasterisk else None}"
     )
+    print("\nCategory 59: Triple Tilde & Triple Dot Delimiter Omnibox Queries")
+    # 1. Triple Tilde Delimited Song Title and Artist Query
+    res_ttilde = enhanced_search("ขอใจกันหนาว ~~~ ศิริพร อำไพพงษ์")
+    pass_ttilde = (
+        len(res_ttilde) > 0 and
+        res_ttilde[0]['title'] == "ขอใจกันหนาว" and
+        res_ttilde[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Tilde Conjunction: 'ขอใจกันหนาว ~~~ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_ttilde,
+        f"Rank #1: {res_ttilde[0]['title'] if res_ttilde else None}, score={res_ttilde[0]['score'] if res_ttilde else None}"
+    )
+
+    # 2. Triple Dot Delimited Song Title and Artist Query
+    res_tdot = enhanced_search("ขอใจกันหนาว ... ศิริพร อำไพพงษ์")
+    pass_tdot = (
+        len(res_tdot) > 0 and
+        res_tdot[0]['title'] == "ขอใจกันหนาว" and
+        res_tdot[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Dot Conjunction: 'ขอใจกันหนาว ... ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tdot,
+        f"Rank #1: {res_tdot[0]['title'] if res_tdot else None}, score={res_tdot[0]['score'] if res_tdot else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

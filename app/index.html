@@ -2970,61 +2970,71 @@ function initSpeechRecognition() {
   recognition.onresult = function(event) {
     let interim = '';
     finalTranscript = '';
-    for (let i = 0; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
-      } else {
-        interim += event.results[i][0].transcript;
+    const resultsLen = (event && event.results) ? event.results.length : 0;
+    for (let i = 0; i < resultsLen; i++) {
+      const resItem = event.results[i];
+      if (resItem && resItem[0]) {
+        if (resItem.isFinal) {
+          finalTranscript += resItem[0].transcript;
+        } else {
+          interim += resItem[0].transcript;
+        }
       }
     }
     let html = '';
     if (finalTranscript) html += esc(finalTranscript);
     if (interim) html += '<span class="interim">' + esc(interim) + '</span>';
-    recTranscript.innerHTML = html || '<span class="interim">ร้องหรือพูดเนื้อเพลงได้เลย</span>';
-    if (finalTranscript || interim) recStatus.textContent = 'กำลังจับเสียง...';
+    if (recTranscript) recTranscript.innerHTML = html || '<span class="interim">ร้องหรือพูดเนื้อเพลงได้เลย</span>';
+    if (recStatus && (finalTranscript || interim)) recStatus.textContent = 'กำลังจับเสียง...';
   };
 
   recognition.onend = function() {
     isRecording = false;
     if (micBtn && micBtn.classList) micBtn.classList.remove('recording');
-    if (finalTranscript.trim()) {
-      recStatus.textContent = 'กำลังค้นหา...';
+    const trimmed = (finalTranscript && typeof finalTranscript === 'string') ? finalTranscript.trim() : '';
+    if (trimmed) {
+      if (recStatus) recStatus.textContent = 'กำลังค้นหา...';
       setTimeout(() => {
         hideRecOverlay();
-        document.getElementById('search-input').value = finalTranscript.trim();
-        var el = document.getElementById('search-input');
-        autoResize(el);
-        currentQuery = finalTranscript.trim();
+        const sInput = document.getElementById('search-input');
+        if (sInput) {
+          sInput.value = trimmed;
+          autoResize(sInput);
+        }
+        currentQuery = trimmed;
         doSearch();
-        if (micBtn) micBtn.focus();
+        if (micBtn && typeof micBtn.focus === 'function') micBtn.focus();
       }, 500);
     } else {
-      recStatus.textContent = 'ไม่ได้ยินเสียง';
-      recTranscript.textContent = 'กลับสู่หน้าหลัก...';
-      document.getElementById('rec-hint').textContent = 'กำลังปิด';
+      if (recStatus) recStatus.textContent = 'ไม่ได้ยินเสียง';
+      if (recTranscript) recTranscript.textContent = 'กลับสู่หน้าหลัก...';
+      const recHint = document.getElementById('rec-hint');
+      if (recHint) recHint.textContent = 'กำลังปิด';
       manualStopRequested = false;
       setTimeout(() => {
         hideRecOverlay();
-        if (micBtn) micBtn.focus();
+        if (micBtn && typeof micBtn.focus === 'function') micBtn.focus();
       }, 800);
     }
   };
 
   recognition.onerror = function(event) {
-    console.warn('SpeechRecognition error:', event && event.error);
+    const errCode = event && event.error;
+    console.warn('SpeechRecognition error:', errCode);
     isRecording = false;
     if (micBtn && micBtn.classList) micBtn.classList.remove('recording');
-    const msg = event.error === 'no-speech' ? 'ไม่ได้ยินเสียง ลองใหม่อีกครั้ง'
-      : event.error === 'not-allowed' ? 'กรุณาอนุญาตการใช้ไมโครโฟน'
-      : 'เกิดข้อผิดพลาด: ' + event.error;
-    recStatus.textContent = msg;
-    recTranscript.textContent = '';
-    if (event.error === 'no-speech') {
-      recTranscript.textContent = 'กลับสู่หน้าหลัก...';
-      document.getElementById('rec-hint').textContent = 'กำลังปิด';
-      setTimeout(() => { hideRecOverlay(); if (micBtn) micBtn.focus(); }, 800);
+    const msg = errCode === 'no-speech' ? 'ไม่ได้ยินเสียง ลองใหม่อีกครั้ง'
+      : errCode === 'not-allowed' ? 'กรุณาอนุญาตการใช้ไมโครโฟน'
+      : 'เกิดข้อผิดพลาด: ' + (errCode || 'unknown');
+    if (recStatus) recStatus.textContent = msg;
+    if (recTranscript) recTranscript.textContent = '';
+    const recHint = document.getElementById('rec-hint');
+    if (errCode === 'no-speech') {
+      if (recTranscript) recTranscript.textContent = 'กลับสู่หน้าหลัก...';
+      if (recHint) recHint.textContent = 'กำลังปิด';
+      setTimeout(() => { hideRecOverlay(); if (micBtn && typeof micBtn.focus === 'function') micBtn.focus(); }, 800);
     } else {
-      setTimeout(() => { hideRecOverlay(); if (micBtn) micBtn.focus(); }, 2500);
+      setTimeout(() => { hideRecOverlay(); if (micBtn && typeof micBtn.focus === 'function') micBtn.focus(); }, 2500);
     }
   };
 }
@@ -3034,9 +3044,9 @@ function handleRecordingOverlayClick() {
     toggleRecording();
   } else {
     const recOverlay = document.getElementById('rec-overlay');
-    if (recOverlay) {
+    if (recOverlay && recOverlay.classList) {
       recOverlay.classList.remove('show');
-      recOverlay.setAttribute('aria-hidden', 'true');
+      if (typeof recOverlay.setAttribute === 'function') recOverlay.setAttribute('aria-hidden', 'true');
     }
   }
 }
@@ -3454,7 +3464,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v57') caches.delete(k);
+      if (k !== 'thungara-v58') caches.delete(k);
     });
   });
 }
