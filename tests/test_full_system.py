@@ -852,6 +852,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 59 triple tilde and triple dot delimiter suite",
             "59. การค้นหาคำที่มีเครื่องหมายตัวหนอนสามชั้นและจุดสามชั้น" in runner_text
         )
+        self.check(
+            "Video preview container and recent search apply defensive guards implemented",
+            "if (!song) {" in html_content and "if (typeof input.focus === 'function') input.focus();" in html_content
+        )
+        self.check(
+            "Category 60 triple slash and triple pipe delimiter queries test suite verified",
+            "Category 60: Triple Slash & Triple Pipe Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 60 triple slash and triple pipe delimiter suite",
+            "60. การค้นหาคำที่มีเครื่องหมายสแลชสามชั้นและไปป์สามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
