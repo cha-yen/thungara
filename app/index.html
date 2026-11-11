@@ -2749,11 +2749,16 @@ function openModal(idx) {
 function renderVideoPreview(song, idx) {
   const container = document.getElementById('modal-video-wrap');
   if (!container) return;
+  if (!song) {
+    if (container.style) container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
   const ytId = song.yt || (YOUTUBE_MAP ? (YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)]) : null);
 
   if (ytId) {
-    const ytUrl = 'https://www.youtube.com/watch?v=' + ytId;
-    container.style.display = 'block';
+    const ytUrl = 'https://www.youtube.com/watch?v=' + encodeURIComponent(ytId);
+    if (container.style) container.style.display = 'block';
     container.innerHTML = '<a href="' + ytUrl + '" target="_blank" rel="noopener noreferrer" class="video-preview-thumb" title="แตะเพื่อเปิดดูบน YouTube" aria-label="เปิดดูมิวสิกวิดีโอ ' + esc(song.title) + ' บน YouTube">'
       + '<img src="https://img.youtube.com/vi/' + encodeURIComponent(ytId) + '/hqdefault.jpg" alt="' + esc(song.title) + '" loading="lazy" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/' + encodeURIComponent(ytId) + '/mqdefault.jpg\';">'
       + '<div class="video-badge">'
@@ -2769,7 +2774,7 @@ function renderVideoPreview(song, idx) {
       + '</div>'
       + '</a>';
   } else {
-    container.style.display = 'none';
+    if (container.style) container.style.display = 'none';
     container.innerHTML = '';
   }
 }
@@ -3238,6 +3243,7 @@ function applyRecentSearch(q) {
   if (input) {
     input.value = q;
     autoResize(input);
+    if (typeof input.focus === 'function') input.focus();
     doSearch();
   }
 }
@@ -3248,13 +3254,13 @@ function renderRecentSearches() {
   if (!wrap || !chipsList) return;
 
   const searches = getRecentSearches();
-  if (searches.length === 0) {
-    wrap.style.display = 'none';
+  if (!Array.isArray(searches) || searches.length === 0) {
+    if (wrap.style) wrap.style.display = 'none';
     chipsList.innerHTML = '';
     return;
   }
 
-  wrap.style.display = 'block';
+  if (wrap.style) wrap.style.display = 'block';
   let html = '';
   searches.forEach(term => {
     if (!term || typeof term !== 'string') return;
@@ -3464,7 +3470,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v58') caches.delete(k);
+      if (k !== 'thungara-v59') caches.delete(k);
     });
   });
 }
