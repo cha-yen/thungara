@@ -2356,6 +2356,32 @@ def run_all_tests():
         pass_tdot,
         f"Rank #1: {res_tdot[0]['title'] if res_tdot else None}, score={res_tdot[0]['score'] if res_tdot else None}"
     )
+    print("\nCategory 60: Triple Slash & Triple Pipe Delimiter Omnibox Queries")
+    # 1. Triple Slash Delimited Song Title and Artist Query
+    res_tslash = enhanced_search("ขอใจกันหนาว /// ศิริพร อำไพพงษ์")
+    pass_tslash = (
+        len(res_tslash) > 0 and
+        res_tslash[0]['title'] == "ขอใจกันหนาว" and
+        res_tslash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Slash Conjunction: 'ขอใจกันหนาว /// ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tslash,
+        f"Rank #1: {res_tslash[0]['title'] if res_tslash else None}, score={res_tslash[0]['score'] if res_tslash else None}"
+    )
+
+    # 2. Triple Pipe Delimited Song Title and Artist Query
+    res_tpipe = enhanced_search("ขอใจกันหนาว ||| ศิริพร อำไพพงษ์")
+    pass_tpipe = (
+        len(res_tpipe) > 0 and
+        res_tpipe[0]['title'] == "ขอใจกันหนาว" and
+        res_tpipe[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Pipe Conjunction: 'ขอใจกันหนาว ||| ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tpipe,
+        f"Rank #1: {res_tpipe[0]['title'] if res_tpipe else None}, score={res_tpipe[0]['score'] if res_tpipe else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
