@@ -2382,6 +2382,32 @@ def run_all_tests():
         pass_tpipe,
         f"Rank #1: {res_tpipe[0]['title'] if res_tpipe else None}, score={res_tpipe[0]['score'] if res_tpipe else None}"
     )
+    print("\nCategory 61: Triple Caret & Triple Underscore Delimiter Omnibox Queries")
+    # 1. Triple Caret Delimited Song Title and Artist Query
+    res_tcaret = enhanced_search("ขอใจกันหนาว ^^^ ศิริพร อำไพพงษ์")
+    pass_tcaret = (
+        len(res_tcaret) > 0 and
+        res_tcaret[0]['title'] == "ขอใจกันหนาว" and
+        res_tcaret[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Caret Conjunction: 'ขอใจกันหนาว ^^^ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tcaret,
+        f"Rank #1: {res_tcaret[0]['title'] if res_tcaret else None}, score={res_tcaret[0]['score'] if res_tcaret else None}"
+    )
+
+    # 2. Triple Underscore Delimited Song Title and Artist Query
+    res_tunderscore = enhanced_search("ขอใจกันหนาว ___ ศิริพร อำไพพงษ์")
+    pass_tunderscore = (
+        len(res_tunderscore) > 0 and
+        res_tunderscore[0]['title'] == "ขอใจกันหนาว" and
+        res_tunderscore[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Underscore Conjunction: 'ขอใจกันหนาว ___ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tunderscore,
+        f"Rank #1: {res_tunderscore[0]['title'] if res_tunderscore else None}, score={res_tunderscore[0]['score'] if res_tunderscore else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
