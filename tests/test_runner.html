@@ -2088,6 +2088,32 @@ const TEST_CASES = [
         detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับ ||| เชื่อมคำสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
       };
     }
+  },
+  {
+    category: "61. การค้นหาคำที่มีเครื่องหมายแคเร็ตสามชั้นและอันเดอร์สกอร์สามชั้น (Triple Caret & Triple Underscore Delimiter Queries)",
+    name: "ค้นหา 'ขอใจกันหนาว ^^^ ศิริพร อำไพพงษ์' (เชื่อมด้วยแคเร็ตสามชั้น ^^^) ต้องได้ 'ขอใจกันหนาว' อันดับ 1 (score >= 0.95)",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว ^^^ ศิริพร อำไพพงษ์");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับ ^^^ เชื่อมคำสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
+  },
+  {
+    category: "61. การค้นหาคำที่มีเครื่องหมายแคเร็ตสามชั้นและอันเดอร์สกอร์สามชั้น (Triple Caret & Triple Underscore Delimiter Queries)",
+    name: "ค้นหา 'ขอใจกันหนาว ___ ศิริพร อำไพพงษ์' (เชื่อมด้วยอันเดอร์สกอร์สามชั้น ___) ต้องได้ 'ขอใจกันหนาว' อันดับ 1 (score >= 0.95)",
+    run: async () => {
+      const res = await workerSearch("ขอใจกันหนาว ___ ศิริพร อำไพพงษ์");
+      const topSong = res.length > 0 ? DATA.songs[res[0].idx] : null;
+      const pass = topSong && topSong.title === "ขอใจกันหนาว" && res[0].score >= 0.95;
+      return {
+        pass,
+        detail: pass ? `อันดับ 1: '${topSong.title}' score: ${res[0].score.toFixed(2)} รองรับ ___ เชื่อมคำสำเร็จ` : `ผลลัพธ์ไม่ตรงตามเกณฑ์ (อันดับ 1: ${topSong ? topSong.title : 'ไม่พบ'})`
+      };
+    }
   }
 ];
 
