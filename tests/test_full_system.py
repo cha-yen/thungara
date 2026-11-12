@@ -864,6 +864,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 60 triple slash and triple pipe delimiter suite",
             "60. การค้นหาคำที่มีเครื่องหมายสแลชสามชั้นและไปป์สามชั้น" in runner_text
         )
+        self.check(
+            "Theme controller and fallback copy defensive environment guards implemented",
+            "if (!root || typeof root.setAttribute !== 'function') return;" in html_content and "if (document.body && typeof document.body.appendChild === 'function') {" in html_content
+        )
+        self.check(
+            "Category 61 triple caret and triple underscore delimiter queries test suite verified",
+            "Category 61: Triple Caret & Triple Underscore Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 61 triple caret and triple underscore delimiter suite",
+            "61. การค้นหาคำที่มีเครื่องหมายแคเร็ตสามชั้นและอันเดอร์สกอร์สามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
