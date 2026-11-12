@@ -2810,8 +2810,8 @@ async function shareSong(idx) {
 
   let canUseNativeShare = false;
   try {
-    if (navigator.share) {
-      canUseNativeShare = !navigator.canShare || navigator.canShare(shareData);
+    if (typeof navigator !== 'undefined' && navigator.share && typeof navigator.share === 'function') {
+      canUseNativeShare = !navigator.canShare || (typeof navigator.canShare === 'function' && navigator.canShare(shareData));
     }
   } catch (e) {
     canUseNativeShare = false;
@@ -2863,10 +2863,14 @@ function fallbackCopy(text, successMsg) {
   ta.style.top = '0';
   ta.style.left = '-9999px';
   ta.style.fontSize = '12pt';
-  document.body.appendChild(ta);
-  ta.select();
+  if (document.body && typeof document.body.appendChild === 'function') {
+    document.body.appendChild(ta);
+  } else {
+    return;
+  }
+  if (typeof ta.select === 'function') ta.select();
   try {
-    const successful = document.execCommand('copy');
+    const successful = (typeof document.execCommand === 'function') ? document.execCommand('copy') : false;
     if (successful) {
       showToast(msg);
     } else {
@@ -2875,7 +2879,7 @@ function fallbackCopy(text, successMsg) {
   } catch (e) {
     showToast('ไม่สามารถคัดลอกได้');
   } finally {
-    if (ta.parentNode) ta.parentNode.removeChild(ta);
+    if (ta.parentNode && typeof ta.parentNode.removeChild === 'function') ta.parentNode.removeChild(ta);
   }
 }
 
@@ -3279,13 +3283,13 @@ function getTheme() {
 }
 function applyTheme(theme) {
   const root = document.documentElement;
-  if (!root) return;
+  if (!root || typeof root.setAttribute !== 'function') return;
   if (theme === 'dark') {
     root.setAttribute('data-theme', 'dark');
   } else if (theme === 'light') {
     root.setAttribute('data-theme', 'light');
   } else {
-    root.removeAttribute('data-theme');
+    if (typeof root.removeAttribute === 'function') root.removeAttribute('data-theme');
   }
   updateThemeIcon();
 }
@@ -3318,13 +3322,15 @@ function updateThemeIcon() {
 }
 applyTheme(getTheme());
 try {
-  const mqlTheme = window.matchMedia('(prefers-color-scheme: dark)');
-  if (mqlTheme && mqlTheme.addEventListener) {
-    mqlTheme.addEventListener('change', function() {
-      if (getTheme() === 'auto') {
-        updateThemeIcon();
-      }
-    });
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    const mqlTheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mqlTheme && typeof mqlTheme.addEventListener === 'function') {
+      mqlTheme.addEventListener('change', function() {
+        if (getTheme() === 'auto') {
+          updateThemeIcon();
+        }
+      });
+    }
   }
 } catch (e) {}
 
