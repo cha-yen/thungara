@@ -876,6 +876,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 61 triple caret and triple underscore delimiter suite",
             "61. การค้นหาคำที่มีเครื่องหมายแคเร็ตสามชั้นและอันเดอร์สกอร์สามชั้น" in runner_text
         )
+        self.check(
+            "Data bootstrap UI state and filter population defensive guards implemented",
+            "if (elStats && DATA && Array.isArray(DATA.songs)) elStats.textContent" in html_content and "if (fArtist && typeof fArtist.insertAdjacentHTML === 'function'" in html_content
+        )
+        self.check(
+            "Category 62 left triple arrow and right triple arrow delimiter queries test suite verified",
+            "Category 62: Left Triple Arrow & Right Triple Arrow Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 62 left triple arrow and right triple arrow delimiter suite",
+            "62. การค้นหาคำที่มีเครื่องหมายลูกศรซ้ายสามชั้นและลูกศรขวาสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
