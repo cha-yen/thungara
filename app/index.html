@@ -1669,13 +1669,19 @@ async function loadData() {
 
     renderRecentSearches();
 
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('empty-state').style.display = 'block';
-    document.getElementById('stats').textContent = DATA.songs.length + ' เพลงพร้อมค้นหา';
+    const elLoading = document.getElementById('loading');
+    if (elLoading && elLoading.style) elLoading.style.display = 'none';
+    const elEmpty = document.getElementById('empty-state');
+    if (elEmpty && elEmpty.style) elEmpty.style.display = 'block';
+    const elStats = document.getElementById('stats');
+    if (elStats && DATA && Array.isArray(DATA.songs)) elStats.textContent = DATA.songs.length + ' เพลงพร้อมค้นหา';
     handleUrlParams();
   } catch (e) {
-    document.getElementById('loading').innerHTML =
-      '<p style="color:var(--mic-recording)">โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรช</p>';
+    const elLoading = document.getElementById('loading');
+    if (elLoading) {
+      elLoading.innerHTML =
+        '<p style="color:var(--mic-recording)">โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรช</p>';
+    }
   }
 }
 
@@ -1759,21 +1765,21 @@ function populateFilters() {
   const fArtist = document.getElementById('filter-artist');
   const fEmotion = document.getElementById('filter-emotion');
   const fYear = document.getElementById('filter-year');
-  if (fArtist && Array.isArray(DATA && DATA.artists)) {
+  if (fArtist && typeof fArtist.insertAdjacentHTML === 'function' && Array.isArray(DATA && DATA.artists)) {
     DATA.artists.forEach(a => {
       if (a !== null && a !== undefined && String(a).trim()) {
         fArtist.insertAdjacentHTML('beforeend', '<option value="'+esc(a)+'">'+esc(a)+'</option>');
       }
     });
   }
-  if (fEmotion && Array.isArray(DATA && DATA.emotions)) {
+  if (fEmotion && typeof fEmotion.insertAdjacentHTML === 'function' && Array.isArray(DATA && DATA.emotions)) {
     DATA.emotions.forEach(e => {
       if (e !== null && e !== undefined && String(e).trim()) {
         fEmotion.insertAdjacentHTML('beforeend', '<option value="'+esc(e)+'">'+esc(e)+'</option>');
       }
     });
   }
-  if (fYear && Array.isArray(DATA && DATA.years)) {
+  if (fYear && typeof fYear.insertAdjacentHTML === 'function' && Array.isArray(DATA && DATA.years)) {
     DATA.years.forEach(y => {
       if (y !== null && y !== undefined && String(y).trim()) {
         fYear.insertAdjacentHTML('beforeend', '<option value="'+esc(y)+'">'+esc(y)+'</option>');
@@ -3476,7 +3482,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v60') caches.delete(k);
+      if (k !== 'thungara-v61') caches.delete(k);
     });
   });
 }
