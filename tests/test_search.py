@@ -2408,6 +2408,32 @@ def run_all_tests():
         pass_tunderscore,
         f"Rank #1: {res_tunderscore[0]['title'] if res_tunderscore else None}, score={res_tunderscore[0]['score'] if res_tunderscore else None}"
     )
+    print("\nCategory 62: Left Triple Arrow & Right Triple Arrow Delimiter Omnibox Queries")
+    # 1. Left Triple Arrow Delimited Song Title and Artist Query
+    res_ltarrow = enhanced_search("ขอใจกันหนาว <<< ศิริพร อำไพพงษ์")
+    pass_ltarrow = (
+        len(res_ltarrow) > 0 and
+        res_ltarrow[0]['title'] == "ขอใจกันหนาว" and
+        res_ltarrow[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Left Triple Arrow Conjunction: 'ขอใจกันหนาว <<< ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_ltarrow,
+        f"Rank #1: {res_ltarrow[0]['title'] if res_ltarrow else None}, score={res_ltarrow[0]['score'] if res_ltarrow else None}"
+    )
+
+    # 2. Right Triple Arrow Delimited Song Title and Artist Query
+    res_rtarrow = enhanced_search("ขอใจกันหนาว >>> ศิริพร อำไพพงษ์")
+    pass_rtarrow = (
+        len(res_rtarrow) > 0 and
+        res_rtarrow[0]['title'] == "ขอใจกันหนาว" and
+        res_rtarrow[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Right Triple Arrow Conjunction: 'ขอใจกันหนาว >>> ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_rtarrow,
+        f"Rank #1: {res_rtarrow[0]['title'] if res_rtarrow else None}, score={res_rtarrow[0]['score'] if res_rtarrow else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
