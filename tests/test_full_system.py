@@ -888,6 +888,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 62 left triple arrow and right triple arrow delimiter suite",
             "62. การค้นหาคำที่มีเครื่องหมายลูกศรซ้ายสามชั้นและลูกศรขวาสามชั้น" in runner_text
         )
+        self.check(
+            "Toast controller and share handler defensive DOM and execution guards implemented",
+            "if (!document.body || typeof document.body.appendChild !== 'function') return;" in html_content and "typeof navigator !== 'undefined' && navigator.share && typeof navigator.share === 'function'" in html_content
+        )
+        self.check(
+            "Category 63 triple exclamation and triple question delimiter queries test suite verified",
+            "Category 63: Triple Exclamation & Triple Question Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 63 triple exclamation and triple question delimiter suite",
+            "63. การค้นหาคำที่มีเครื่องหมายอัศเจรีย์สามชั้นและปรัศนีสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
