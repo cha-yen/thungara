@@ -2434,6 +2434,33 @@ def run_all_tests():
         pass_rtarrow,
         f"Rank #1: {res_rtarrow[0]['title'] if res_rtarrow else None}, score={res_rtarrow[0]['score'] if res_rtarrow else None}"
     )
+
+    print("\nCategory 63: Triple Exclamation & Triple Question Delimiter Omnibox Queries")
+    # 1. Triple Exclamation Delimited Song Title and Artist Query
+    res_texclaim = enhanced_search("ขอใจกันหนาว !!! ศิริพร อำไพพงษ์")
+    pass_texclaim = (
+        len(res_texclaim) > 0 and
+        res_texclaim[0]['title'] == "ขอใจกันหนาว" and
+        res_texclaim[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Exclamation Conjunction: 'ขอใจกันหนาว !!! ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_texclaim,
+        f"Rank #1: {res_texclaim[0]['title'] if res_texclaim else None}, score={res_texclaim[0]['score'] if res_texclaim else None}"
+    )
+
+    # 2. Triple Question Delimited Song Title and Artist Query
+    res_tquestion = enhanced_search("ขอใจกันหนาว ??? ศิริพร อำไพพงษ์")
+    pass_tquestion = (
+        len(res_tquestion) > 0 and
+        res_tquestion[0]['title'] == "ขอใจกันหนาว" and
+        res_tquestion[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Question Conjunction: 'ขอใจกันหนาว ??? ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tquestion,
+        f"Rank #1: {res_tquestion[0]['title'] if res_tquestion else None}, score={res_tquestion[0]['score'] if res_tquestion else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
