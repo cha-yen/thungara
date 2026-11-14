@@ -2801,15 +2801,19 @@ async function shareSong(idx) {
   if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
   const song = DATA.songs[idx];
   const ytId = song.yt || (YOUTUBE_MAP ? (YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)]) : null);
-  const ytUrl = ytId ? 'https://youtu.be/' + ytId : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(song.title + ' ' + song.artist);
+  const songTitle = (song && typeof song.title === 'string') ? song.title : '';
+  const songArtist = (song && typeof song.artist === 'string') ? song.artist : '';
+  const ytUrl = ytId ? 'https://youtu.be/' + ytId : 'https://www.youtube.com/results?search_query=' + encodeURIComponent((songTitle + ' ' + songArtist).trim());
   
-  const rawLyrics = song.lyrics || '';
+  const rawLyrics = (song && typeof song.lyrics === 'string') ? song.lyrics : '';
   const snippet = rawLyrics ? rawLyrics.split('\n').filter(l => l.trim()).slice(0, 3).join('\n') : '';
-  const appUrl = (window.location.origin && window.location.origin !== 'null' && window.location.pathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
-  const shareText = '🎵 เพลง: ' + song.title + '\n🎤 ศิลปิน: ' + song.artist + '\n\n"' + snippet + '..."\n\n' + (appUrl ? 'อ่านเนื้อเพลง: ' + appUrl + '\n' : '') + 'ฟังเพลง: ' + ytUrl;
+  const hasOrigin = window.location && typeof window.location.origin === 'string' && window.location.origin !== 'null';
+  const hasPathname = window.location && typeof window.location.pathname === 'string';
+  const appUrl = (hasOrigin && hasPathname) ? (window.location.origin + window.location.pathname + '?song=' + idx) : '';
+  const shareText = '🎵 เพลง: ' + songTitle + '\n🎤 ศิลปิน: ' + songArtist + '\n\n"' + snippet + '..."\n\n' + (appUrl ? 'อ่านเนื้อเพลง: ' + appUrl + '\n' : '') + 'ฟังเพลง: ' + ytUrl;
 
   const shareData = {
-    title: song.title + ' - ' + song.artist,
+    title: (songTitle + ' - ' + songArtist).trim(),
     text: shareText,
     url: ytUrl,
   };
@@ -2828,12 +2832,12 @@ async function shareSong(idx) {
       await navigator.share(shareData);
       return;
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err && err.name !== 'AbortError') {
         copyToClipboard(shareText, 'คัดลอกข้อมูลเพลงเรียบร้อยแล้ว!');
       }
     }
   } else {
-    copyToClipboard(shareText, 'คัดลอกข้อมูลเพลงและลิงก์ YouTube แล้ว!');
+    copyToClipboard(shareText, 'คัดลอกข้อมูลเพลงและลิงก์ YouTube เรียบร้อยแล้ว!');
   }
 }
 
@@ -2894,19 +2898,25 @@ function showToast(msg) {
   if (!msg || typeof msg !== 'string' || !msg.trim()) return;
   let toast = document.getElementById('toast-msg');
   if (!toast) {
-    if (!document.body) return;
+    if (!document.body || typeof document.body.appendChild !== 'function') return;
     toast = document.createElement('div');
     toast.id = 'toast-msg';
     toast.className = 'toast-msg';
-    toast.setAttribute('role', 'status');
-    toast.setAttribute('aria-live', 'polite');
+    if (typeof toast.setAttribute === 'function') {
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+    }
     document.body.appendChild(toast);
   }
   toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + esc(msg);
-  toast.classList.add('show');
+  if (toast.classList && typeof toast.classList.add === 'function') {
+    toast.classList.add('show');
+  }
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
-    toast.classList.remove('show');
+    if (toast && toast.classList && typeof toast.classList.remove === 'function') {
+      toast.classList.remove('show');
+    }
   }, 2500);
 }
 
