@@ -2416,7 +2416,7 @@ function sortResultsList(list) {
 }
 
 function applySortAndRender() {
-  if (!rawSearchResults || rawSearchResults.length === 0) {
+  if (!rawSearchResults || !Array.isArray(rawSearchResults) || rawSearchResults.length === 0) {
     if (currentQuery || (document.getElementById('filter-artist') && document.getElementById('filter-artist').value)
         || (document.getElementById('filter-emotion') && document.getElementById('filter-emotion').value)
         || (document.getElementById('filter-year') && document.getElementById('filter-year').value)) {
@@ -3077,7 +3077,7 @@ function handleRecordingOverlayClick() {
 }
 
 function toggleRecording() {
-  if (!recognition) return;
+  if (!recognition || typeof recognition.stop !== 'function' || typeof recognition.start !== 'function') return;
   if (isRecording) {
     manualStopRequested = true;
     try { recognition.stop(); } catch (e) { console.warn('recognition stop error:', e); }
@@ -3151,12 +3151,14 @@ function clearSearch() {
   const el = document.getElementById('search-input');
   if (el) {
     el.value = '';
-    el.style.height = 'auto';
+    if (el.style) el.style.height = 'auto';
   }
   currentQuery = '';
   rawSearchResults = [];
   const btnClear = document.getElementById('btn-clear');
-  if (btnClear) btnClear.classList.remove('show');
+  if (btnClear && btnClear.classList && typeof btnClear.classList.remove === 'function') {
+    btnClear.classList.remove('show');
+  }
   setSearchProgress(false);
   const fArtist = document.getElementById('filter-artist');
   if (fArtist) fArtist.value = '';
