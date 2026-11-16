@@ -900,6 +900,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 63 triple exclamation and triple question delimiter suite",
             "63. การค้นหาคำที่มีเครื่องหมายอัศเจรีย์สามชั้นและปรัศนีสามชั้น" in runner_text
         )
+        self.check(
+            "ClearSearch and toggleRecording defensive execution and classList guards implemented",
+            "if (btnClear && btnClear.classList && typeof btnClear.classList.remove === 'function')" in html_content and "if (!recognition || typeof recognition.stop !== 'function' || typeof recognition.start !== 'function') return;" in html_content
+        )
+        self.check(
+            "Category 64 triple hash and triple backslash delimiter queries test suite verified",
+            "Category 64: Triple Hash & Triple Backslash Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 64 triple hash and triple backslash delimiter suite",
+            "64. การค้นหาคำที่มีเครื่องหมายแฮชสามชั้นและแบ็กสแลชสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

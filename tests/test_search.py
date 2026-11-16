@@ -2461,6 +2461,33 @@ def run_all_tests():
         pass_tquestion,
         f"Rank #1: {res_tquestion[0]['title'] if res_tquestion else None}, score={res_tquestion[0]['score'] if res_tquestion else None}"
     )
+
+    print("\nCategory 64: Triple Hash & Triple Backslash Delimiter Omnibox Queries")
+    # 1. Triple Hash Delimited Song Title and Artist Query
+    res_thash = enhanced_search("ขอใจกันหนาว ### ศิริพร อำไพพงษ์")
+    pass_thash = (
+        len(res_thash) > 0 and
+        res_thash[0]['title'] == "ขอใจกันหนาว" and
+        res_thash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Hash Conjunction: 'ขอใจกันหนาว ### ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_thash,
+        f"Rank #1: {res_thash[0]['title'] if res_thash else None}, score={res_thash[0]['score'] if res_thash else None}"
+    )
+
+    # 2. Triple Backslash Delimited Song Title and Artist Query
+    res_tbslash = enhanced_search(r"ขอใจกันหนาว \\\ ศิริพร อำไพพงษ์")
+    pass_tbslash = (
+        len(res_tbslash) > 0 and
+        res_tbslash[0]['title'] == "ขอใจกันหนาว" and
+        res_tbslash[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        r"Triple Backslash Conjunction: 'ขอใจกันหนาว \\\ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tbslash,
+        f"Rank #1: {res_tbslash[0]['title'] if res_tbslash else None}, score={res_tbslash[0]['score'] if res_tbslash else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
