@@ -912,6 +912,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 64 triple hash and triple backslash delimiter suite",
             "64. การค้นหาคำที่มีเครื่องหมายแฮชสามชั้นและแบ็กสแลชสามชั้น" in runner_text
         )
+        self.check(
+            "Esc fallback and filterByArtistFromModal scroll defensive guards implemented",
+            "if (typeof document !== 'undefined' && document && typeof document.createElement === 'function')" in html_content and "if (typeof window !== 'undefined' && typeof window.scrollTo === 'function')" in html_content
+        )
+        self.check(
+            "Category 65 triple at sign and triple percent delimiter queries test suite verified",
+            "Category 65: Triple At Sign & Triple Percent Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 65 triple at sign and triple percent delimiter suite",
+            "65. การค้นหาคำที่มีเครื่องหมายแอทสามชั้นและเปอร์เซ็นต์สามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

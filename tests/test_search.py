@@ -2488,6 +2488,33 @@ def run_all_tests():
         pass_tbslash,
         f"Rank #1: {res_tbslash[0]['title'] if res_tbslash else None}, score={res_tbslash[0]['score'] if res_tbslash else None}"
     )
+
+    print("\nCategory 65: Triple At Sign & Triple Percent Delimiter Omnibox Queries")
+    # 1. Triple At Sign Delimited Song Title and Artist Query
+    res_tat = enhanced_search("ขอใจกันหนาว @@@ ศิริพร อำไพพงษ์")
+    pass_tat = (
+        len(res_tat) > 0 and
+        res_tat[0]['title'] == "ขอใจกันหนาว" and
+        res_tat[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple At Sign Conjunction: 'ขอใจกันหนาว @@@ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tat,
+        f"Rank #1: {res_tat[0]['title'] if res_tat else None}, score={res_tat[0]['score'] if res_tat else None}"
+    )
+
+    # 2. Triple Percent Delimited Song Title and Artist Query
+    res_tpercent = enhanced_search("ขอใจกันหนาว %%% ศิริพร อำไพพงษ์")
+    pass_tpercent = (
+        len(res_tpercent) > 0 and
+        res_tpercent[0]['title'] == "ขอใจกันหนาว" and
+        res_tpercent[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Percent Conjunction: 'ขอใจกันหนาว %%% ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tpercent,
+        f"Rank #1: {res_tpercent[0]['title'] if res_tpercent else None}, score={res_tpercent[0]['score'] if res_tpercent else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
