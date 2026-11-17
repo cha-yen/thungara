@@ -2558,7 +2558,7 @@ function appendNextBatch(query) {
 
 function loadMore() {
   if (!Array.isArray(currentResults) || displayedCount >= currentResults.length) return;
-  appendNextBatch(currentQuery);
+  if (typeof appendNextBatch === 'function') appendNextBatch(currentQuery);
 }
 
 function getPreview(lyrics, query, matchedTerms) {
@@ -2703,7 +2703,9 @@ function filterByArtistFromModal(artistName) {
     if (resultsArea) {
       const searchBox = document.querySelector('.search-area');
       const offset = searchBox ? searchBox.offsetHeight + 40 : 200;
-      window.scrollTo({ top: offset, behavior: 'smooth' });
+      if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
+        window.scrollTo({ top: offset, behavior: 'smooth' });
+      }
     }
     showToast('🎤 ค้นหาผลงานทั้งหมดของ: ' + artistName);
   }
@@ -3354,9 +3356,17 @@ try {
 
 function esc(s) {
   if (s === null || s === undefined) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
+  if (typeof document !== 'undefined' && document && typeof document.createElement === 'function') {
+    const d = document.createElement('div');
+    d.textContent = String(s);
+    return d.innerHTML;
+  }
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 function escRegex(s) {
   if (!s || typeof s !== 'string') return '';
@@ -3494,7 +3504,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v63') caches.delete(k);
+      if (k !== 'thungara-v64') caches.delete(k);
     });
   });
 }
