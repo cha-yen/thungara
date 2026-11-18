@@ -2515,6 +2515,33 @@ def run_all_tests():
         pass_tpercent,
         f"Rank #1: {res_tpercent[0]['title'] if res_tpercent else None}, score={res_tpercent[0]['score'] if res_tpercent else None}"
     )
+
+    print("\nCategory 66: Triple Dollar & Triple Ampersand Delimiter Omnibox Queries")
+    # 1. Triple Dollar Delimited Song Title and Artist Query
+    res_tdollar = enhanced_search("ขอใจกันหนาว $$$ ศิริพร อำไพพงษ์")
+    pass_tdollar = (
+        len(res_tdollar) > 0 and
+        res_tdollar[0]['title'] == "ขอใจกันหนาว" and
+        res_tdollar[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Dollar Conjunction: 'ขอใจกันหนาว $$$ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tdollar,
+        f"Rank #1: {res_tdollar[0]['title'] if res_tdollar else None}, score={res_tdollar[0]['score'] if res_tdollar else None}"
+    )
+
+    # 2. Triple Ampersand Delimited Song Title and Artist Query
+    res_tamp = enhanced_search("ขอใจกันหนาว &&& ศิริพร อำไพพงษ์")
+    pass_tamp = (
+        len(res_tamp) > 0 and
+        res_tamp[0]['title'] == "ขอใจกันหนาว" and
+        res_tamp[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Ampersand Conjunction: 'ขอใจกันหนาว &&& ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tamp,
+        f"Rank #1: {res_tamp[0]['title'] if res_tamp else None}, score={res_tamp[0]['score'] if res_tamp else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0

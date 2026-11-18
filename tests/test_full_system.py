@@ -924,6 +924,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 65 triple at sign and triple percent delimiter suite",
             "65. การค้นหาคำที่มีเครื่องหมายแอทสามชั้นและเปอร์เซ็นต์สามชั้น" in runner_text
         )
+        self.check(
+            "MatchMedia listener and autoResize defensive execution guards implemented",
+            "mqlTheme && typeof mqlTheme.addEventListener === 'function'" in html_content and "typeof el.scrollHeight !== 'number' || isNaN(el.scrollHeight)" in html_content
+        )
+        self.check(
+            "Category 66 triple dollar and triple ampersand delimiter queries test suite verified",
+            "Category 66: Triple Dollar & Triple Ampersand Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 66 triple dollar and triple ampersand delimiter suite",
+            "66. การค้นหาคำที่มีเครื่องหมายดอลลาร์สามชั้นและแอมเพอร์แซนด์สามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
