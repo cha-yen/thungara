@@ -2542,6 +2542,33 @@ def run_all_tests():
         pass_tamp,
         f"Rank #1: {res_tamp[0]['title'] if res_tamp else None}, score={res_tamp[0]['score'] if res_tamp else None}"
     )
+
+    print("\nCategory 67: Triple Semicolon & Triple Colon Delimiter Omnibox Queries")
+    # 1. Triple Semicolon Delimited Song Title and Artist Query
+    res_tsemi = enhanced_search("ขอใจกันหนาว ;;; ศิริพร อำไพพงษ์")
+    pass_tsemi = (
+        len(res_tsemi) > 0 and
+        res_tsemi[0]['title'] == "ขอใจกันหนาว" and
+        res_tsemi[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Semicolon Conjunction: 'ขอใจกันหนาว ;;; ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tsemi,
+        f"Rank #1: {res_tsemi[0]['title'] if res_tsemi else None}, score={res_tsemi[0]['score'] if res_tsemi else None}"
+    )
+
+    # 2. Triple Colon Delimited Song Title and Artist Query
+    res_tcolon = enhanced_search("ขอใจกันหนาว ::: ศิริพร อำไพพงษ์")
+    pass_tcolon = (
+        len(res_tcolon) > 0 and
+        res_tcolon[0]['title'] == "ขอใจกันหนาว" and
+        res_tcolon[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Colon Conjunction: 'ขอใจกันหนาว ::: ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tcolon,
+        f"Rank #1: {res_tcolon[0]['title'] if res_tcolon else None}, score={res_tcolon[0]['score'] if res_tcolon else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
