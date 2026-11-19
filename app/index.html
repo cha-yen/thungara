@@ -1913,6 +1913,7 @@ function fuzzyMatchWindow(queryNorm, targetNorm, maxDiff = 1, allowLengthChange 
 }
 
 function editDistanceAtMost(textA, textB, maxDistance) {
+  if (typeof textA !== 'string' || typeof textB !== 'string') return false;
   if (textA === textB) return true;
   if (Math.abs(textA.length - textB.length) > maxDistance) return false;
   let a = 0;
@@ -2038,6 +2039,7 @@ function findOverlapRange(queryNorm, targetNorm, minLength = 2) {
 }
 
 function highlightFuzzyRange(text, query) {
+  if (!text || !query || typeof text !== 'string' || typeof query !== 'string') return null;
   const queryNorm = normalizeText(query);
   const targetNorm = normalizeText(text);
   if (queryNorm.length < 4 || targetNorm.includes(queryNorm)) return null;
@@ -2059,11 +2061,12 @@ function highlightFuzzyRange(text, query) {
 }
 
 function countOccurrences(str, sub, maxCount = 4) {
-  if (!sub || !str) return 0;
+  if (!sub || !str || typeof str !== 'string' || typeof sub !== 'string') return 0;
+  const limit = (typeof maxCount === 'number' && !isNaN(maxCount) && maxCount > 0) ? maxCount : 4;
   let count = 0, pos = 0;
   while ((pos = str.indexOf(sub, pos)) !== -1) {
     count++;
-    if (count >= maxCount) break;
+    if (count >= limit) break;
     pos += sub.length;
   }
   return count;
