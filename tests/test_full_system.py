@@ -936,6 +936,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 66 triple dollar and triple ampersand delimiter suite",
             "66. การค้นหาคำที่มีเครื่องหมายดอลลาร์สามชั้นและแอมเพอร์แซนด์สามชั้น" in runner_text
         )
+        self.check(
+            "CountOccurrences and highlightFuzzyRange defensive string type guards implemented",
+            "if (!sub || !str || typeof str !== 'string' || typeof sub !== 'string') return 0;" in html_content and "if (!text || !query || typeof text !== 'string' || typeof query !== 'string') return null;" in html_content
+        )
+        self.check(
+            "Category 67 triple semicolon and triple colon delimiter queries test suite verified",
+            "Category 67: Triple Semicolon & Triple Colon Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 67 triple semicolon and triple colon delimiter suite",
+            "67. การค้นหาคำที่มีเครื่องหมายอัฒภาคสามชั้นและทวิภาคสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
