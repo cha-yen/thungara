@@ -2569,6 +2569,33 @@ def run_all_tests():
         pass_tcolon,
         f"Rank #1: {res_tcolon[0]['title'] if res_tcolon else None}, score={res_tcolon[0]['score'] if res_tcolon else None}"
     )
+
+    print("\nCategory 68: Triple Backtick & Triple Quotation Mark Delimiter Omnibox Queries")
+    # 1. Triple Backtick Delimited Song Title and Artist Query
+    res_tbtick = enhanced_search("ขอใจกันหนาว ``` ศิริพร อำไพพงษ์")
+    pass_tbtick = (
+        len(res_tbtick) > 0 and
+        res_tbtick[0]['title'] == "ขอใจกันหนาว" and
+        res_tbtick[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Backtick Conjunction: 'ขอใจกันหนาว ``` ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tbtick,
+        f"Rank #1: {res_tbtick[0]['title'] if res_tbtick else None}, score={res_tbtick[0]['score'] if res_tbtick else None}"
+    )
+
+    # 2. Triple Quotation Mark Delimited Song Title and Artist Query
+    res_tquote = enhanced_search('ขอใจกันหนาว """ ศิริพร อำไพพงษ์')
+    pass_tquote = (
+        len(res_tquote) > 0 and
+        res_tquote[0]['title'] == "ขอใจกันหนาว" and
+        res_tquote[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        'Triple Quotation Mark Conjunction: \'ขอใจกันหนาว """ ศิริพร อำไพพงษ์\' ranks \'ขอใจกันหนาว\' at #1 with score >= 0.95',
+        pass_tquote,
+        f"Rank #1: {res_tquote[0]['title'] if res_tquote else None}, score={res_tquote[0]['score'] if res_tquote else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
