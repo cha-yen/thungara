@@ -1513,12 +1513,12 @@ const SYNONYMS = {
 };
 
 function normalizeText(text) {
-  if (!text) return '';
+  if (!text || typeof text !== 'string') return '';
   return text.replace(/&amp;/gi, ' ').toLowerCase().replace(/[^฀-๿a-z0-9]/g, '');
 }
 
 function isValidThaiQuery(text) {
-  if (!text) return false;
+  if (!text || typeof text !== 'string') return false;
   const match = text.match(/[\u0e01-\u0e5b]/);
   if (!match) return true;
   const code = match[0].charCodeAt(0);
@@ -1789,7 +1789,7 @@ function populateFilters() {
 }
 
 function tokenizeQuery(text) {
-  if (!vocabSet || !text) return [];
+  if (!vocabSet || !text || typeof text !== 'string') return [];
   const cleaned = text.replace(/[^฀-๿a-zA-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
   const segments = cleaned.split(/\s+/).filter(s => s.length > 0);
   const tokens = [];
