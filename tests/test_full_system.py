@@ -948,6 +948,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 67 triple semicolon and triple colon delimiter suite",
             "67. การค้นหาคำที่มีเครื่องหมายอัฒภาคสามชั้นและทวิภาคสามชั้น" in runner_text
         )
+        self.check(
+            "NormalizeText, isValidThaiQuery, and tokenizeQuery defensive string type guards implemented",
+            "if (!text || typeof text !== 'string') return '';" in html_content and "if (!text || typeof text !== 'string') return false;" in html_content and "if (!vocabSet || !text || typeof text !== 'string') return [];" in html_content
+        )
+        self.check(
+            "Category 68 triple backtick and triple quotation mark delimiter queries test suite verified",
+            "Category 68: Triple Backtick & Triple Quotation Mark Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 68 triple backtick and triple quotation mark delimiter suite",
+            "68. การค้นหาคำที่มีเครื่องหมายแบ็กทิกสามชั้นและเครื่องหมายคำพูดสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
