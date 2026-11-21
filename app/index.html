@@ -2717,7 +2717,7 @@ function filterByArtistFromModal(artistName) {
 let previousActiveElement = null;
 
 function openModal(idx) {
-  if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
+  if (typeof idx !== 'number' || isNaN(idx) || idx < 0 || !DATA || !DATA.songs || !DATA.songs[idx]) return;
   previousActiveElement = document.activeElement;
   currentModalSongIdx = idx;
   const song = DATA.songs[idx];
@@ -2803,7 +2803,7 @@ function shareCurrentSong() {
 }
 
 async function shareSong(idx) {
-  if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
+  if (typeof idx !== 'number' || isNaN(idx) || idx < 0 || !DATA || !DATA.songs || !DATA.songs[idx]) return;
   const song = DATA.songs[idx];
   const ytId = song.yt || (YOUTUBE_MAP ? (YOUTUBE_MAP[song.id] || YOUTUBE_MAP[String(song.id)] || YOUTUBE_MAP[String(idx)]) : null);
   const songTitle = (song && typeof song.title === 'string') ? song.title : '';
@@ -2847,7 +2847,7 @@ async function shareSong(idx) {
 }
 
 function copyLyrics(idx) {
-  if (!DATA || !DATA.songs || !DATA.songs[idx]) return;
+  if (typeof idx !== 'number' || isNaN(idx) || idx < 0 || !DATA || !DATA.songs || !DATA.songs[idx]) return;
   const song = DATA.songs[idx];
   const fullText = 'เพลง: ' + song.title + '\nศิลปิน: ' + song.artist + '\n\n' + (song.lyrics || '');
   copyToClipboard(fullText, 'คัดลอกเนื้อเพลงทั้งหมดเรียบร้อย!');
