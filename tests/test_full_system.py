@@ -960,6 +960,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 68 triple backtick and triple quotation mark delimiter suite",
             "68. การค้นหาคำที่มีเครื่องหมายแบ็กทิกสามชั้นและเครื่องหมายคำพูดสามชั้น" in runner_text
         )
+        self.check(
+            "OpenModal, shareSong, and copyLyrics defensive numeric type and bounds guards implemented",
+            "if (typeof idx !== 'number' || isNaN(idx) || idx < 0 || !DATA || !DATA.songs || !DATA.songs[idx]) return;" in html_content
+        )
+        self.check(
+            "Category 69 triple open bracket and triple close bracket delimiter queries test suite verified",
+            "Category 69: Triple Open Bracket & Triple Close Bracket Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 69 triple open bracket and triple close bracket delimiter suite",
+            "69. การค้นหาคำที่มีเครื่องหมายวงเล็บเหลี่ยมเปิดสามชั้นและวงเล็บเหลี่ยมปิดสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed
