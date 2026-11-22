@@ -972,6 +972,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 69 triple open bracket and triple close bracket delimiter suite",
             "69. การค้นหาคำที่มีเครื่องหมายวงเล็บเหลี่ยมเปิดสามชั้นและวงเล็บเหลี่ยมปิดสามชั้น" in runner_text
         )
+        self.check(
+            "CopyCurrentLyrics, shareCurrentSong, and renderVideoPreview defensive NaN and object type guards implemented",
+            "if (typeof currentModalSongIdx === 'number' && !isNaN(currentModalSongIdx) && currentModalSongIdx >= 0)" in html_content and "if (!song || typeof song !== 'object')" in html_content
+        )
+        self.check(
+            "Category 70 triple open parenthesis and triple close parenthesis delimiter queries test suite verified",
+            "Category 70: Triple Open Parenthesis & Triple Close Parenthesis Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 70 triple open parenthesis and triple close parenthesis delimiter suite",
+            "70. การค้นหาคำที่มีเครื่องหมายวงเล็บเปิดสามชั้นและวงเล็บปิดสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

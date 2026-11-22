@@ -2760,7 +2760,7 @@ function openModal(idx) {
 function renderVideoPreview(song, idx) {
   const container = document.getElementById('modal-video-wrap');
   if (!container) return;
-  if (!song) {
+  if (!song || typeof song !== 'object') {
     if (container.style) container.style.display = 'none';
     container.innerHTML = '';
     return;
@@ -2791,13 +2791,13 @@ function renderVideoPreview(song, idx) {
 }
 
 function copyCurrentLyrics() {
-  if (typeof currentModalSongIdx === 'number') {
+  if (typeof currentModalSongIdx === 'number' && !isNaN(currentModalSongIdx) && currentModalSongIdx >= 0) {
     copyLyrics(currentModalSongIdx);
   }
 }
 
 function shareCurrentSong() {
-  if (typeof currentModalSongIdx === 'number') {
+  if (typeof currentModalSongIdx === 'number' && !isNaN(currentModalSongIdx) && currentModalSongIdx >= 0) {
     shareSong(currentModalSongIdx);
   }
 }
@@ -3510,7 +3510,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v68') caches.delete(k);
+      if (k !== 'thungara-v69') caches.delete(k);
     });
   });
 }
