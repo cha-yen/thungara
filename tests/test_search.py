@@ -2623,6 +2623,33 @@ def run_all_tests():
         pass_tcbrack,
         f"Rank #1: {res_tcbrack[0]['title'] if res_tcbrack else None}, score={res_tcbrack[0]['score'] if res_tcbrack else None}"
     )
+
+    print("\nCategory 70: Triple Open Parenthesis & Triple Close Parenthesis Delimiter Omnibox Queries")
+    # 1. Triple Open Parenthesis Delimited Song Title and Artist Query
+    res_toparen = enhanced_search("ขอใจกันหนาว ((( ศิริพร อำไพพงษ์")
+    pass_toparen = (
+        len(res_toparen) > 0 and
+        res_toparen[0]['title'] == "ขอใจกันหนาว" and
+        res_toparen[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Open Parenthesis Conjunction: 'ขอใจกันหนาว ((( ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_toparen,
+        f"Rank #1: {res_toparen[0]['title'] if res_toparen else None}, score={res_toparen[0]['score'] if res_toparen else None}"
+    )
+
+    # 2. Triple Close Parenthesis Delimited Song Title and Artist Query
+    res_tcparen = enhanced_search("ขอใจกันหนาว ))) ศิริพร อำไพพงษ์")
+    pass_tcparen = (
+        len(res_tcparen) > 0 and
+        res_tcparen[0]['title'] == "ขอใจกันหนาว" and
+        res_tcparen[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Close Parenthesis Conjunction: 'ขอใจกันหนาว ))) ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tcparen,
+        f"Rank #1: {res_tcparen[0]['title'] if res_tcparen else None}, score={res_tcparen[0]['score'] if res_tcparen else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
