@@ -1695,7 +1695,8 @@ function handleUrlParams() {
     } catch (e) {
       console.warn('Malformed URI in hash:', e);
     }
-    const params = new URLSearchParams(window.location.search);
+    const searchStr = (typeof window !== 'undefined' && window.location && typeof window.location.search === 'string') ? window.location.search : '';
+    const params = new URLSearchParams(searchStr);
     const songParam = params.get('song');
     const qParam = params.get('q');
     const artistParam = params.get('artist');
@@ -1749,7 +1750,7 @@ function handleUrlParams() {
         autoResize(input);
         currentQuery = initialQuery;
         const btnClear = document.getElementById('btn-clear');
-        if (btnClear) btnClear.classList.add('show');
+        if (btnClear && btnClear.classList && typeof btnClear.classList.add === 'function') btnClear.classList.add('show');
       }
     }
 
@@ -2385,8 +2386,8 @@ function sortResultsList(list) {
   }
   return [...list].sort((a, b) => {
     if (!a || !b) return 0;
-    const sA = DATA.songs[a.idx];
-    const sB = DATA.songs[b.idx];
+    const sA = (typeof a.idx === 'number' && a.idx >= 0 && DATA.songs[a.idx]) ? DATA.songs[a.idx] : null;
+    const sB = (typeof b.idx === 'number' && b.idx >= 0 && DATA.songs[b.idx]) ? DATA.songs[b.idx] : null;
     if (!sA || !sB) return 0;
     const scoreA = (typeof a.score === 'number') ? a.score : 0;
     const scoreB = (typeof b.score === 'number') ? b.score : 0;
@@ -3510,7 +3511,7 @@ window.addEventListener('scroll', function() {
 if ('caches' in window) {
   caches.keys().then(keys => {
     keys.forEach(k => {
-      if (k !== 'thungara-v69') caches.delete(k);
+      if (k !== 'thungara-v70') caches.delete(k);
     });
   });
 }
