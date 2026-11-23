@@ -984,6 +984,18 @@ class FullSystemTester:
             "Browser test runner synced with Category 70 triple open parenthesis and triple close parenthesis delimiter suite",
             "70. การค้นหาคำที่มีเครื่องหมายวงเล็บเปิดสามชั้นและวงเล็บปิดสามชั้น" in runner_text
         )
+        self.check(
+            "HandleUrlParams and sortResultsList defensive safety and index bounds guards implemented",
+            "const searchStr = (typeof window !== 'undefined' && window.location && typeof window.location.search === 'string') ? window.location.search : '';" in html_content and "const sA = (typeof a.idx === 'number' && a.idx >= 0 && DATA.songs[a.idx]) ? DATA.songs[a.idx] : null;" in html_content
+        )
+        self.check(
+            "Category 71 triple open brace and triple close brace delimiter queries test suite verified",
+            "Category 71: Triple Open Brace & Triple Close Brace Delimiter Omnibox Queries" in open(os.path.join(PROJECT_ROOT, 'tests', 'test_search.py'), encoding='utf-8').read()
+        )
+        self.check(
+            "Browser test runner synced with Category 71 triple open brace and triple close brace delimiter suite",
+            "71. การค้นหาคำที่มีเครื่องหมายวงเล็บปีกกาเปิดสามชั้นและวงเล็บปีกกาปิดสามชั้น" in runner_text
+        )
         # Final Summary
         print("\n" + "=" * 65)
         total = self.passed + self.failed

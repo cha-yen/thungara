@@ -2650,6 +2650,33 @@ def run_all_tests():
         pass_tcparen,
         f"Rank #1: {res_tcparen[0]['title'] if res_tcparen else None}, score={res_tcparen[0]['score'] if res_tcparen else None}"
     )
+
+    print("\nCategory 71: Triple Open Brace & Triple Close Brace Delimiter Omnibox Queries")
+    # 1. Triple Open Brace Delimited Song Title and Artist Query
+    res_tobrace = enhanced_search("ขอใจกันหนาว {{{ ศิริพร อำไพพงษ์")
+    pass_tobrace = (
+        len(res_tobrace) > 0 and
+        res_tobrace[0]['title'] == "ขอใจกันหนาว" and
+        res_tobrace[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Open Brace Conjunction: 'ขอใจกันหนาว {{{ ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tobrace,
+        f"Rank #1: {res_tobrace[0]['title'] if res_tobrace else None}, score={res_tobrace[0]['score'] if res_tobrace else None}"
+    )
+
+    # 2. Triple Close Brace Delimited Song Title and Artist Query
+    res_tcbrace = enhanced_search("ขอใจกันหนาว }}} ศิริพร อำไพพงษ์")
+    pass_tcbrace = (
+        len(res_tcbrace) > 0 and
+        res_tcbrace[0]['title'] == "ขอใจกันหนาว" and
+        res_tcbrace[0]['score'] >= 0.95
+    )
+    report.assert_test(
+        "Triple Close Brace Conjunction: 'ขอใจกันหนาว }}} ศิริพร อำไพพงษ์' ranks 'ขอใจกันหนาว' at #1 with score >= 0.95",
+        pass_tcbrace,
+        f"Rank #1: {res_tcbrace[0]['title'] if res_tcbrace else None}, score={res_tcbrace[0]['score'] if res_tcbrace else None}"
+    )
     print("\n========================================================")
     print(f"  TEST SUMMARY: Total={report.total}, Passed={report.passed}, Failed={report.failed}")
     success_rate = (report.passed / report.total) * 100 if report.total > 0 else 0
