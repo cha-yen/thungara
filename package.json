@@ -1,0 +1,26 @@
+{
+  "name": "thungara",
+  "version": "1.70.0",
+  "description": "Thai Country (Luk Thung) Song Lyrics Search Engine - Real-time In-Browser Pure Vanilla JS",
+  "main": "app/index.html",
+  "scripts": {
+    "test": "node tests/run_all.js",
+    "test:system": "node tests/test_full_system.js",
+    "test:search": "node tests/test_search.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cha-yen/thungara.git"
+  },
+  "keywords": [
+    "search-engine",
+    "lyrics",
+    "thai",
+    "luk-thung",
+    "pwa",
+    "vanilla-js",
+    "tf-idf"
+  ],
+  "author": "Thungara Contributors",
+  "license": "MIT"
+}
