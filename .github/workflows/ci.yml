@@ -29,8 +29,14 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Run Zero-Dependency Linter & Syntax Guard
+        run: npm run lint
+
       - name: Run Node.js Unified Test Suite
         run: npm test
+
+      - name: Run Search Latency & Memory Benchmark SLA
+        run: npm run bench
 
       - name: Run Python Full-System Audit
         run: python tests/test_full_system.py
