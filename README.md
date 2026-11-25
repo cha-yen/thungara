@@ -4,7 +4,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Ready-f59e0b?style=flat-square&logo=pwa)](app/manifest.json)
 [![JavaScript](https://img.shields.io/badge/Vanilla_JS-Zero_Dependencies-yellow?style=flat-square&logo=javascript)](app/index.html)
 [![Service Worker](https://img.shields.io/badge/Cache-thungara--v70-green?style=flat-square)](app/sw.js)
-[![Tests](https://img.shields.io/badge/Tests-415_Passed-success?style=flat-square)](tests/run_all.js)
+[![Tests](https://img.shields.io/badge/Tests-432_Passed-success?style=flat-square)](tests/run_all.js)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
 > ระบบค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง ค้นหาด้วยชื่อเพลง ท่อนเนื้อร้อง ศิลปิน หรือร้องผ่านไมโครโฟนได้ทันที ประมวลผลรวดเร็วบนเบราว์เซอร์แบบ Real-time 100% (Pure Vanilla JS — Zero Dependencies)
@@ -52,14 +52,17 @@ thungara/
 │   ├── data.json             — ฐานข้อมูลเพลง 1,500 เพลง พร้อม TF-IDF Vectors
 │   └── youtube_ids.json      — YouTube Video IDs สำหรับฟังเพลงจริง
 ├── tests/
-│   ├── run_all.js            — Unified Test Runner รันการทดสอบทั้งหมดผ่าน Node.js
+│   ├── run_all.js            — Unified Test Runner รันการทดสอบทั้งหมดผ่าน Node.js (432 Checks)
+│   ├── lint.js               — Zero-Dependency Linter & Syntax Guard (17 Checks)
+│   ├── benchmark.js          — Search Latency & Memory Stress Benchmark (1,000 Queries SLA)
 │   ├── test_full_system.js   — ชุดตรวจสอบระบบฉบับ Node.js (239 Checks)
 │   ├── test_search.js        — ชุดทดสอบ Core Search ฉบับ Node.js (71 หมวด / 176 Assertions)
 │   ├── test_full_system.py   — ชุดตรวจสอบระบบฉบับ Python (239 Checks)
 │   ├── test_search.py        — ชุดทดสอบ Core Search ฉบับ Python (71 หมวด / 176 Assertions)
 │   ├── test_runner.html      — หน้าทดสอบบนเบราว์เซอร์พร้อม UI วัด Latency (176 Tests)
 │   └── run_test.bat          — สคริปต์ 1-Click รันทดสอบอัตโนมัติบน Windows
-└── package.json              — Zero-dependency npm scripts สำหรับรันทดสอบ
+├── package.json              — Zero-dependency npm scripts สำหรับรันทดสอบ/Lint/Benchmark
+└── vercel.json               — Production Rewrites, Security Headers (CSP), และ Cache-Control
 ```
 
 ---
@@ -87,10 +90,12 @@ npx serve -l 8765 .
 ### 1. รันผ่าน Node.js / npm (แนะนำ)
 
 ```bash
-# รันชุดทดสอบทั้งหมดในคำสั่งเดียว (415 Tests: System 239 + Search 176)
+# รันชุดทดสอบทั้งหมดในคำสั่งเดียว (432 Checks: Lint 17 + System 239 + Search 176)
 npm test
 
-# หรือรันแยกเฉพาะชุด:
+# รันเฉพาะชุดที่ต้องการ:
+npm run lint          # ตรวจสอบไวยากรณ์ JavaScript V8 & JSON Schemas (17 Checks)
+npm run bench         # วัด Latency Percentiles (p50-p99) และ Memory Leak (1,000 Queries)
 npm run test:system   # ตรวจสอบความสมบูรณ์และ Defensive Guards (239 Checks)
 npm run test:search   # ทดสอบความแม่นยำของ Core Search Engine (176 Assertions)
 ```
