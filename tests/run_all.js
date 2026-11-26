@@ -1,7 +1,7 @@
 /**
  * run_all.js - Unified Node.js Test Suite Runner for Thungara
- * Runs Linter & Syntax Guard (17 checks), Full-System Integrity Audit (239 checks),
- * and Core Search Engine Benchmarks (176 assertions).
+ * Runs Linter & Syntax Guard (21 checks), Data & Vector Math Audit (17 checks),
+ * Full-System Integrity Audit (239 checks), and Core Search Engine Benchmarks (176 assertions).
  */
 const path = require('path');
 const { execFileSync } = require('child_process');
@@ -15,12 +15,13 @@ async function main() {
   console.log('='.repeat(70));
 
   let lintSuccess = false;
+  let dataSuccess = false;
   let systemSuccess = false;
   let searchReport = null;
 
   try {
     // 1. Run Linter & Syntax Guard
-    console.log('\n>>> SUITE 1/3: Zero-Dependency Linter & Syntax Guard (18 checks)');
+    console.log('\n>>> SUITE 1/4: Zero-Dependency Linter & Syntax Guard (21 checks)');
     try {
       execFileSync(process.execPath, [path.join(__dirname, 'lint.js')], { stdio: 'inherit' });
       lintSuccess = true;
@@ -28,13 +29,22 @@ async function main() {
       lintSuccess = false;
     }
 
-    // 2. Run Full System Audit
-    console.log('\n>>> SUITE 2/3: Full System Integrity Audit (239 checks)');
+    // 2. Run Data & Vector Math Audit
+    console.log('\n>>> SUITE 2/4: Data & TF-IDF Vector Math Integrity Audit (17 checks)');
+    try {
+      execFileSync(process.execPath, [path.join(__dirname, 'audit_data.js')], { stdio: 'inherit' });
+      dataSuccess = true;
+    } catch (e) {
+      dataSuccess = false;
+    }
+
+    // 3. Run Full System Audit
+    console.log('\n>>> SUITE 3/4: Full System Integrity Audit (239 checks)');
     const tester = new FullSystemTester();
     systemSuccess = await tester.runAll();
 
-    // 3. Run Standalone Search Engine Benchmark Suite
-    console.log('\n>>> SUITE 3/3: Search Engine Core Benchmarks (176 assertions / 71 categories)');
+    // 4. Run Standalone Search Engine Benchmark Suite
+    console.log('\n>>> SUITE 4/4: Search Engine Core Benchmarks (176 assertions / 71 categories)');
     searchReport = await runAllTests();
   } catch (err) {
     console.error('\n[FATAL ERROR] Test suite execution aborted:', err);
@@ -43,12 +53,13 @@ async function main() {
 
   const durationSec = ((Date.now() - startTime) / 1000).toFixed(2);
   const searchSuccess = searchReport && searchReport.failed === 0;
-  const allPassed = lintSuccess && systemSuccess && searchSuccess;
+  const allPassed = lintSuccess && dataSuccess && systemSuccess && searchSuccess;
 
   console.log('\n' + '='.repeat(70));
   console.log('   UNIFIED TEST SUITE FINAL SUMMARY');
   console.log('='.repeat(70));
-  console.log(`  Zero-Dependency Linter      : ${lintSuccess ? 'PASSED (18/18)' : 'FAILED'}`);
+  console.log(`  Zero-Dependency Linter      : ${lintSuccess ? 'PASSED (21/21)' : 'FAILED'}`);
+  console.log(`  Data & Vector Math Audit    : ${dataSuccess ? 'PASSED (17/17)' : 'FAILED'}`);
   console.log(`  Full-System Integrity Audit : ${systemSuccess ? 'PASSED (239/239)' : 'FAILED'}`);
   console.log(`  Core Search Engine Suite    : ${searchSuccess ? `PASSED (${searchReport.total}/${searchReport.total})` : 'FAILED'}`);
   console.log(`  Total Execution Time        : ${durationSec}s`);
