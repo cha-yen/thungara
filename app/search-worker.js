@@ -1,9 +1,52 @@
+/**
+ * @file search-worker.js - Dedicated Web Worker for Real-time Song Search Engine
+ * @description In-memory TF-IDF vector space model, Thai greedy tokenizer,
+ * dialect synonym expansion, Levenshtein fuzzy matching, and multi-tier ranking.
+ *
+ * @typedef {Object} Song
+ * @property {number} id - Unique song identifier
+ * @property {string} title - Song title in Thai
+ * @property {string} artist - Artist or band name
+ * @property {string} lyrics - Full lyrics text
+ * @property {string} [emotion] - Emotional classification
+ * @property {string|number} [year] - Release year
+ * @property {string[]} [tags] - Search tags or keywords
+ * @property {string} [yt] - YouTube video ID
+ *
+ * @typedef {Object} SearchResult
+ * @property {number} idx - Zero-based index into DATA.songs
+ * @property {string} title - Song title
+ * @property {string} artist - Song artist
+ * @property {number} score - Normalized confidence score in [0.0, 1.0]
+ * @property {string[]} matchedTerms - Query tokens or synonyms matched
+ * @property {string} [highlightedSnippet] - HTML snippet with highlighted lyrics
+ * @property {string} [matchedPhrase] - Exact phrase matched in lyrics or title
+ *
+ * @typedef {Object} SearchWorkerData
+ * @property {Song[]} songs - Array of 1,500 song objects
+ * @property {string[]} vocab - Global vocabulary words
+ * @property {number[]} idf - Inverse document frequency values
+ * @property {Object<string, Object<string, number>>} vectors - Precomputed TF-IDF sparse vectors
+ * @property {number[]} [vector_mags] - Precomputed Euclidean vector magnitudes
+ *
+ * @typedef {Object} TokenizerSubToken
+ * @property {string} parent - The composite parent token
+ * @property {string} root - Extracted root morpheme
+ * @property {string[]} [synonyms] - Expanded dialect synonyms
+ */
+
+/** @type {SearchWorkerData|null} */
 let DATA = null;
+/** @type {Set<string>|null} */
 let vocabSet = null;
+/** @type {Map<string, number>|null} */
 let wordToIndex = null;
 let maxWordLen = 0;
+/** @type {string[]} */
 let NORM_SONGS = [];
+/** @type {number[]} */
 let VECTOR_MAGS = [];
+/** @type {Set<string>} */
 let ARTIST_SET = new Set();
 
 const SYNONYMS = {
@@ -336,6 +379,14 @@ function countOccurrences(str, sub, maxCount = 4) {
   return count;
 }
 
+/**
+ * Executes a multi-tier search across title, artist, and lyrics with TF-IDF and fuzzy ranking
+ * @param {string} query - Raw search query string
+ * @param {string} [filterArtist] - Optional artist filter
+ * @param {string} [filterEmotion] - Optional emotion filter
+ * @param {string|number} [filterYear] - Optional release year filter
+ * @returns {SearchResult[]} Ranked list of matching song results
+ */
 function search(query, filterArtist, filterEmotion, filterYear) {
   if (!DATA || !DATA.songs) return [];
   const rawQ = (query || '').trim();
