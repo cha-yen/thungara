@@ -32,6 +32,9 @@ jobs:
       - name: Run Zero-Dependency Linter & Syntax Guard
         run: npm run lint
 
+      - name: Run Data & Vector Math Integrity Audit
+        run: npm run audit:data
+
       - name: Run Node.js Unified Test Suite
         run: npm test
 

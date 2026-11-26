@@ -1,6 +1,6 @@
 {
   "name": "thungara",
-  "version": "1.70.2",
+  "version": "1.70.3",
   "description": "Thai Country (Luk Thung) Song Lyrics Search Engine - Real-time In-Browser Pure Vanilla JS",
   "main": "app/index.html",
   "scripts": {
@@ -8,7 +8,8 @@
     "test:system": "node tests/test_full_system.js",
     "test:search": "node tests/test_search.js",
     "lint": "node tests/lint.js",
-    "bench": "node tests/benchmark.js"
+    "bench": "node tests/benchmark.js",
+    "audit:data": "node tests/audit_data.js"
   },
   "repository": {
     "type": "git",
