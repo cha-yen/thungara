@@ -45,9 +45,12 @@ const jsFiles = [
   'tests/lint.js'
 ];
 
-// Include benchmark.js if it exists
+// Include benchmark.js and audit_data.js if they exist
 if (fs.existsSync(path.join(ROOT_DIR, 'tests/benchmark.js'))) {
   jsFiles.push('tests/benchmark.js');
+}
+if (fs.existsSync(path.join(ROOT_DIR, 'tests/audit_data.js'))) {
+  jsFiles.push('tests/audit_data.js');
 }
 
 for (const relPath of jsFiles) {
@@ -69,7 +72,8 @@ const jsonFiles = [
   'data/youtube_ids.json',
   'app/manifest.json',
   'vercel.json',
-  'package.json'
+  'package.json',
+  'jsconfig.json'
 ];
 
 for (const relPath of jsonFiles) {
@@ -128,6 +132,13 @@ check('Schema: vercel.json rewrites and security headers', () => {
   }
   if (!Array.isArray(vercel.headers) || vercel.headers.length === 0) {
     throw new Error('Missing security headers in vercel.json');
+  }
+});
+
+check('Schema: jsconfig.json type-checking configuration', () => {
+  const jsconfig = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'jsconfig.json'), 'utf8'));
+  if (!jsconfig.compilerOptions || !jsconfig.compilerOptions.checkJs) {
+    throw new Error('jsconfig.json missing compilerOptions.checkJs');
   }
 });
 
