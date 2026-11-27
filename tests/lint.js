@@ -45,12 +45,18 @@ const jsFiles = [
   'tests/lint.js'
 ];
 
-// Include benchmark.js and audit_data.js if they exist
+// Include optional test suites if they exist
 if (fs.existsSync(path.join(ROOT_DIR, 'tests/benchmark.js'))) {
   jsFiles.push('tests/benchmark.js');
 }
 if (fs.existsSync(path.join(ROOT_DIR, 'tests/audit_data.js'))) {
   jsFiles.push('tests/audit_data.js');
+}
+if (fs.existsSync(path.join(ROOT_DIR, 'tests/test_pwa.js'))) {
+  jsFiles.push('tests/test_pwa.js');
+}
+if (fs.existsSync(path.join(ROOT_DIR, 'tests/audit_a11y.js'))) {
+  jsFiles.push('tests/audit_a11y.js');
 }
 
 for (const relPath of jsFiles) {

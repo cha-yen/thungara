@@ -35,6 +35,12 @@ jobs:
       - name: Run Data & Vector Math Integrity Audit
         run: npm run audit:data
 
+      - name: Run PWA & Offline Resilience Test Suite
+        run: npm run test:pwa
+
+      - name: Run WCAG 2.1 AA Accessibility Guard
+        run: npm run audit:a11y
+
       - name: Run Node.js Unified Test Suite
         run: npm test
 
