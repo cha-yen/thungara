@@ -4,7 +4,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Ready-f59e0b?style=flat-square&logo=pwa)](app/manifest.json)
 [![JavaScript](https://img.shields.io/badge/Vanilla_JS-Zero_Dependencies-yellow?style=flat-square&logo=javascript)](app/index.html)
 [![Service Worker](https://img.shields.io/badge/Cache-thungara--v70-green?style=flat-square)](app/sw.js)
-[![Tests](https://img.shields.io/badge/Tests-453_Passed-success?style=flat-square)](tests/run_all.js)
+[![Tests](https://img.shields.io/badge/Tests-492_Passed-success?style=flat-square)](tests/run_all.js)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
 > ระบบค้นหาเพลงลูกทุ่งไทยจากเนื้อร้อง 1,500 เพลง ค้นหาด้วยชื่อเพลง ท่อนเนื้อร้อง ศิลปิน หรือร้องผ่านไมโครโฟนได้ทันที ประมวลผลรวดเร็วบนเบราว์เซอร์แบบ Real-time 100% (Pure Vanilla JS — Zero Dependencies)
@@ -52,9 +52,11 @@ thungara/
 │   ├── data.json             — ฐานข้อมูลเพลง 1,500 เพลง พร้อม TF-IDF Vectors
 │   └── youtube_ids.json      — YouTube Video IDs สำหรับฟังเพลงจริง
 ├── tests/
-│   ├── run_all.js            — Unified Test Runner รันการทดสอบทั้งหมดผ่าน Node.js (453 Checks)
-│   ├── lint.js               — Zero-Dependency Linter & Syntax Guard (21 Checks)
+│   ├── run_all.js            — Unified Test Runner รันการทดสอบทั้งหมดผ่าน Node.js (492 Checks)
+│   ├── lint.js               — Zero-Dependency Linter & Syntax Guard (23 Checks)
 │   ├── audit_data.js         — Data & TF-IDF Vector Math Integrity Audit (17 Checks)
+│   ├── test_pwa.js           — PWA & Offline Resilience Test Suite (16 Checks)
+│   ├── audit_a11y.js         — WCAG 2.1 AA Accessibility & Standards Guard (21 Checks)
 │   ├── benchmark.js          — Search Latency & Memory Stress Benchmark (1,000 Queries SLA)
 │   ├── test_full_system.js   — ชุดตรวจสอบระบบฉบับ Node.js (239 Checks)
 │   ├── test_search.js        — ชุดทดสอบ Core Search ฉบับ Node.js (71 หมวด / 176 Assertions)
@@ -92,12 +94,14 @@ npx serve -l 8765 .
 ### 1. รันผ่าน Node.js / npm (แนะนำ)
 
 ```bash
-# รันชุดทดสอบทั้งหมดในคำสั่งเดียว (453 Checks: Lint 21 + Data 17 + System 239 + Search 176)
+# รันชุดทดสอบทั้งหมดในคำสั่งเดียว (492 Checks: Lint 23 + Data 17 + PWA 16 + A11y 21 + System 239 + Search 176)
 npm test
 
 # รันเฉพาะชุดที่ต้องการ:
-npm run lint          # ตรวจสอบไวยากรณ์ JavaScript V8 & JSON Schemas (21 Checks)
+npm run lint          # ตรวจสอบไวยากรณ์ JavaScript V8 & JSON Schemas (23 Checks)
 npm run audit:data    # ตรวจสอบความถูกต้องของฐานข้อมูลและคณิตศาสตร์เวกเตอร์ TF-IDF (17 Checks)
+npm run test:pwa      # ตรวจสอบสัญญาการทำงานแบบ Offline และ PWA Manifest (16 Checks)
+npm run audit:a11y    # ตรวจสอบมาตรฐานการเข้าถึง WCAG 2.1 AA & Color Contrast (21 Checks)
 npm run bench         # วัด Latency Percentiles (p50-p99) และ Memory Leak (1,000 Queries)
 npm run test:system   # ตรวจสอบความสมบูรณ์และ Defensive Guards (239 Checks)
 npm run test:search   # ทดสอบความแม่นยำของ Core Search Engine (176 Assertions)
