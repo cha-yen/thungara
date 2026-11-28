@@ -58,6 +58,9 @@ if (fs.existsSync(path.join(ROOT_DIR, 'tests/test_pwa.js'))) {
 if (fs.existsSync(path.join(ROOT_DIR, 'tests/audit_a11y.js'))) {
   jsFiles.push('tests/audit_a11y.js');
 }
+if (fs.existsSync(path.join(ROOT_DIR, 'tests/audit_security.js'))) {
+  jsFiles.push('tests/audit_security.js');
+}
 
 for (const relPath of jsFiles) {
   const absPath = path.join(ROOT_DIR, relPath);
