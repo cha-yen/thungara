@@ -41,6 +41,9 @@ jobs:
       - name: Run WCAG 2.1 AA Accessibility Guard
         run: npm run audit:a11y
 
+      - name: Run Client-Side Security & DOM-XSS Audit
+        run: npm run audit:security
+
       - name: Run Node.js Unified Test Suite
         run: npm test
 
